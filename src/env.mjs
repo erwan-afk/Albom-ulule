@@ -20,6 +20,12 @@ export const env = createEnv({
     RESEND_HOST: z.string(),
     RESEND_USERNAME: z.string(),
     RESEND_PORT: z.string(),
+    SHOPIFY_STORE_DOMAIN: z.string().optional(),
+    SHOPIFY_ADMIN_API_TOKEN: z.string().optional(),
+    SHOPIFY_STOREFRONT_PRIVATE_ACCESS_TOKEN: z.string().optional(),
+    SHOPIFY_STOREFRONT_PUBLIC_ACCESS_TOKEN: z.string().optional(),
+    SHOPIFY_REVALIDATION_SECRET: z.string().optional(),
+    SHOPIFY_WEBHOOK_SECRET: z.string().optional(),
   },
 
   /**
@@ -50,5 +56,13 @@ export const env = createEnv({
     RESEND_HOST: process.env.RESEND_HOST,
     RESEND_USERNAME: process.env.RESEND_USERNAME,
     RESEND_PORT: process.env.RESEND_PORT,
+    SHOPIFY_STORE_DOMAIN: process.env.SHOPIFY_STORE_DOMAIN,
+    SHOPIFY_ADMIN_API_TOKEN: process.env.SHOPIFY_ADMIN_API_TOKEN,
+    SHOPIFY_STOREFRONT_PRIVATE_ACCESS_TOKEN:
+      process.env.SHOPIFY_STOREFRONT_PRIVATE_ACCESS_TOKEN,
+    SHOPIFY_STOREFRONT_PUBLIC_ACCESS_TOKEN:
+      process.env.SHOPIFY_STOREFRONT_PUBLIC_ACCESS_TOKEN,
+    SHOPIFY_REVALIDATION_SECRET: process.env.SHOPIFY_REVALIDATION_SECRET,
+    SHOPIFY_WEBHOOK_SECRET: process.env.SHOPIFY_WEBHOOK_SECRET,
   },
 })

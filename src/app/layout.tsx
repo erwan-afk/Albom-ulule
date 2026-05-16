@@ -9,6 +9,7 @@ import { env } from "@/env.mjs"
 import { fontHeading, fontInter, fontUrbanist } from "@/config/fonts"
 import { siteConfig } from "@/config/site"
 
+import { SessionProvider } from "@/providers/session-provider"
 import { SmoothScrollProvider } from "@/providers/smooth-scroll-provider"
 import { ThemeProvider } from "@/providers/theme-provider"
 import { cn } from "@/lib/utils"
@@ -84,17 +85,19 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
         )}
       >
         <SmoothScrollProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster />
-            <Analytics />
-            <TailwindIndicator />
-          </ThemeProvider>
+          <SessionProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+              <Analytics />
+              <TailwindIndicator />
+            </ThemeProvider>
+          </SessionProvider>
         </SmoothScrollProvider>
       </body>
     </html>

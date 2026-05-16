@@ -77,8 +77,45 @@ model VerificationToken {
 
 model NewsletterSubscriber {
   id                            String      @id @default(cuid())
-  email                         String      @unique 
+  email                         String      @unique
   createdAt                     DateTime    @default(now()) @map("created_at")
 
   @@map("newsletter_subscribers")
+}
+
+enum OrderStatus {
+  PENDING
+  LINK_SENT
+  PHOTOS_UPLOADED
+  PRINTED
+  CANCELLED
+}
+
+model Order {
+  id                            String      @id @default(cuid())
+  customerEmail                 String      @map("customer_email")
+  customerName                  String?     @map("customer_name")
+  productName                   String?     @map("product_name")
+  productHandle                 String?     @map("product_handle")
+  token                         String      @unique
+  status                        OrderStatus @default(PENDING)
+  notes                         String?
+  createdAt                     DateTime    @default(now()) @map("created_at")
+  updatedAt                     DateTime    @updatedAt @map("updated_at")
+  files                         OrderFile[]
+
+  @@map("orders")
+}
+
+model OrderFile {
+  id                            String      @id @default(cuid())
+  orderId                       String      @map("order_id")
+  originalName                  String      @map("original_name")
+  storedName                    String      @map("stored_name")
+  mimeType                      String      @map("mime_type")
+  sizeBytes                     Int         @map("size_bytes")
+  createdAt                     DateTime    @default(now()) @map("created_at")
+  order                         Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_files")
 }

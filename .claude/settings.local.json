@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f data/templates/thumbnails/*.png && ls data/templates/thumbnails/)",
+      "Bash(rm -f data/templates/thumbnails/*.png)",
+      "Bash(pnpm add *)",
+      "Bash(pnpm remove *)",
+      "Bash(pnpm install *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Applications\\\\js-next-authjs-drizzle-neon\\\\src\\\\app\\\\\\(landing\\)\\\\\" -Recurse -File | Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

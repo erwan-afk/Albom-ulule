@@ -20,6 +20,9 @@ import {
 
 import { EmailVerificationEmail } from "@/components/emails/email-verification-email"
 import { NewEnquiryEmail } from "@/components/emails/new-enquiry-email"
+import { OrderLinkEmail } from "@/components/emails/order-link-email"
+import { OrderReminderEmail } from "@/components/emails/order-reminder-email"
+import { UploadConfirmationEmail } from "@/components/emails/upload-confirmation-email"
 
 export async function resendEmailVerificationLink(
   rawInput: EmailVerificationFormInput
@@ -120,5 +123,98 @@ export async function submitContactForm(
   } catch (error) {
     console.error(error)
     throw new Error("Error submitting contact form")
+  }
+}
+
+type SendOrderLinkEmailInput = {
+  to: string
+  customerName: string
+  uploadUrl: string
+  productName: string
+  orderId: string
+}
+
+export async function sendOrderLinkEmail(
+  input: SendOrderLinkEmailInput
+): Promise<{ success: boolean }> {
+  try {
+    const emailSent = await resend.emails.send({
+      from: env.RESEND_EMAIL_FROM,
+      to: [input.to],
+      subject: `Déposez vos photos pour ${input.productName}`,
+      react: OrderLinkEmail({
+        customerName: input.customerName,
+        uploadUrl: input.uploadUrl,
+        productName: input.productName,
+        orderId: input.orderId,
+      }),
+    })
+
+    return { success: !!emailSent }
+  } catch (error) {
+    console.error(error)
+    return { success: false }
+  }
+}
+
+type SendOrderReminderEmailInput = {
+  to: string
+  customerName: string
+  uploadUrl: string
+  productName: string
+  orderId: string
+}
+
+export async function sendOrderReminderEmail(
+  input: SendOrderReminderEmailInput
+): Promise<{ success: boolean }> {
+  try {
+    const emailSent = await resend.emails.send({
+      from: env.RESEND_EMAIL_FROM,
+      to: [input.to],
+      subject: `Rappel : deposez vos photos pour ${input.productName}`,
+      react: OrderReminderEmail({
+        customerName: input.customerName,
+        uploadUrl: input.uploadUrl,
+        productName: input.productName,
+        orderId: input.orderId,
+      }),
+    })
+
+    return { success: !!emailSent }
+  } catch (error) {
+    console.error(error)
+    return { success: false }
+  }
+}
+
+type SendUploadConfirmationEmailInput = {
+  to: string
+  customerName: string
+  uploadUrl: string
+  productName: string
+  fileCount: number
+}
+
+export async function sendUploadConfirmationEmail(
+  input: SendUploadConfirmationEmailInput
+): Promise<{ success: boolean }> {
+  try {
+    const emailSent = await resend.emails.send({
+      from: env.RESEND_EMAIL_FROM,
+      to: [input.to],
+      subject: `Confirmation : vos photos pour ${input.productName} ont bien été reçues`,
+      react: UploadConfirmationEmail({
+        customerName: input.customerName,
+        uploadUrl: input.uploadUrl,
+        productName: input.productName,
+        fileCount: input.fileCount,
+      }),
+    })
+
+    return { success: !!emailSent }
+  } catch (error) {
+    console.error(error)
+    return { success: false }
   }
 }

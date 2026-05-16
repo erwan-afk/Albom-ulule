@@ -1,11 +1,16 @@
-import { withContentlayer } from "next-contentlayer";
+import { withContentlayer } from "next-contentlayer"
 
-import("./src/env.mjs");
+import("./src/env.mjs")
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["tsx", "mdx", "ts", "js"],
+  swcMinify: false,
+  transpilePackages: ["react-pdf", "pdfjs-dist"],
+  experimental: {
+    serverComponentsExternalPackages: ["canvas", "pdf-lib"],
+  },
   images: {
     remotePatterns: [
       {
@@ -22,6 +27,14 @@ const nextConfig = {
       },
     ],
   },
-};
+  webpack: (config, { webpack }) => {
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^(bufferutil|utf-8-validate)$/,
+      })
+    )
+    return config
+  },
+}
 
-export default withContentlayer(nextConfig);
+export default withContentlayer(nextConfig)

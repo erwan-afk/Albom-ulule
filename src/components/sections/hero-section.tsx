@@ -39,9 +39,9 @@ export async function HeroSection() {
         ) : null}
         <h1 className="animate-fade-up font-urbanist text-5xl font-extrabold tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
           <Balancer>
-            Fast-Track Your Business Launch with{" "}
+            Creez votre{" "}
             <span className="bg-gradient-to-r from-pink-600 to-purple-400 bg-clip-text font-extrabold text-transparent">
-              SaaSy Land
+              Albom
             </span>
           </Balancer>
         </h1>
