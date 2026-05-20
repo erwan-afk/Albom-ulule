@@ -1,0 +1,22 @@
+# pnpm 11+ : la plupart des réglages projet vivent ici (plus dans package.json > pnpm).
+# https://pnpm.io/settings
+
+packages:
+  - "."
+
+# Hoist pour que pdfjs-dist (ex. react-pdf) reste résolvable comme avec l’ancien .npmrc.
+publicHoistPattern:
+  - pdfjs-dist
+
+# Autoriser les postinstall / scripts de build nécessaires (sinon ERR_PNPM_IGNORED_BUILDS).
+allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  "@swc/core": true
+  bufferutil: true
+  canvas: true
+  contentlayer: true
+  esbuild: true
+  prisma: true
+  protobufjs: true
+  sharp: true
