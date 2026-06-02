@@ -4,25 +4,31 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
+    /* Albom brand tokens (HSL) — voir AGENTS.md §3 */
+    --brun: 0 28% 22%; /* #492929 */
+    --maya: 213 65% 83%; /* #BAD0EF */
+    --beurre: 56 76% 88%; /* #F8F5CA — jaune beurre pâle */
+    --blanc-casse: 60 26% 97%; /* #F9F9F4 — fond par défaut */
+
+    --background: var(--blanc-casse);
+    --foreground: var(--brun);
+    --card: var(--blanc-casse);
+    --card-foreground: var(--brun);
+    --popover: var(--blanc-casse);
+    --popover-foreground: var(--brun);
+    --primary: var(--brun);
+    --primary-foreground: var(--blanc-casse);
+    --secondary: var(--maya);
+    --secondary-foreground: var(--brun);
+    --muted: 34 30% 88%;
+    --muted-foreground: 0 18% 36%;
+    --accent: var(--maya);
+    --accent-foreground: var(--brun);
+    --destructive: 0 70% 40%;
+    --destructive-foreground: var(--blanc-casse);
+    --border: 0 20% 80%;
+    --input: 0 20% 80%;
+    --ring: var(--brun);
     --radius: 0.5rem;
   }
 
@@ -59,5 +65,55 @@
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+  }
+
+  ::selection {
+    background-color: #BAD0EF;
+    color: #492929;
+  }
+}
+
+@layer utilities {
+  @keyframes ribbon {
+    from {
+      transform: translate3d(0, -50%, 0);
+    }
+    to {
+      transform: translate3d(-33.333%, -50%, 0);
+    }
+  }
+
+  /* Sticker rond Maya - utilisé pour les puces de la barre "valeurs" */
+  .dot-maya::before {
+    content: "";
+    display: inline-block;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+    background-color: #492929;
+    margin-right: 0.75rem;
+    vertical-align: middle;
+  }
+
+  /* Tape kraft adhésif pour les coins de photos */
+  .tape::before,
+  .tape::after {
+    content: "";
+    position: absolute;
+    width: 60px;
+    height: 18px;
+    background: rgba(248, 245, 202, 0.7);
+    backdrop-filter: blur(2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .tape::before {
+    top: -8px;
+    left: -14px;
+    transform: rotate(-12deg);
+  }
+  .tape::after {
+    bottom: -8px;
+    right: -14px;
+    transform: rotate(8deg);
   }
 }

@@ -6,7 +6,13 @@ import type { Metadata, Viewport } from "next"
 import { Analytics } from "@vercel/analytics/react"
 
 import { env } from "@/env.mjs"
-import { fontHeading, fontInter, fontUrbanist } from "@/config/fonts"
+import {
+  fontAlbertSans,
+  fontDisplay,
+  fontHeading,
+  fontInter,
+  fontUrbanist,
+} from "@/config/fonts"
 import { siteConfig } from "@/config/site"
 
 import { SessionProvider } from "@/providers/session-provider"
@@ -20,19 +26,17 @@ import { TailwindIndicator } from "@/components/tailwind-indicator"
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  minimumScale: 1,
-  maximumScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
+    { media: "(prefers-color-scheme: light)", color: "#F9F9F4" },
+    { media: "(prefers-color-scheme: dark)", color: "#492929" },
   ],
 }
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_APP_URL),
   title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
+    default: `${siteConfig.name} — ${siteConfig.shortDescription}`,
+    template: `%s — ${siteConfig.name}`,
   },
   description: siteConfig.description,
   authors: [
@@ -47,14 +51,14 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "fr_FR",
     url: siteConfig.url,
     title: siteConfig.name,
     description: siteConfig.description,
     siteName: siteConfig.name,
+    images: [siteConfig.links.openGraphImage],
   },
   twitter: {
     card: "summary_large_image",
@@ -66,7 +70,6 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
-  // manifest: `${siteConfig.url}/site.webmanifest`,
 }
 
 interface RootLayoutProps {
@@ -75,10 +78,12 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
   return (
-    <html lang="en" className="overflow-x-hidden overflow-y-scroll">
+    <html lang="fr" className="overflow-x-hidden overflow-y-scroll">
       <body
         className={cn(
-          "w-full bg-background bg-gradient-to-r from-background to-pink-400/10 font-sans antialiased",
+          "w-full bg-background font-sans text-foreground antialiased",
+          fontAlbertSans.variable,
+          fontDisplay.variable,
           fontInter.variable,
           fontUrbanist.variable,
           fontHeading.variable
@@ -88,8 +93,8 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
           <SessionProvider>
             <ThemeProvider
               attribute="class"
-              defaultTheme="dark"
-              enableSystem
+              defaultTheme="light"
+              enableSystem={false}
               disableTransitionOnChange
             >
               {children}

@@ -1,122 +1,82 @@
 import { type NavItem, type NavItemFooter } from "@/types"
 
+/**
+ * URL de la campagne Ulule.
+ * À remplacer par l'URL définitive dès qu'elle est connue.
+ * Tous les CTA de la landing pointent vers cette constante.
+ */
+export const ULULE_URL = "#"
+
 const links = {
-  github: "https://github.com/albom",
-  twitter: "https://twitter.com/albom",
-  linkedin: "https://www.linkedin.com/company/albom",
-  discord: "",
+  instagram: "https://www.instagram.com/albom.studio",
+  tiktok: "https://www.tiktok.com/@albom.studio",
+  pinterest: "https://www.pinterest.com/albom.studio",
+  ulule: ULULE_URL,
+  contactEmail: "mailto:hello@albom.fr",
   authorsWebsite: "https://albom.fr",
+  openGraphImage: "/opengraph-image.png",
+  // ─ Hérités du template, conservés pour compat des composants non-landing ─
+  github: "https://github.com/albom",
   authorsGitHub: "https://github.com/albom",
-  openGraphImage: "https://albom.fr/images/opengraph-image.png",
 }
 
 export const siteConfig = {
   name: "Albom",
+  edition: {
+    number: "01",
+    name: "Bord de mer",
+    label: "Édition 01 · Bord de mer",
+  },
   description:
-    "Le magazine-souvenir a completer a la main. Tes souvenirs meritent mieux qu'une pellicule.",
+    "Albom, c'est l'activité créative pour transformer tes photos en souvenir unique : un kit prêt à compléter, sans écran, sans complexité, juste tes mains et tes meilleurs moments.",
+  shortDescription:
+    "L'activité créative pour donner vie à tes photos — édition Bord de mer.",
   links,
+  ululeUrl: ULULE_URL,
   url: "https://albom.fr",
   ogImage: links.openGraphImage,
   author: "Albom Studio",
   hostingRegion: "fra1",
-  keywords: ["albom", "souvenir", "magazine", "photo"],
-  navItems: [
-    {
-      title: "About",
-      href: "/about",
-    },
-    {
-      title: "Features",
-      href: "/features",
-    },
-    {
-      title: "Pricing",
-      href: "/pricing",
-    },
-    {
-      title: "FAQ",
-      href: "/faq",
-    },
-    {
-      title: "Blog",
-      href: "/blog",
-    },
-  ] satisfies NavItem[],
-  navItemsMobile: [],
+  keywords: [
+    "albom",
+    "activité créative adulte",
+    "kit créatif",
+    "loisir créatif",
+    "scrapbooking facile",
+    "carnet de voyage",
+    "souvenirs personnalisés",
+    "cadeau fait-main",
+    "déconnexion",
+    "Ulule",
+    "bord de mer",
+  ],
+  // La nav Figma n'expose que logo + CTA Ulule (pas d'ancres de menu).
+  navItems: [] as NavItem[],
+  navItemsMobile: [] as NavItem[],
+  // Footer éditorial inventé (en attendant mentions finales).
   navItemsFooter: [
     {
-      title: "Company",
+      title: "La maison",
       items: [
-        {
-          title: "About",
-          href: "/about",
-          external: false,
-        },
-        {
-          title: "Privacy",
-          href: "/privacy",
-          external: false,
-        },
-        {
-          title: "Terms",
-          href: "/tos",
-          external: false,
-        },
-        {
-          title: "Careers",
-          href: "/careers",
-          external: false,
-        },
+        { title: "Le concept", href: "#", external: false },
+        { title: "Le pack Bord de mer", href: "#", external: false },
+        { title: "Comment ça marche", href: "#", external: false },
       ],
     },
     {
-      title: "Support",
+      title: "Aide",
       items: [
-        {
-          title: "Docs",
-          href: "/docs",
-          external: false,
-        },
-        {
-          title: "FAQ",
-          href: "/faq",
-          external: false,
-        },
-        {
-          title: "Blog",
-          href: "/blog",
-          external: false,
-        },
-        {
-          title: "Contact",
-          href: "/contact",
-          external: false,
-        },
+        { title: "FAQ", href: "#", external: false },
+        { title: "Nous écrire", href: links.contactEmail, external: true },
       ],
     },
     {
-      title: "Inspiration",
+      title: "Suivre",
       items: [
-        {
-          title: "Shadcn",
-          href: "https://ui.shadcn.com/",
-          external: true,
-        },
-        {
-          title: "Taxonomy",
-          href: "https://tx.shadcn.com/",
-          external: true,
-        },
-        {
-          title: "Skateshop",
-          href: "https://skateshop.sadmn.com/",
-          external: true,
-        },
-        {
-          title: "Acme Corp",
-          href: "https://acme-corp.jumr.dev/",
-          external: true,
-        },
+        { title: "Campagne Ulule", href: ULULE_URL, external: true },
+        { title: "Instagram", href: links.instagram, external: true },
+        { title: "TikTok", href: links.tiktok, external: true },
+        { title: "Pinterest", href: links.pinterest, external: true },
       ],
     },
   ] satisfies NavItemFooter[],

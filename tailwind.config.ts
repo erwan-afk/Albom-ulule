@@ -18,8 +18,31 @@ module.exports = {
         inter: ["var(--font-inter)"],
         urbanist: ["var(--font-urbanist)"],
         heading: ["var(--font-heading)"],
+        sans: [
+          "var(--font-albert-sans)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        display: ["var(--font-display)", "var(--font-albert-sans)", "cursive"],
       },
       colors: {
+        brun: {
+          DEFAULT: "#492929",
+          deep: "#2c1717",
+        },
+        maya: {
+          DEFAULT: "#BAD0EF",
+          deep: "#9CB7DB",
+        },
+        beurre: {
+          DEFAULT: "#F8F5CA",
+          deep: "#EBE39E",
+        },
+        "blanc-casse": {
+          DEFAULT: "#F9F9F4",
+          deep: "#EDEDE5",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

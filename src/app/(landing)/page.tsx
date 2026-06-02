@@ -1,1173 +1,513 @@
-"use client"
+import type { Metadata } from "next"
+import Image from "next/image"
 
-import { useState } from "react"
-import { useSession } from "next-auth/react"
+import { TopChrome } from "@/components/landing/top-chrome"
+import { BenefitsCarousel } from "@/components/landing/benefits-carousel"
+import { LogoAlbom } from "@/components/landing/logo"
+import { siteConfig } from "@/config/site"
+import { cn } from "@/lib/utils"
 
-// ─── font helper ──────────────────────────────────────────────────────────
-// Shorthand so every serif element doesn't repeat the full arbitrary value
-const S = "[font-family:var(--font-dm-serif)]"
-
-// ─── icons ────────────────────────────────────────────────────────────────
-function Icon({ name, size = 18 }: { name: string; size?: number }) {
-  const s = size
-  const st = {
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: 1.5,
-    strokeLinecap: "round" as const,
-    strokeLinejoin: "round" as const,
-  }
-  switch (name) {
-    case "arrow":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <path d="M5 12h14M13 6l6 6-6 6" />
-        </svg>
-      )
-    case "play":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24">
-          <path fill="currentColor" d="M8 5.5v13l11-6.5z" />
-        </svg>
-      )
-    case "search":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <circle cx="11" cy="11" r="7" />
-          <path d="m20 20-3.5-3.5" />
-        </svg>
-      )
-    case "bag":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Z" />
-          <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-        </svg>
-      )
-    case "user":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6" />
-        </svg>
-      )
-    case "truck":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <path d="M2 7h12v10H2z" />
-          <path d="M14 10h5l3 3v4h-8" />
-          <circle cx="7" cy="18" r="2" />
-          <circle cx="17" cy="18" r="2" />
-        </svg>
-      )
-    case "lock":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <rect x="4" y="11" width="16" height="10" rx="2" />
-          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-        </svg>
-      )
-    case "leaf":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <path d="M20 4c0 8-6 14-14 14" />
-          <path d="M20 4c-9 0-14 5-14 14" />
-        </svg>
-      )
-    case "mail":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <rect x="3" y="5" width="18" height="14" rx="2" />
-          <path d="m3 7 9 7 9-7" />
-        </svg>
-      )
-    case "instagram":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <rect x="3" y="3" width="18" height="18" rx="5" />
-          <circle cx="12" cy="12" r="4" />
-          <circle cx="17.5" cy="6.5" r=".5" fill="currentColor" />
-        </svg>
-      )
-    case "tiktok":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" fill="currentColor">
-          <path
-            d="M14 4v9.5a3 3 0 1 1-3-3"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinecap="round"
-          />
-          <path
-            d="M14 4c.5 2.5 2.2 4 4.5 4.2"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            fill="none"
-            strokeLinecap="round"
-          />
-        </svg>
-      )
-    case "pinterest":
-      return (
-        <svg width={s} height={s} viewBox="0 0 24 24" {...st}>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M11 21c0-3 1-5 1-7s-1-3 .5-3.5S15 12 14 15" />
-        </svg>
-      )
-    default:
-      return null
-  }
+export const metadata: Metadata = {
+  title: `${siteConfig.name} — Le magazine-souvenir à compléter à la main`,
+  description: siteConfig.description,
+  alternates: { canonical: siteConfig.url },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} — Édition 01 · Bord de mer`,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
+  },
 }
 
-// ─── shared components ────────────────────────────────────────────────────
-function Arrow() {
-  return (
-    <span className="inline-block transition-transform duration-200 group-hover:translate-x-[3px]">
-      <Icon name="arrow" size={16} />
-    </span>
-  )
-}
+const T = {
+  display1: "text-[clamp(40px,5.4vw,64px)] font-bold leading-[0.9] tracking-[-0.06em]",
+  display2: "text-[clamp(32px,4vw,56px)] font-bold leading-[0.9] tracking-[-0.06em]",
+  display3: "text-[clamp(28px,3vw,40px)] font-bold leading-[1.02] tracking-[-0.06em]",
+  bodyLead: "text-[20px] leading-[1.3] font-medium",
+  body: "text-base leading-[1.35] font-medium",
+  caption: "text-xs font-semibold uppercase tracking-[0.22em]",
+} as const
 
-function Btn({
+const buttonClass =
+  "inline-flex items-center justify-center rounded-full border border-transparent bg-brun px-6 py-3 text-base font-semibold text-blanc-casse transition-all duration-200 hover:bg-brun-deep hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brun/40 focus-visible:ring-offset-2 focus-visible:ring-offset-blanc-casse"
+
+function Container({
+  className,
   children,
-  variant = "default",
-  className = "",
-  type = "button",
-  onClick,
 }: {
-  children: React.ReactNode
-  variant?: "default" | "ghost" | "maya"
   className?: string
-  type?: "button" | "submit"
-  onClick?: () => void
-}) {
-  const base =
-    "group inline-flex items-center gap-[10px] px-[26px] py-4 rounded-full border-0 text-[14px] font-medium tracking-[.02em] cursor-pointer transition-all duration-200 hover:-translate-y-px"
-  const variants = {
-    default: "bg-[#492929] text-[#F7ECDD] hover:bg-[#2c1818]",
-    ghost:
-      "bg-transparent text-[#492929] border border-[#492929] hover:bg-[#492929] hover:text-[#F7ECDD]",
-    maya: "bg-[#BAD0EF] text-[#492929] hover:bg-[#a4c3ea]",
-  }
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      className={`${base} ${variants[variant]} ${className}`}
-    >
-      {children}
-    </button>
-  )
-}
-
-function Wrap({
-  children,
-  className = "",
-}: {
   children: React.ReactNode
-  className?: string
 }) {
   return (
-    <div className={`mx-auto max-w-[1400px] px-10 ${className}`}>
+    <div className={cn("mx-auto w-full max-w-[1512px] px-4 sm:px-8", className)}>
       {children}
     </div>
   )
 }
 
-function IconBtn({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
+function UluleButton({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <button
-      aria-label={label}
-      className="relative inline-flex h-[38px] w-[38px] cursor-pointer items-center justify-center rounded-full border border-[#492929]/[.18] bg-transparent text-[#492929] transition-colors duration-200 hover:bg-[#492929] hover:text-[#F7ECDD]"
+    <a
+      href={siteConfig.ululeUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(buttonClass, className)}
     >
       {children}
-    </button>
+    </a>
   )
 }
 
-// ─── top bar ──────────────────────────────────────────────────────────────
-function TopBar() {
-  return (
-    <div className="bg-[#492929] text-[12px] tracking-[.04em] text-[#F7ECDD]">
-      <div className="flex items-center justify-between gap-6 px-10 py-[10px]">
-        <div className="inline-flex items-center gap-[10px]">
-          <span>Livraison offerte dès 29€</span>
-          <span className="opacity-40">·</span>
-          <span>
-            Code{" "}
-            <span className="rounded bg-[#BAD0EF] px-2 py-[2px] font-semibold tracking-[.06em] text-[#492929]">
-              PRINTEMPS
-            </span>{" "}
-            · –10% sur ton premier albom
-          </span>
-        </div>
-        <div className="inline-flex items-center gap-2">
-          <span className="opacity-70">Excellent</span>
-          <div className="inline-flex gap-[2px]">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <span
-                key={i}
-                className="inline-block h-[14px] w-[14px] bg-[#00b67a]"
-                style={{
-                  clipPath:
-                    "polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)",
-                }}
-              />
-            ))}
-          </div>
-          <span>
-            <strong className="text-white">4,9</strong> · 412 avis
-          </span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── nav ──────────────────────────────────────────────────────────────────
-function Nav() {
-  const { data: session } = useSession()
-  const links = [
-    "L'albom",
-    "Comment ça marche",
-    "Exemples",
-    "Histoire",
-    "Journal",
-  ]
-  return (
-    <nav className="sticky top-0 z-[60] border-b border-[#492929]/[.08] bg-[#F7ECDD] backdrop-blur-[8px]">
-      <div className="flex items-center justify-between px-10 py-[18px]">
-        <div className="flex items-center gap-[42px]">
-          <a
-            href="#"
-            className={`${S} text-[30px] leading-none tracking-[-0.02em] text-[#492929]`}
-          >
-            albom
-          </a>
-          <div className="flex gap-[30px] text-[14px] text-[#492929]">
-            {links.map((link) => (
-              <a
-                key={link}
-                href="#"
-                className="relative border-b border-transparent py-[6px] transition-colors duration-150 hover:border-[#492929]"
-              >
-                {link}
-              </a>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-5">
-          {session ? (
-            <a
-              href="/dashboard"
-              className="text-[14px] font-medium text-[#492929] underline-offset-4 hover:underline"
-            >
-              Dashboard
-            </a>
-          ) : (
-            <a
-              href="/signin"
-              className="text-[14px] font-medium text-[#492929] underline-offset-4 hover:underline"
-            >
-              Se connecter
-            </a>
-          )}
-        </div>
-      </div>
-    </nav>
-  )
-}
-
-// ─── hero ─────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="grid min-h-[78vh] grid-cols-[1.05fr_1fr] bg-[#F7ECDD] max-[980px]:grid-cols-1">
-      <div className="relative overflow-hidden bg-[#492929] max-[980px]:min-h-[50vh]">
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "repeating-linear-gradient(135deg,rgba(247,236,221,.04) 0 12px,rgba(247,236,221,.07) 12px 24px),radial-gradient(circle at 30% 40%,#5b3535 0%,#2e1818 70%)",
-          }}
-        />
-        <div className="pointer-events-none absolute inset-0" aria-hidden>
-          <div
-            className="absolute left-[60px] top-[90px] h-[170px] w-[140px] -rotate-[7deg] rounded-[2px] shadow-[0_24px_60px_rgba(0,0,0,.4)]"
-            style={{
-              background:
-                "repeating-linear-gradient(90deg,#e9d6bb 0 8px,#f6ead0 8px 16px)",
-            }}
-          />
-          <div
-            className="absolute right-[80px] top-[140px] h-[150px] w-[120px] rotate-[6deg] rounded-[2px] shadow-[0_24px_60px_rgba(0,0,0,.4)]"
-            style={{
-              background:
-                "repeating-linear-gradient(90deg,#cdb497 0 8px,#dec3a3 8px 16px)",
-            }}
-          />
-          <div
-            className="absolute bottom-[110px] right-[140px] h-[140px] w-[110px] -rotate-[10deg] rounded-[2px] shadow-[0_24px_60px_rgba(0,0,0,.4)]"
-            style={{
-              background:
-                "repeating-linear-gradient(90deg,#a98a76 0 8px,#bd9f8a 8px 16px)",
-            }}
+    <section className="bg-blanc-casse">
+      <div className="grid overflow-hidden rounded-none md:grid-cols-2">
+        <div className="relative min-h-[380px] bg-maya md:h-[724px] md:min-h-0">
+          <Image
+            src="/images/brand/image-hero-V1.webp"
+            alt="Trois femmes sourient autour d'une table avec des souvenirs de vacances."
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
           />
         </div>
-        <button
-          className="duration-[250ms] absolute left-1/2 top-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-0 bg-[#F7ECDD]/90 text-[#492929] shadow-[0_20px_60px_rgba(0,0,0,.35)] transition-transform hover:scale-[1.06]"
-          aria-label="Lire la vidéo"
-        >
-          <Icon name="play" size={28} />
-        </button>
-        <div className="absolute bottom-7 left-8 text-[12px] uppercase tracking-[.16em] text-[#F7ECDD] opacity-75">
-          <strong className="font-medium">Le film d&apos;un albom</strong> ·
-          1:24
+        <div className="relative flex min-h-[520px] flex-col justify-center bg-blanc-casse px-6 py-10 md:h-[724px] md:min-h-0 md:px-16">
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-70"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(94,47,43,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(94,47,43,0.08) 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+            }}
+          />
+          <div className="relative z-10 max-w-[625px]">
+            <LogoAlbom className="mb-8 text-brun" height={48} />
+            <h1 className={cn(T.display1, "text-brun")}>Une activité créative pour tes vacances</h1>
+            <p className={cn(T.bodyLead, "mt-6 text-brun/90")}>
+              Albom te propose un kit créatif qui contient un carnet à compléter, tes plus belles photos,
+              des stickers et des feutres. L&apos;objet parfait à conserver précieusement ou à offrir à tes proches.
+            </p>
+            <UluleButton className="mt-10">Voir le pack</UluleButton>
+          </div>
         </div>
       </div>
+    </section>
+  )
+}
 
-      <div className="relative flex flex-col justify-center gap-9 px-16 py-[88px] max-[980px]:px-7 max-[980px]:py-14">
-        <div className="flex items-center gap-[14px] text-[#492929]">
-          <span className="h-[6px] w-[6px] flex-none rounded-full bg-[#492929]" />
-          <span className="text-[11px] uppercase tracking-[.14em]">
-            Édition printemps · 2026
-          </span>
+function ValuesStrip() {
+  const values = ["Créativité", "Déconnexion", "Fait-main", "Souvenirs", "Dimanche cosy"]
+  return (
+    <section className="overflow-hidden bg-maya py-3 md:py-0">
+      <div className="relative min-h-[70px] overflow-hidden">
+        <div className="absolute left-0 top-1/2 flex min-w-full -translate-y-1/2 animate-[ribbon_18s_linear_infinite] items-center whitespace-nowrap text-brun">
+          {Array.from({ length: 3 }).map((_, loopIdx) => (
+            <span key={`loop-${loopIdx}`} className="inline-flex items-center">
+              {values.map((value) => (
+                <span key={`${loopIdx}-${value}`} className="inline-flex items-center">
+                  <span className="font-display text-[34px] font-light leading-none tracking-[-0.04em]">
+                    {value}
+                  </span>
+                  <span className="mx-7 size-1.5 rounded-full bg-brun opacity-100" />
+                </span>
+              ))}
+            </span>
+          ))}
         </div>
+      </div>
+    </section>
+  )
+}
 
-        <h1
-          className={`${S} m-0 text-[clamp(48px,7.2vw,116px)] font-normal leading-[.92] tracking-[-0.012em]`}
-        >
-          Tes souvenirs
-          <br />
-          méritent <em className={`${S} italic text-[#492929]`}>mieux</em>
-          <br />
-          qu&apos;une{" "}
-          <span className="rounded bg-[#BAD0EF] px-[.1em]">pellicule</span>.
-        </h1>
+function PackSection() {
+  const items = [
+    "1 Albom au format magazine sur le thème de ton choix",
+    "20 photos autocollantes de tes meilleurs souvenirs de vacances",
+    "2 planches de stickers dans l'univers du magazine sélectionné",
+    "2 feutres Stabilo aux couleurs de l'édition du magazine",
+  ]
 
-        <p className="m-0 max-w-[46ch] text-[17px] leading-[1.55] text-[#5d3a3a]">
-          Albom, c&apos;est un magazine souvenir à compléter à la main. Tu y
-          glisses tes photos, tu griffonnes tes anecdotes, tu couvres les pages
-          de stickers et de couleurs.
+  return (
+    <section className="bg-blanc-casse py-16 md:py-24">
+      <Container>
+        <h2 className={cn(T.display2, "text-center text-brun")}>Le contenu du pack Albom</h2>
+        <p className={cn(T.bodyLead, "mx-auto mt-5 max-w-[716px] text-center text-brun/85")}>
+          Notre pack contient l&apos;essentiel pour un moment créatif. Tu prépares une bonne boisson,
+          tu poses ton téléphone et tu redonnes vie à tes souvenirs.
         </p>
 
-        <div className="flex flex-wrap items-center gap-[22px]">
-          <Btn>
-            Commander mon albom <Arrow />
-          </Btn>
-          <div className="flex flex-col leading-[1.1]">
-            <strong className={`${S} text-[32px] font-normal`}>39€</strong>
-            <small className="text-[11px] tracking-[.06em] opacity-70">
-              Livraison offerte
-            </small>
-          </div>
-        </div>
+        <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_1.15fr_1fr]">
+          <ul className="space-y-6 text-brun">
+            {items.slice(0, 2).map((item) => (
+              <li key={item} className="rounded-2xl border border-brun/15 bg-beurre p-5">
+                <p className={cn(T.body, "text-brun")}>{item}</p>
+              </li>
+            ))}
+          </ul>
 
-        <div className="flex flex-wrap gap-8 text-[13px] text-[#492929]">
-          {[
-            ["1 200+", "aloms en circulation"],
-            ["48h", "préparé à la main"],
-            ["FR", "imprimé en France"],
-          ].map(([val, label]) => (
-            <span key={label}>
-              <strong
-                className={`${S} block text-[22px] font-normal leading-none`}
-              >
-                {val}
-              </strong>
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── valeurs strip ────────────────────────────────────────────────────────
-function Values() {
-  const items = [
-    "CRÉATIVITÉ",
-    "SOUVENIRS",
-    "QUALITÉ",
-    "EXPÉRIENCE",
-    "DURABILITÉ",
-  ]
-  return (
-    <div className="bg-[#BAD0EF] py-[22px]">
-      <div className="flex flex-wrap items-center justify-between gap-6 px-10">
-        {items.map((v, i) => (
-          <span
-            key={i}
-            className="inline-flex items-center gap-[18px] text-[13px] font-medium tracking-[.22em] text-[#492929]"
-          >
-            {v}
-            {i < items.length - 1 && (
-              <span className="inline-block h-[7px] w-[7px] rounded-full border border-[#492929]" />
-            )}
-          </span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ─── breakdown produit ────────────────────────────────────────────────────
-function Breakdown() {
-  const photos = [
-    {
-      style: {
-        left: 30,
-        top: 30,
-        width: 90,
-        height: 110,
-        background:
-          "repeating-linear-gradient(90deg,#cfb495 0 8px,#dec3a3 8px 16px)",
-      },
-    },
-    {
-      style: {
-        left: 140,
-        top: 50,
-        width: 90,
-        height: 80,
-        background:
-          "repeating-linear-gradient(45deg,#7a9bbf 0 8px,#9bb6d4 8px 16px)",
-      },
-    },
-    {
-      style: {
-        left: 280,
-        top: 30,
-        width: 100,
-        height: 120,
-        background:
-          "repeating-linear-gradient(135deg,#a87f6a 0 8px,#bd9485 8px 16px)",
-        transform: "rotate(3deg)",
-      },
-    },
-    {
-      style: {
-        left: 400,
-        top: 60,
-        width: 90,
-        height: 100,
-        background:
-          "repeating-linear-gradient(0deg,#5b3535 0 8px,#6e4444 8px 16px)",
-        transform: "rotate(-2deg)",
-      },
-    },
-    {
-      style: {
-        left: 50,
-        top: 200,
-        width: 130,
-        height: 90,
-        background:
-          "repeating-linear-gradient(45deg,#bad0ef 0 8px,#cdddef 8px 16px)",
-        transform: "rotate(-3deg)",
-      },
-    },
-    {
-      style: {
-        left: 300,
-        top: 200,
-        width: 80,
-        height: 90,
-        background:
-          "repeating-linear-gradient(135deg,#cfb495 0 8px,#dec3a3 8px 16px)",
-        transform: "rotate(4deg)",
-      },
-    },
-  ]
-  const labels = [
-    {
-      pos: "left-[40px] top-[80px] text-right",
-      num: "01 —",
-      title: "1 albom à remplir",
-      desc: "148 pages, papier épais 170g",
-    },
-    {
-      pos: "right-[40px] top-[60px] text-left",
-      num: "02 —",
-      title: "Tes photos",
-      desc: "celles du voyage, des potes, du dimanche",
-    },
-    {
-      pos: "left-[30px] bottom-[60px] text-right",
-      num: "03 —",
-      title: "Une planche de stickers",
-      desc: "imprimés exclusivement pour albom",
-    },
-    {
-      pos: "right-[30px] bottom-[80px] text-left",
-      num: "04 —",
-      title: "3 feutres de couleur",
-      desc: "doux et précis pour griffonner",
-    },
-  ]
-  return (
-    <section className="relative overflow-hidden bg-[#F7ECDD] py-[130px]">
-      <Wrap>
-        <span className="mb-[18px] block text-center text-[11px] font-medium uppercase tracking-[.18em] text-[#492929] opacity-55">
-          · La box ·
-        </span>
-        <h2
-          className={`${S} m-0 mx-auto max-w-[18ch] text-center text-[clamp(36px,5.2vw,76px)] font-normal leading-[1.02] tracking-[-0.01em]`}
-        >
-          Tout ce qu&apos;il te faut
-          <br />
-          pour <em className={`${S} italic`}>prendre ton temps</em>.
-        </h2>
-
-        <div className="relative mx-auto my-[90px] mb-[60px] h-[520px] max-w-[1100px]">
-          <div className="absolute left-1/2 top-1/2 h-[380px] w-[560px] -translate-x-1/2 -translate-y-1/2">
-            <div
-              className="absolute left-[30px] top-[10px] h-[360px] w-[520px] -rotate-[4deg] rounded-[6px] border border-[#492929]/[.08] shadow-[0_40px_80px_rgba(73,41,41,.18),0_8px_16px_rgba(73,41,41,.06)]"
-              style={{
-                background: "linear-gradient(180deg,#fbf5ea 0%,#e9d8be 100%)",
-              }}
-            >
-              <div className="absolute bottom-0 left-1/2 top-0 w-[2px] bg-[#492929]/[.12]" />
-              {[60, 120, 180, 240, 300].map((t) => (
-                <div
-                  key={t}
-                  className="absolute left-1/2 h-[14px] w-[6px] -translate-x-1/2 rounded-[2px] bg-[#a89280]"
-                  style={{ top: t }}
-                />
-              ))}
-              {photos.map((p, i) => (
-                <div
-                  key={i}
-                  className="absolute"
-                  style={p.style as React.CSSProperties}
-                />
-              ))}
-            </div>
-
-            <div
-              className="absolute bottom-[30px] left-[80px] h-[140px] w-[120px] -rotate-[12deg] border-[6px] border-b-[24px] border-[#fbf5ea] shadow-[0_16px_40px_rgba(0,0,0,.2)]"
-              style={{
-                background:
-                  "repeating-linear-gradient(45deg,#c9a787 0 10px,#dbbf9e 10px 20px)",
-              }}
+          <div className="relative min-h-[520px] rounded-2xl bg-beurre p-4">
+            <Image
+              src="/images/benefits/benefits-V1-01.webp"
+              alt="Éléments du kit Albom posés sur une table."
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="rounded-2xl object-cover"
             />
-
-            <div
-              className="absolute left-[240px] top-[30px] h-[200px] w-[24px] rotate-[20deg] rounded shadow-[0_18px_36px_rgba(0,0,0,.25)]"
-              style={{
-                background: "linear-gradient(180deg,#3a1f1f 0%,#7a4848 100%)",
-              }}
-            >
-              <div className="absolute -top-[12px] left-0 right-0 h-[14px] rounded-t-[4px] bg-[#BAD0EF]" />
-            </div>
-
-            <div className="absolute -right-[30px] bottom-[30px] flex h-[200px] w-[160px] rotate-[8deg] items-center justify-center rounded bg-[#BAD0EF] text-[14px] font-semibold tracking-[.3em] text-[#492929] shadow-[0_16px_40px_rgba(73,41,41,.18)]">
-              STICKERS
-            </div>
           </div>
 
-          {labels.map((l, i) => (
-            <div
-              key={i}
-              className={`absolute ${l.pos} max-w-[170px] text-[13px] leading-[1.35] text-[#492929]`}
-            >
-              <span
-                className={`${S} mb-1 block text-[14px] tracking-[.04em] opacity-55`}
-              >
-                {l.num}
-              </span>
-              <strong className="block text-[15px] font-medium">
-                {l.title}
-              </strong>
-              <span>{l.desc}</span>
-            </div>
-          ))}
+          <ul className="space-y-6 text-brun">
+            {items.slice(2).map((item) => (
+              <li key={item} className="rounded-2xl border border-brun/15 bg-beurre p-5">
+                <p className={cn(T.body, "text-brun")}>{item}</p>
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-[18px]">
-          <Btn>
-            Composer ma box <Arrow />
-          </Btn>
-          <span className="text-[13px] text-[#5d3a3a] opacity-70">
-            à partir de 39€ · livraison incluse
-          </span>
+        <div className="mt-12 text-center">
+          <UluleButton>Soutenir sur Ulule</UluleButton>
         </div>
-      </Wrap>
+      </Container>
     </section>
   )
 }
 
-// ─── comment ça fonctionne ────────────────────────────────────────────────
-function HowItWorks() {
-  const steps = [
-    {
-      n: "01",
-      t: "Tu commandes",
-      tag: "Étape 1",
-      d: "Choisis ta couverture, ton format. La box arrive chez toi sous 48h.",
-      bg: "radial-gradient(circle at 40% 60%,#bad0ef55,transparent 60%),repeating-linear-gradient(135deg,rgba(247,236,221,.05) 0 12px,rgba(247,236,221,.08) 12px 24px)",
-    },
-    {
-      n: "02",
-      t: "Tu sélectionnes",
-      tag: "Étape 2",
-      d: "Trie tes photos, imprime celles que tu veux. On t'offre 30 tirages.",
-      bg: "radial-gradient(circle at 70% 50%,#f7ecdd33,transparent 60%),repeating-linear-gradient(45deg,rgba(186,208,239,.06) 0 12px,rgba(186,208,239,.1) 12px 24px)",
-    },
-    {
-      n: "03",
-      t: "Tu remplis",
-      tag: "Étape 3",
-      d: "Pose-toi un dimanche. Colle, griffonne, raconte. Aucune règle.",
-      bg: "radial-gradient(circle at 30% 30%,#bad0ef33,transparent 60%),repeating-linear-gradient(90deg,rgba(247,236,221,.04) 0 8px,rgba(247,236,221,.08) 8px 16px)",
-    },
-    {
-      n: "04",
-      t: "Tu gardes (ou offres)",
-      tag: "Étape 4",
-      d: "L'objet unique se range dans ta bibliothèque ou file à quelqu'un.",
-      bg: "radial-gradient(circle at 60% 70%,#f7ecdd22,transparent 60%),repeating-linear-gradient(135deg,rgba(186,208,239,.06) 0 16px,rgba(186,208,239,.1) 16px 32px)",
-    },
-  ]
-  return (
-    <section className="bg-[#492929] py-[130px] text-[#F7ECDD]">
-      <Wrap>
-        <span className="mb-[18px] block text-center text-[11px] font-medium uppercase tracking-[.18em] text-[#BAD0EF]">
-          · Le rituel ·
-        </span>
-        <h2
-          className={`${S} m-0 mx-auto max-w-[16ch] text-center text-[clamp(36px,5.2vw,76px)] font-normal leading-[1.02] tracking-[-0.01em] text-[#F7ECDD]`}
-        >
-          Comment ça fonctionne.
-        </h2>
-        <div className="mt-20 grid grid-cols-4 gap-6 max-[820px]:grid-cols-2">
-          {steps.map((step, i) => (
-            <div key={i} className="flex flex-col gap-[18px]">
-              <span
-                className={`${S} text-[18px] italic tracking-[.04em] text-[#BAD0EF]`}
-              >
-                — {step.n}
-              </span>
-              <div className="relative aspect-[3/4] overflow-hidden rounded border border-[#F7ECDD]/[.08] bg-[#5b3535]">
-                <div
-                  className="absolute inset-0"
-                  style={{ background: step.bg }}
-                />
-                <span className="absolute bottom-[14px] left-[14px] text-[11px] uppercase tracking-[.14em] text-[#F7ECDD] opacity-70">
-                  {step.tag}
-                </span>
-              </div>
-              <h3
-                className={`${S} m-0 text-[24px] font-normal leading-[1.1] text-[#F7ECDD]`}
-              >
-                {step.t}
-              </h3>
-              <p className="m-0 text-[14px] leading-[1.55] text-[#F7ECDD]/[.78]">
-                {step.d}
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-[60px] flex justify-center">
-          <Btn variant="maya">
-            Démarrer mon albom <Arrow />
-          </Btn>
-        </div>
-      </Wrap>
-    </section>
-  )
+function DeliveryIcon() {
+  return <img src="/icons/reassurance-delivery.svg" width={48} height={48} alt="" />
 }
 
-// ─── exemples / résultats ─────────────────────────────────────────────────
-function Results() {
-  const vids = [
-    {
-      t: "Le road-trip Sicile",
-      v: "82k vues",
-      badge: "viral",
-      bg: "radial-gradient(circle at 30% 30%,#7a4f4f,#2c1717),repeating-linear-gradient(45deg,rgba(186,208,239,.06) 0 14px,rgba(186,208,239,.12) 14px 28px)",
-    },
-    {
-      t: "Un an avec Léo",
-      v: "21k vues",
-      badge: undefined,
-      bg: "radial-gradient(circle at 70% 40%,#9c7a64,#3a1f1f)",
-    },
-    {
-      t: "Mariage d'Anaïs",
-      v: "44k vues",
-      badge: undefined,
-      bg: "radial-gradient(circle at 40% 60%,#bad0ef33,#492929)",
-    },
-    {
-      t: "L'année des copines",
-      v: "18k vues",
-      badge: "neuf",
-      bg: "radial-gradient(circle at 60% 30%,#d6b89a44,#2c1717)",
-    },
-  ]
-  return (
-    <section className="bg-[#F7ECDD] py-[130px]">
-      <Wrap>
-        <div className="mb-[60px] flex flex-wrap items-end justify-between gap-10">
-          <h2
-            className={`${S} m-0 max-w-[14ch] text-[clamp(36px,5.2vw,76px)] font-normal leading-[1.02] tracking-[-0.01em]`}
-          >
-            Quelques exemples
-            <br />
-            de <em className={`${S} italic`}>résultats</em>.
-          </h2>
-          <p className="m-0 max-w-[34ch] text-[14px] leading-[1.55] text-[#5d3a3a]">
-            Tous les aloms sont uniques. Voilà ce qu&apos;ont fait celles et
-            ceux qui se sont déjà laissés tenter — et ce qu&apos;on partage sur
-            nos réseaux.
-          </p>
-        </div>
-        <div className="grid grid-cols-4 gap-[18px] max-[820px]:grid-cols-2">
-          {vids.map((v, i) => (
-            <div
-              key={i}
-              className="duration-[250ms] group relative aspect-[9/16] cursor-pointer overflow-hidden rounded-[6px] bg-[#3a1f1f] transition-transform hover:-translate-y-1"
-            >
-              <div className="absolute inset-0" style={{ background: v.bg }} />
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "linear-gradient(180deg,transparent 40%,rgba(0,0,0,.6) 100%)",
-                }}
-              />
-              {v.badge && (
-                <span className="absolute left-3 top-3 rounded-full bg-[#BAD0EF] px-2 py-1 text-[10px] font-semibold uppercase tracking-[.14em] text-[#492929]">
-                  {v.badge}
-                </span>
-              )}
-              <div className="duration-[250ms] absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#F7ECDD]/90 text-[#492929] transition-transform group-hover:scale-[1.08]">
-                <Icon name="play" size={22} />
-              </div>
-              <div className="absolute bottom-[14px] left-[14px] right-[14px] flex items-end justify-between text-[12px] text-[#F7ECDD]">
-                <strong
-                  className={`${S} mb-[3px] block text-[18px] font-normal leading-[1.1]`}
-                >
-                  {v.t}
-                </strong>
-                <span className="text-[11px] tracking-[.04em] opacity-85">
-                  {v.v}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="mt-[50px] flex flex-wrap items-center justify-center gap-5">
-          <Btn variant="ghost">
-            Voir tous les aloms <Arrow />
-          </Btn>
-          <span className="text-[13px] text-[#5d3a3a]">
-            @albom.studio · 38k abonnés sur Instagram
-          </span>
-        </div>
-      </Wrap>
-    </section>
-  )
+function LockIcon() {
+  return <img src="/icons/reassurance-lock.svg" width={48} height={48} alt="" />
 }
 
-// ─── raisons d'acheter ────────────────────────────────────────────────────
-function Reasons() {
+function ShippingIcon() {
+  return <img src="/icons/reassurance-shipping.svg" width={48} height={48} alt="" />
+}
+
+function Reassurance() {
   const cards = [
     {
-      i: "✦",
-      t: "Un moment hors des écrans",
-      d: "Deux heures sur ton canapé avec une bougie. Aucun téléphone. Promis.",
+      title: "Livraison offerte",
+      desc: "Dès 50€ de contribution, la livraison est offerte en France métropolitaine.",
+      icon: <DeliveryIcon />,
     },
     {
-      i: "❋",
-      t: "Un objet unique à conserver",
-      d: "Pas un fichier qui disparaît dans le cloud. Un livre qu'on touche.",
+      title: "Paiement sécurisé",
+      desc: "Transactions protégées via Ulule, avec confirmation immédiate de ta contribution.",
+      icon: <LockIcon />,
     },
     {
-      i: "✿",
-      t: "Un cadeau qui a du sens",
-      d: "Anniversaire, départ, mariage : l'attention qu'on n'oublie pas.",
-    },
-    {
-      i: "✺",
-      t: "Soutenir un projet émergent",
-      d: "Albom est imprimé en France, fabriqué main par une équipe de trois.",
+      title: "Livraison en 7 jours",
+      desc: "Quand l'édition est prête, ton colis est expédié rapidement avec suivi.",
+      icon: <ShippingIcon />,
     },
   ]
   return (
-    <section className="bg-[#BAD0EF] py-[130px]">
-      <Wrap>
-        <div className="grid grid-cols-[1fr_1.05fr] items-center gap-20 max-[980px]:grid-cols-1 max-[980px]:gap-10">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-[6px] bg-[#492929]">
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(circle at 50% 60%,rgba(247,236,221,.25),transparent 60%),repeating-linear-gradient(135deg,rgba(247,236,221,.05) 0 14px,rgba(247,236,221,.08) 14px 28px)",
-              }}
-            />
-            <div
-              className={`${S} absolute bottom-6 left-6 text-[46px] italic leading-none text-[#F7ECDD]`}
-            >
-              «
-              <small className="mt-2 block text-[11px] uppercase not-italic tracking-[.18em] opacity-70 [font-family:var(--font-public-sans,sans-serif)]">
-                Albom studio
-              </small>
-            </div>
-          </div>
-
-          <div>
-            <span className="mb-[14px] block text-[11px] font-medium uppercase tracking-[.18em] text-[#492929] opacity-60">
-              · Pourquoi un albom ·
-            </span>
-            <h2
-              className={`${S} m-0 mb-9 max-w-[14ch] text-[clamp(36px,5.2vw,76px)] font-normal leading-[1.02] tracking-[-0.01em]`}
-            >
-              Raisons d&apos;acheter
-              <br />
-              un <em className={`${S} italic`}>albom</em>.
-            </h2>
-            <p className="m-0 max-w-[46ch] text-[17px] leading-[1.55] text-[#492929] opacity-80">
-              Parce que tes souvenirs méritent de continuer à vivre dans un
-              format qui te ressemble.
-            </p>
-            <div className="mt-7 grid grid-cols-2 gap-[14px] max-[560px]:grid-cols-1">
-              {cards.map((c, i) => (
-                <div
-                  key={i}
-                  className="flex min-h-[200px] cursor-default flex-col gap-[14px] rounded-[6px] bg-[#F7ECDD] p-[26px_24px] transition-transform duration-200 hover:-translate-y-[3px]"
-                >
-                  <div
-                    className={`${S} flex h-9 w-9 items-center justify-center rounded-full bg-[#BAD0EF] text-lg italic text-[#492929]`}
-                  >
-                    {c.i}
-                  </div>
-                  <h3
-                    className={`${S} m-0 text-[22px] font-normal leading-[1.1]`}
-                  >
-                    {c.t}
-                  </h3>
-                  <p className="m-0 text-[13px] leading-[1.5] text-[#5d3a3a]">
-                    {c.d}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Wrap>
-    </section>
-  )
-}
-
-// ─── faq ──────────────────────────────────────────────────────────────────
-function FAQ() {
-  const [open, setOpen] = useState<number>(0)
-  const items = [
-    {
-      q: "C'est quoi exactement un albom ?",
-      a: "Un magazine-carnet imprimé sur papier épais de 170g, 148 pages, à remplir entièrement à la main. Il arrive vierge — tu décides ce qui rentre dedans : photos, tickets, dessins, écrits, stickers.",
-    },
-    {
-      q: "Combien de photos je peux y mettre ?",
-      a: "Compte 80 à 120 photos format polaroïd ou tirages 10×15 selon ta mise en page. Chaque box contient 30 tirages offerts via notre partenaire d'impression.",
-    },
-    {
-      q: "Quels sont les délais de livraison ?",
-      a: "Préparation à la main sous 48h ouvrées, livraison Colissimo en 2 à 4 jours en France métropolitaine. Suivi par mail à chaque étape.",
-    },
-    {
-      q: "Je peux l'offrir en cadeau ?",
-      a: "Évidemment — c'est même notre premier usage. À la commande, choisis l'option « cadeau » pour un emballage écorce de bouleau et un mot manuscrit.",
-    },
-    {
-      q: "Le papier est-il adapté aux feutres et stickers ?",
-      a: "Oui, on a choisi un papier mat 170g testé avec nos feutres : pas de transparence, pas de bavure. Les stickers se décollent et se recollent jusqu'à trois fois.",
-    },
-    {
-      q: "Et si je suis nul·le en collage ?",
-      a: "Aucune règle, c'est un peu le principe. On glisse dans chaque box un petit livret « inspiration » avec quatre mises en page si tu veux te lancer doucement.",
-    },
-    {
-      q: "Quelle est votre politique de retour ?",
-      a: "Tu as 30 jours pour nous retourner ton albom non utilisé. Au-delà — ou s'il est entamé — on échange contre un avoir. Une question : hello@albom.fr.",
-    },
-  ]
-  return (
-    <section className="bg-[#492929] py-[130px] text-[#F7ECDD]">
-      <Wrap>
-        <div className="grid grid-cols-[.7fr_1.3fr] gap-20 max-[820px]:grid-cols-1 max-[820px]:gap-10">
-          <div>
-            <span className="mb-4 block text-[11px] font-medium uppercase tracking-[.18em] text-[#BAD0EF]">
-              · FAQ ·
-            </span>
-            <h2
-              className={`${S} m-0 text-[clamp(36px,5.2vw,76px)] font-normal leading-[1.02] tracking-[-0.01em] text-[#F7ECDD]`}
-            >
-              Vos questions
-              <br />
-              fréquentes.
-            </h2>
-            <p className="mt-6 max-w-[34ch] text-[14px] leading-[1.55] text-[#F7ECDD]/70">
-              On a regroupé ici les questions qu&apos;on reçoit le plus. Si la
-              tienne n&apos;y est pas, écris-nous, on répond en moins de 24h.
-            </p>
-            <span className="mt-[30px] inline-flex items-center gap-2 rounded-full border border-[#F7ECDD]/[.15] bg-[#F7ECDD]/[.08] px-[14px] py-2 text-[12px] text-[#F7ECDD]">
-              <Icon name="mail" size={14} /> hello@albom.fr
-            </span>
-          </div>
-
-          <div className="flex flex-col">
-            {items.map((it, i) => (
-              <div
-                key={i}
-                className={`cursor-pointer border-t border-[#F7ECDD]/[.18] py-6 ${i === items.length - 1 ? "border-b" : ""}`}
-                onClick={() => setOpen(open === i ? -1 : i)}
-              >
-                <div className="flex items-center justify-between gap-6">
-                  <h3
-                    className={`${S} m-0 text-[24px] font-normal leading-[1.15] transition-colors duration-200 ${open === i ? "text-[#BAD0EF]" : "text-[#F7ECDD]"}`}
-                  >
-                    {it.q}
-                  </h3>
-                  <span
-                    className={`duration-[250ms] flex-none text-[24px] font-light leading-none text-[#BAD0EF] transition-transform ${open === i ? "rotate-45" : ""}`}
-                  >
-                    +
-                  </span>
-                </div>
-                <div
-                  className={`duration-[350ms] max-w-[60ch] overflow-hidden text-[15px] leading-[1.6] text-[#F7ECDD]/[.78] transition-all ${open === i ? "mt-[14px] max-h-[400px]" : "max-h-0"}`}
-                >
-                  {it.a}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Wrap>
-    </section>
-  )
-}
-
-// ─── histoire ─────────────────────────────────────────────────────────────
-function Story() {
-  return (
-    <section className="bg-[#F7ECDD] py-[130px]">
-      <Wrap>
-        <div className="grid grid-cols-2 items-start gap-20 max-[820px]:grid-cols-1 max-[820px]:gap-9">
-          <div className="pt-5">
-            <span className="mb-6 block text-[11px] font-medium uppercase tracking-[.18em] text-[#492929] opacity-60">
-              · Histoire de la marque ·
-            </span>
-            <h2
-              className={`${S} m-0 mb-8 text-[clamp(36px,5.2vw,76px)] font-normal leading-[1.02] tracking-[-0.01em]`}
-            >
-              Pourquoi j&apos;ai créé
-              <br />
-              <em className={`${S} italic`}>albom</em>.
-            </h2>
-            {[
-              "J'ai 28 ans et 14 000 photos sur mon téléphone. Que je ne regarde jamais. Un matin de janvier, j'ai retrouvé un vieux carnet de voyage de ma grand-mère — un truc rempli de tickets de train, de fleurs séchées, d'écriture penchée.",
-              "Je me suis dit : pourquoi nous, on n'a plus ça ? Pourquoi nos vies tiennent dans un cloud qu'on n'ouvre jamais ? J'ai lancé albom pour qu'on se redonne le temps de poser nos souvenirs ailleurs que sur un écran.",
-              "Aujourd'hui on est trois, basés à Lyon, et on imprime chaque albom avec un imprimeur familial à 40 km.",
-            ].map((p, i) => (
-              <p
-                key={i}
-                className="m-0 mb-[18px] max-w-[46ch] text-[16px] leading-[1.65] text-[#5d3a3a]"
-              >
-                {p}
-              </p>
-            ))}
-            <span
-              className={`${S} mt-6 block text-[22px] italic text-[#492929]`}
-            >
-              — Camille, fondatrice
-            </span>
-          </div>
-
-          <div
-            className="relative aspect-[4/5] rotate-[2deg] overflow-hidden rounded-[6px] shadow-[0_30px_60px_rgba(73,41,41,.18)]"
-            style={{ background: "linear-gradient(180deg,#d8baa6,#a87f6a)" }}
-          >
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(circle at 50% 35%,rgba(247,236,221,.25),transparent 60%),repeating-linear-gradient(135deg,rgba(73,41,41,.06) 0 14px,rgba(73,41,41,.1) 14px 28px)",
-              }}
-            />
-            <div
-              className={`${S} absolute bottom-5 left-5 text-[28px] italic leading-none text-[#F7ECDD]`}
-            >
-              Camille
-              <small className="mt-[6px] block text-[11px] uppercase not-italic tracking-[.18em] opacity-80 [font-family:var(--font-public-sans,sans-serif)]">
-                Fondatrice · Lyon
-              </small>
-            </div>
-          </div>
-        </div>
-      </Wrap>
-    </section>
-  )
-}
-
-// ─── trust strip ──────────────────────────────────────────────────────────
-function Trust() {
-  const items = [
-    {
-      ic: "truck",
-      t: "Livraison offerte",
-      d: "En relai dès 29€. Cadeau au choix dès 50€ & 70€.",
-    },
-    {
-      ic: "lock",
-      t: "Paiement sécurisé",
-      d: "Carte bancaire · Paypal · Apple Pay · Bancontact",
-    },
-    {
-      ic: "leaf",
-      t: "Calage biodégradable",
-      d: "Ta commande est protégée par des chips de maïs.",
-    },
-    {
-      ic: "mail",
-      t: "Une question ?",
-      d: "Écris-nous à hello@albom.fr · réponse en 24h.",
-    },
-  ]
-  return (
-    <section className="bg-[#BAD0EF] py-[42px]">
-      <Wrap>
-        <div className="grid grid-cols-4 gap-[30px] max-[820px]:grid-cols-2">
-          {items.map((it, i) => (
-            <div key={i} className="flex items-start gap-4">
-              <span className="flex h-[46px] w-[46px] flex-none items-center justify-center rounded-full bg-[#F7ECDD] text-[#492929]">
-                <Icon name={it.ic} size={20} />
+    <section className="rounded-[16px] bg-maya py-10 md:py-12">
+      <Container className="grid gap-4 md:grid-cols-3">
+        {cards.map((card) => (
+          <article key={card.title} className="rounded-2xl px-6 py-7 text-center text-brun">
+            <div className="mx-auto mb-5 inline-flex size-24 items-center justify-center rounded-full bg-beurre">
+              <span className="inline-flex size-12 items-center justify-center text-brun">
+                {card.icon}
               </span>
-              <div>
-                <strong className="mb-1 block text-[13px] font-semibold uppercase tracking-[.16em] text-[#492929]">
-                  {it.t}
-                </strong>
-                <p className="m-0 text-[12px] leading-[1.45] text-[#492929] opacity-80">
-                  {it.d}
-                </p>
-              </div>
             </div>
-          ))}
-        </div>
-      </Wrap>
+            <h3 className="font-display text-[40px] font-bold leading-none tracking-[-0.04em]">
+              {card.title}
+            </h3>
+            <p className={cn(T.body, "mt-3 text-brun/80")}>{card.desc}</p>
+          </article>
+        ))}
+      </Container>
     </section>
   )
 }
 
-// ─── footer ───────────────────────────────────────────────────────────────
-function AlbomFooter() {
-  const cols = [
+function Steps() {
+  const steps = [
     {
-      h: "L'albom",
-      links: ["Le produit", "Comment ça marche", "Exemples", "Carte cadeau"],
+      image: "/images/steps/steps-images-V1-01.webp",
+      title: "Commander",
+      desc: "Passe ta commande en sélectionnant tes plus belles photos souvenirs.",
     },
-    { h: "Maison", links: ["Histoire", "Journal", "Ateliers", "Presse"] },
-    { h: "Aide", links: ["FAQ", "Livraison", "Retours", "Contact"] },
+    {
+      image: "/images/steps/steps-images-V1-02.webp",
+      title: "Personnaliser",
+      desc: "Prends du temps pour toi et crée ton album souvenirs à ta façon.",
+    },
+    {
+      image: "/images/steps/steps-images-V1-03.webp",
+      title: "Partager",
+      desc: "Conserve et redécouvre tes souvenirs avec tes proches au fil du temps.",
+    },
   ]
+
   return (
-    <footer className="bg-[#492929] pb-[30px] pt-20 text-[13px] text-[#F7ECDD]/80">
-      <Wrap>
-        <div className="mb-[60px] grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-10 max-[820px]:grid-cols-2">
-          <div>
-            <div
-              className={`${S} text-[46px] leading-none tracking-[-0.02em] text-[#F7ECDD]`}
-            >
-              albom
-            </div>
-            <p className="my-[18px] mb-6 max-w-[34ch] leading-[1.55]">
-              Le magazine-souvenir à compléter à la main. Imprimé et préparé en
-              France, par une petite équipe.
-            </p>
-            <form
-              className="flex gap-2"
-              onSubmit={(e: React.FormEvent) => e.preventDefault()}
-            >
-              <input
-                type="email"
-                placeholder="ton@email.com"
-                className="flex-1 rounded-full border border-[#F7ECDD]/30 bg-transparent px-[18px] py-3 text-[13px] text-[#F7ECDD] outline-none placeholder:text-[#F7ECDD]/45 focus:border-[#BAD0EF]"
-              />
-              <button
-                type="submit"
-                className="cursor-pointer whitespace-nowrap rounded-full border-0 bg-[#BAD0EF] px-[18px] text-[13px] font-medium text-[#492929]"
-              >
-                S&apos;inscrire
-              </button>
-            </form>
-          </div>
-          {cols.map((col) => (
-            <div key={col.h}>
-              <h4 className="m-0 mb-[18px] text-[12px] font-semibold uppercase tracking-[.14em] text-[#F7ECDD]">
-                {col.h}
-              </h4>
-              <ul className="m-0 flex list-none flex-col gap-[10px] p-0">
-                {col.links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="transition-colors hover:text-[#BAD0EF]"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
+    <section className="bg-blanc-casse py-16 md:py-24">
+      <Container>
+        <h2 className={cn(T.display2, "text-center text-brun")}>Comment ça marche ?</h2>
+        <div className="mt-12 grid gap-5 md:grid-cols-3">
+          {steps.map((step, idx) => (
+            <article key={step.title} className="group rounded-xl bg-white p-4 text-brun shadow-sm transition-shadow duration-200 hover:shadow-[0_12px_24px_rgba(73,41,41,0.14)]">
+              <div className="relative aspect-[440/290] overflow-hidden rounded-lg">
+                <Image
+                  src={step.image}
+                  alt={step.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                />
+                <span className="absolute right-3 top-3 inline-flex size-[44px] items-center justify-center rounded-full bg-brun text-lg font-semibold text-beurre">
+                  {idx + 1}
+                </span>
+              </div>
+              <h3 className="mt-4 font-display text-[40px] font-bold leading-none tracking-[-0.04em]">
+                {step.title}
+              </h3>
+              <p className={cn(T.body, "mt-2 text-brun/85")}>{step.desc}</p>
+            </article>
           ))}
         </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-[14px] border-t border-[#F7ECDD]/[.18] pt-6 text-[12px]">
-          <span>© 2026 albom — Lyon, France</span>
-          <div className="flex gap-3">
-            {["instagram", "tiktok", "pinterest"].map((name) => (
-              <a
-                key={name}
-                href="#"
-                aria-label={name}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#F7ECDD]/30 transition-colors hover:border-[#BAD0EF] hover:bg-[#BAD0EF] hover:text-[#492929]"
-              >
-                <Icon name={name} size={14} />
-              </a>
-            ))}
-          </div>
-          <span className="opacity-50">CGV · Mentions légales · Cookies</span>
+        <div className="mt-12 text-center">
+          <UluleButton>Personnaliser</UluleButton>
         </div>
-      </Wrap>
+      </Container>
+    </section>
+  )
+}
+
+function SocialProof() {
+  const cards = [
+    "/images/socialproofs/socialproof-video-V1-01.webp",
+    "/images/socialproofs/socialproof-video-V1-02.webp",
+    "/images/socialproofs/socialproof-video-V1-03.webp",
+    "/images/socialproofs/socialproof-video-V1-04.webp",
+  ]
+  return (
+    <section className="bg-brun py-16 text-beurre md:py-24">
+      <Container>
+        <h2 className={cn(T.display2, "text-center text-beurre")}>Ils en parlent mieux que nous</h2>
+        <p className={cn(T.body, "mx-auto mt-4 max-w-[720px] text-center text-beurre/85")}>
+          Leurs premiers retours sentent déjà les vacances, le papier et le dimanche cosy.
+        </p>
+        <div className="mt-10 grid gap-4 md:grid-cols-4">
+          {cards.map((card, idx) => (
+            <article key={card} className="group relative h-[480px] overflow-hidden rounded-lg bg-blanc-casse md:h-[626px]">
+              <Image
+                src={card}
+                alt={`Retour client ${idx + 1}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 25vw"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+              />
+            </article>
+          ))}
+        </div>
+        <div className="mt-12 text-center">
+          <UluleButton className="bg-maya text-brun hover:bg-maya-deep">Je commande mon Albom</UluleButton>
+        </div>
+      </Container>
+    </section>
+  )
+}
+
+function Benefits() {
+  const benefits = [
+    {
+      title: "Déconnexion",
+      desc: "Quelques heures sans scroller pour te reconnecter à tes souvenirs sans ton téléphone.",
+    },
+    {
+      title: "Un objet unique",
+      desc: "Pas un album sorti d'une usine. Un objet fait de tes mains qui te ressemble.",
+    },
+    {
+      title: "Activité créative",
+      desc: "Le scrapbooking t'attire mais c'est trop de matos ? Albom te simplifie tout.",
+    },
+    {
+      title: "Souvenirs valorisés",
+      desc: "Tu as des milliers de photos et pourtant aucun souvenir tangible entre les mains.",
+    },
+  ]
+  return (
+    <section className="bg-beurre py-16 md:py-24">
+      <Container className="grid gap-6 lg:grid-cols-2">
+        <div className="relative min-h-[420px] overflow-hidden rounded-xl md:min-h-[596px]">
+          <Image
+            src="/images/benefits/benefits-V1-01.webp"
+            alt="Kit Albom en cours de personnalisation sur une table."
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
+        </div>
+        <div className="rounded-xl p-2 text-brun md:p-0">
+          <h2 className={cn(T.display3, "bg-brun px-4 py-2 text-beurre")}>Pourquoi tu vas l'adorer</h2>
+          <div className="mt-5">
+            <BenefitsCarousel items={benefits} />
+          </div>
+        </div>
+      </Container>
+    </section>
+  )
+}
+
+function Founder() {
+  return (
+    <section className="bg-blanc-casse py-16 md:py-24">
+      <Container className="grid gap-8 lg:grid-cols-2">
+        <div className="flex flex-col justify-center">
+          <h2 className={cn(T.display2, "text-brun")}>
+            J'ai créé Albom pour proposer une nouvelle façon de conserver ses souvenirs.
+          </h2>
+          <p className={cn(T.bodyLead, "mt-5 max-w-[560px] text-brun/90")}>
+            Créer un Albom, c'est faire une activité créative pour transformer tes photos en souvenir unique :
+            sans écran, sans complexité, juste toi, tes mains et tes meilleurs moments.
+          </p>
+          <UluleButton className="mt-8 w-fit">Personnaliser mon Albom</UluleButton>
+        </div>
+        <div className="relative overflow-hidden rounded-xl bg-maya p-6 md:min-h-[724px]">
+          <div className="relative mx-auto h-[520px] max-w-[420px] overflow-hidden border-[14px] border-blanc-casse">
+            <Image
+              src="/images/socialproofs/cha-portrait-V1.webp"
+              alt="Portrait de Charlotte, fondatrice d'Albom."
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover"
+            />
+          </div>
+          <p className="absolute right-7 top-7 max-w-[220px] bg-blanc-casse px-3 py-2 font-display text-[30px] leading-none text-brun shadow-sm">
+            Je suis super contente de partager ce site avec vous
+          </p>
+          <p className="absolute bottom-8 left-8 font-display text-[42px] text-brun">Charlotte</p>
+        </div>
+      </Container>
+    </section>
+  )
+}
+
+function Footer() {
+  return (
+    <footer className="bg-brun pt-14 text-beurre">
+      <Container className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr]">
+        <div>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-normal text-beurre/50">À propos</p>
+          <p className={cn(T.body, "max-w-[420px] text-beurre")}>
+            Albom est un projet créatif français lancé avec amour. On imprime, on prépare et on expédie à la main.
+          </p>
+          <p className="mt-6 max-w-[420px] text-left font-display text-lg font-light leading-[1.35] text-beurre">
+            © {new Date().getFullYear()} Albom — Tous droits réservés
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-normal text-beurre/50">Infos</p>
+          <ul className="mt-4 space-y-2">
+            <li><a href="#" className="text-beurre transition-colors hover:text-maya">Mentions légales</a></li>
+            <li><a href="#" className="text-beurre transition-colors hover:text-maya">Politique de confidentialité</a></li>
+            <li><a href="mailto:hello@albom.fr" className="text-beurre transition-colors hover:text-maya">Contactez-moi</a></li>
+          </ul>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-normal text-beurre/50">Contact</p>
+          <ul className="mt-4 space-y-2">
+            <li>
+              <a
+                href={siteConfig.links.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-beurre transition-colors hover:text-maya"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <g clipPath="url(#clip0_instagram_footer)">
+                    <path d="M8.00191 3.98074C5.77715 3.98074 3.98265 5.77524 3.98265 7.99999C3.98265 10.2248 5.77715 12.0193 8.00191 12.0193C10.2267 12.0193 12.0212 10.2248 12.0212 7.99999C12.0212 5.77524 10.2267 3.98074 8.00191 3.98074ZM8.00191 10.613C6.56421 10.613 5.38886 9.44119 5.38886 7.99999C5.38886 6.5588 6.56071 5.38695 8.00191 5.38695C9.4431 5.38695 10.6149 6.5588 10.6149 7.99999C10.6149 9.44119 9.4396 10.613 8.00191 10.613ZM13.123 3.81633C13.123 4.33754 12.7033 4.7538 12.1856 4.7538C11.6644 4.7538 11.2481 4.33404 11.2481 3.81633C11.2481 3.29862 11.6679 2.87885 12.1856 2.87885C12.7033 2.87885 13.123 3.29862 13.123 3.81633ZM15.7851 4.7678C15.7256 3.512 15.4388 2.39962 14.5188 1.48313C13.6023 0.56664 12.4899 0.2798 11.2341 0.216836C9.93982 0.143379 6.06049 0.143379 4.76621 0.216836C3.51391 0.276304 2.40153 0.563143 1.48154 1.47963C0.561553 2.39612 0.278213 3.5085 0.215249 4.7643C0.141792 6.05858 0.141792 9.93791 0.215249 11.2322C0.274717 12.488 0.561556 13.6004 1.48154 14.5169C2.40153 15.4333 3.51041 15.7202 4.76621 15.7832C6.06049 15.8566 9.93982 15.8566 11.2341 15.7832C12.4899 15.7237 13.6023 15.4368 14.5188 14.5169C15.4353 13.6004 15.7221 12.488 15.7851 11.2322C15.8585 9.93791 15.8585 6.06208 15.7851 4.7678ZM14.113 12.6209C13.8401 13.3065 13.3119 13.8347 12.6228 14.1111C11.5909 14.5204 9.14227 14.4259 8.00191 14.4259C6.86155 14.4259 4.40941 14.5169 3.38098 14.1111C2.69537 13.8382 2.16716 13.31 1.89081 12.6209C1.48154 11.589 1.57599 9.14036 1.57599 7.99999C1.57599 6.85963 1.48504 4.4075 1.89081 3.37907C2.16366 2.69345 2.69187 2.16525 3.38098 1.8889C4.41291 1.47963 6.86154 1.57408 8.00191 1.57408C9.14227 1.57408 11.5944 1.48313 12.6228 1.8889C13.3084 2.16175 13.8366 2.68996 14.113 3.37907C14.5223 4.411 14.4278 6.85963 14.4278 7.99999C14.4278 9.14036 14.5223 11.5925 14.113 12.6209Z" fill="currentColor" />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_instagram_footer">
+                      <rect width="16" height="16" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
+                Instagram
+              </a>
+            </li>
+            <li>
+              <a
+                href={siteConfig.links.tiktok}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-beurre transition-colors hover:text-maya"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <path d="M14.8599 6.59006C13.5113 6.59329 12.1958 6.17271 11.0992 5.38774V10.8624C11.0978 14.6954 6.9475 17.0895 3.62868 15.1718C0.309866 13.254 0.311624 8.46273 3.63185 6.54742C4.59088 5.9942 5.70694 5.77638 6.80362 5.92841V8.68194C5.1251 8.15397 3.50448 9.64104 3.8865 11.3587C4.26852 13.0763 6.36667 13.7363 7.66317 12.5466C8.13498 12.1137 8.40356 11.5027 8.40354 10.8624V0.160034H11.0992C11.0973 0.387673 11.1164 0.615006 11.1562 0.839152C11.3455 1.85042 11.9427 2.73917 12.8076 3.29648C13.4163 3.69902 14.1301 3.91357 14.8599 3.91341V6.59006Z" fill="currentColor" />
+                </svg>
+                TikTok
+              </a>
+            </li>
+          </ul>
+        </div>
+      </Container>
+      <div className="mt-10 px-3 pt-6 sm:px-8">
+        <svg
+          width="1522"
+          height="470"
+          viewBox="0 0 1522 470"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-auto w-full"
+          role="img"
+          aria-label="albom en grand format coupé"
+        >
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M281.099 185.579C311.929 185.579 313.742 218.56 311.929 248.069C307.76 321.479 295.925 396.354 280.656 470H222.806C223.182 467.327 223.582 464.784 223.973 462.444L234.854 399.086C237.574 384.332 234.853 378.256 222.159 376.52C216.718 376.52 202.209 386.935 196.769 392.142L144.177 444.218C132.241 455.642 119.711 464.506 106.077 470H43.751C14.1621 456.066 8.38215e-05 421.241 0 386.936C0 307.088 93.3978 189.919 180.448 189.919C198.583 189.919 215.811 195.994 233.04 208.145C237.574 211.616 243.015 213.353 246.642 212.485C252.989 211.617 256.616 208.145 262.057 201.202C267.497 192.523 273.845 185.579 281.099 185.579ZM181.354 249.805C160.498 249.805 140.549 261.088 131.482 268.899C90.6773 298.408 59.8471 353.086 59.8469 388.671C59.8469 401.69 61.6605 415.576 79.7959 415.576C117.88 415.576 190.421 320.975 209.464 293.201C222.159 275.843 220.345 268.031 216.718 263.692C206.743 254.145 193.142 249.805 181.354 249.805Z"
+            fill="#F8F5CA"
+          />
+          <path
+            d="M420.05 46.7133C428.21 38.0343 432.744 34.5622 441.812 38.9016C457.227 45.845 458.134 62.3361 454.507 78.8264C441.812 137.844 437.278 167.353 428.211 226.371C414.678 307.682 401.147 388.398 388.648 470H326.791C334.133 409.686 345.806 355.782 357.482 301.879C371.083 232.447 379.245 193.391 394.66 124.826C400.1 97.0524 400.101 69.2791 420.05 46.7133Z"
+            fill="#F8F5CA"
+          />
+          <path
+            d="M550.319 15.0818C554.853 3.79892 565.735 -1.40863 571.175 0.327172C582.056 2.93113 593.844 18.5532 590.217 31.5717L545.525 231.976C543.711 240.655 540.991 249.334 540.084 258.013C540.084 271.9 552.779 272.768 560.94 266.692C614.439 235.448 652.524 215.486 695.142 271.9C720.531 306.617 728.692 343.069 714.184 385.597C706.023 409.031 694.235 430.728 677.913 450.69C672.349 457.396 666.457 463.832 660.313 470H563.908C599.644 450.749 628.195 424.115 648.897 388.201C663.405 363.899 665.218 344.805 659.778 319.636C656.151 303.145 633.481 290.127 615.346 297.938C603.558 302.277 591.77 308.352 580.889 317.899C524.721 365.687 500.111 406.763 488.959 470H434.103C446.787 394.719 463.975 321.161 484.771 248.466C502 187.712 519.489 71.4961 550.319 15.0818Z"
+            fill="#F8F5CA"
+          />
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M869.984 209.724C888.119 200.177 905.348 194.101 926.204 194.969C947.966 195.837 965.195 203.649 976.983 225.346C980.61 232.289 987.863 240.969 994.211 252.252C1015.07 284.364 1022.32 319.949 1013.25 357.269C1002.65 402.351 977.938 441.351 947.868 470H752.999C742.695 451.497 736.688 428.616 736.688 402.401C736.688 354.666 770.239 258.327 869.984 209.724ZM935.271 250.516C858.195 247.913 794.722 345.118 794.722 412.815C794.722 444.06 817.391 457.948 851.848 455.344C913.508 448.401 960.66 365.081 960.661 307.799C960.661 289.573 956.126 251.384 935.271 250.516Z"
+            fill="#F8F5CA"
+          />
+          <path
+            d="M1083.77 196.863C1091.02 184.712 1100.09 183.843 1110.07 192.522C1117.32 200.334 1121.85 208.145 1120.95 219.428C1120.04 235.05 1116.41 250.673 1114.6 267.163C1112.79 298.408 1131.83 294.936 1145.43 280.182C1178.98 248.069 1211.62 215.089 1256.96 212.485C1274.19 212.485 1291.42 221.164 1305.02 243.729C1313.18 255.012 1314.09 284.522 1332.22 284.522C1338.57 284.522 1346.73 280.182 1353.08 275.842C1383.91 254.145 1403.86 231.579 1440.13 231.579C1490.91 231.579 1525.37 286.257 1521.74 340.068C1519.02 382.596 1508.14 423.388 1490.91 462.444C1489.8 465.179 1488.52 467.7 1487.08 470H1442.52C1442.19 466.431 1442.34 462.633 1442.85 458.973C1446.48 427.728 1452.82 418.18 1459.17 390.407C1465.52 364.37 1469.15 338.332 1464.61 312.295C1461.89 296.672 1443.76 287.125 1424.71 292.332C1352.17 310.559 1327.69 379.992 1300.49 426.859C1291.42 441.614 1285.98 457.237 1278.72 468.519C1278.44 469.019 1278.15 469.511 1277.86 470H1221.51C1221.54 469.796 1221.56 469.592 1221.6 469.387C1226.13 443.35 1232.48 417.312 1238.83 392.142C1245.17 367.841 1254.24 344.407 1259.68 319.238C1261.5 312.294 1269.66 278.446 1247.89 278.446C1215.25 278.447 1173.54 333.125 1158.12 353.955C1138.18 381.728 1122.76 411.237 1108.25 436.406C1102.13 446.658 1094.56 459.072 1085.94 470H1021.27C1021.25 469.797 1021.22 469.592 1021.2 469.387C1020.29 459.84 1021.2 448.557 1022.11 437.274C1031.18 381.727 1055.66 256.748 1083.77 196.863Z"
+            fill="#F8F5CA"
+          />
+        </svg>
+      </div>
     </footer>
   )
 }
 
-// ─── page ─────────────────────────────────────────────────────────────────
 export default function LandingPage(): JSX.Element {
   return (
     <>
-      <TopBar />
-      <Nav />
-      <Hero />
-      <Values />
-      <Breakdown />
-      <HowItWorks />
-      <Results />
-      <Reasons />
-      <FAQ />
-      <Story />
-      <Trust />
-      <AlbomFooter />
+      <TopChrome />
+      <main>
+        <Hero />
+        <ValuesStrip />
+        <PackSection />
+        <Reassurance />
+        <Steps />
+        <SocialProof />
+        <Benefits />
+        <Founder />
+      </main>
+      <Footer />
     </>
   )
 }
