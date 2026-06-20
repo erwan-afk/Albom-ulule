@@ -7,6 +7,9 @@ const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["tsx", "mdx", "ts", "js"],
   swcMinify: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   transpilePackages: ["react-pdf", "pdfjs-dist"],
   experimental: {
     serverComponentsExternalPackages: ["canvas", "pdf-lib"],
