@@ -1,12 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import { signInWithPassword } from "@/actions/auth"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
-import { DEFAULT_SIGNIN_REDIRECT } from "@/config/defaults"
 import {
   signInWithPasswordSchema,
   type SignInWithPasswordFormInput,
@@ -28,7 +26,6 @@ import { Icons } from "@/components/icons"
 import { PasswordInput } from "@/components/password-input"
 
 export function SignInWithPasswordForm(): JSX.Element {
-  const router = useRouter()
   const { toast } = useToast()
   const [isPending, startTransition] = React.useTransition()
 
@@ -76,11 +73,7 @@ export function SignInWithPasswordForm(): JSX.Element {
             })
             break
           case "success":
-            toast({
-              title: "Success!",
-              description: "You are now signed in",
-            })
-            router.push(DEFAULT_SIGNIN_REDIRECT)
+            // Redirection gérée côté serveur par signIn(redirectTo)
             break
           default:
             toast({

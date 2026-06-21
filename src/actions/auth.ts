@@ -1,6 +1,7 @@
 "use server"
 
 import crypto from "crypto"
+import { redirect } from "next/navigation"
 
 import { getUserByEmail, getUserByResetPasswordToken } from "@/actions/user"
 import { signIn } from "@/auth"
@@ -8,6 +9,7 @@ import bcryptjs from "bcryptjs"
 import { AuthError } from "next-auth"
 
 import { env } from "@/env.mjs"
+import { DEFAULT_SIGNIN_REDIRECT } from "@/config/defaults"
 import { prisma } from "@/config/db"
 import { resend } from "@/config/email"
 import {
@@ -91,9 +93,10 @@ export async function signInWithPassword(
     await signIn("credentials", {
       email: validatedInput.data.email,
       password: validatedInput.data.password,
-      redirect: false,
+      redirectTo: DEFAULT_SIGNIN_REDIRECT,
     })
 
+    // signIn avec redirectTo ne retourne pas — garde-fou TypeScript
     return "success"
   } catch (error) {
     console.error(error)
