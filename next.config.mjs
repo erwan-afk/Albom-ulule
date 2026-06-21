@@ -12,7 +12,10 @@ const nextConfig = {
   },
   transpilePackages: ["react-pdf", "pdfjs-dist"],
   experimental: {
-    serverComponentsExternalPackages: ["canvas", "pdf-lib"],
+    serverComponentsExternalPackages: ["canvas", "pdf-lib", "sharp"],
+    serverActions: {
+      bodySizeLimit: "50mb",
+    },
   },
   images: {
     remotePatterns: [
@@ -31,6 +34,10 @@ const nextConfig = {
     ],
   },
   webpack: (config, { webpack }) => {
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+    }
     config.plugins.push(
       new webpack.IgnorePlugin({
         resourceRegExp: /^(bufferutil|utf-8-validate)$/,

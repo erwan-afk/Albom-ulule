@@ -22,10 +22,15 @@ export interface TemplateZone {
 export interface TemplateLabel {
   enabled: boolean
   fontSize: number
+  /** Taille du numéro de commande (ligne secondaire) */
+  secondaryFontSize?: number
   text: string
   x?: number
   y: number
+  marginRight?: number
   color: [number, number, number]
+  /** Couleur plus discrète pour le numéro de commande */
+  secondaryColor?: [number, number, number]
   align: "left" | "center" | "right"
 }
 
@@ -36,6 +41,8 @@ export interface TemplateConfig {
   productKeywords: string[]
   resolutionDpi: number
   label: TemplateLabel
+  /** Zone texte dynamique (calque info-1 dans Illustrator), ex. case 8 */
+  brandingZone?: TemplateZone | null
   zones: TemplateZone[]
 }
 
@@ -52,6 +59,7 @@ export interface GeneratePdfInput {
   images: (ProcessedImage | null)[]
   customerName: string
   orderNumber: string
+  sessionId?: string
   template: TemplateConfig
 }
 
@@ -59,6 +67,7 @@ export interface GeneratePdfInput {
 
 export interface ParsePdfResult {
   zones: TemplateZone[]
+  brandingZone: TemplateZone | null
   cleanContentStream: string | null
   pageHeight: number
 }

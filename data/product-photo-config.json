@@ -1,0 +1,12 @@
+{
+  "products": [
+    {
+      "handle": "uyfyggh",
+      "name": "Album photo de famille",
+      "photosRequired": 21,
+      "photoRatio": "portrait",
+      "ratioLabel": "74:105",
+      "updatedAt": 1782046708065
+    }
+  ]
+}

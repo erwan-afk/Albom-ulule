@@ -4,6 +4,8 @@ import dynamic from "next/dynamic"
 import { useState } from "react"
 import { BiLoaderAlt } from "react-icons/bi"
 
+import { ConfirmDeleteDialog } from "@/components/ui/confirm-delete-dialog"
+
 const PdfThumbnail = dynamic(() => import("./PdfThumbnail"), {
   ssr: false,
   loading: () => (
@@ -65,9 +67,11 @@ export function TemplateManager({ templates, onRefresh }: Props) {
           label: {
             enabled: true,
             fontSize: 8,
-            text: "{customerName} — {orderNumber}",
-            y: 15,
-            color: [0.3, 0.3, 0.3],
+            secondaryFontSize: 6,
+            text: "{customerName}\n{orderNumber}",
+            y: 10,
+            color: [0.2, 0.2, 0.2],
+            secondaryColor: [0.55, 0.55, 0.55],
             align: "center",
           },
           zones: [],
@@ -139,7 +143,6 @@ export function TemplateManager({ templates, onRefresh }: Props) {
       })
       return
     }
-    if (!confirm(`Supprimer le template "${tpl.name}" ?`)) return
     setUploading(true)
     setUploadMsg(null)
     try {
@@ -254,7 +257,7 @@ export function TemplateManager({ templates, onRefresh }: Props) {
               {t.hasBackground || t.hasOverlay ? (
                 <PdfThumbnail
                   key={`${t.id}-${t.updatedAt || 0}`}
-                  url={`/api/admin/pdf/templates/${t.id}/pdf?v=${t.updatedAt || 0}`}
+                  url={`/api/admin/pdf/templates/${t.id}/pdf?view=background&v=${t.updatedAt || 0}`}
                 />
               ) : (
                 <div className="flex flex-col items-center gap-1 text-muted-foreground">
@@ -309,13 +312,27 @@ export function TemplateManager({ templates, onRefresh }: Props) {
                       ✏️
                     </button>
                     {t.id !== "default" && (
-                      <button
-                        onClick={() => handleDeleteTemplate(t)}
-                        title="Supprimer"
-                        className="px-1 text-sm text-muted-foreground hover:text-destructive"
-                      >
-                        🗑️
-                      </button>
+                      <ConfirmDeleteDialog
+                        title="Supprimer ce template ?"
+                        description={
+                          <>
+                            Tu es sur le point de supprimer le template{" "}
+                            <strong>{t.name}</strong>. Cette action est{" "}
+                            <strong>irréversible</strong> : le PDF, la config
+                            et les associations produit seront effacés.
+                          </>
+                        }
+                        onConfirm={() => handleDeleteTemplate(t)}
+                        trigger={
+                          <button
+                            type="button"
+                            title="Supprimer"
+                            className="px-1 text-sm text-muted-foreground hover:text-destructive"
+                          >
+                            🗑️
+                          </button>
+                        }
+                      />
                     )}
                   </div>
                 )}

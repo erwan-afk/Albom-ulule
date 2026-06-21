@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
 
+import { DEFAULT_SIGNIN_REDIRECT } from "@/config/defaults"
 import {
   signInWithEmailSchema,
   type SignInWithEmailFormInput,
@@ -40,7 +41,10 @@ export function SignInWithEmailForm(): JSX.Element {
   function onSubmit(formData: SignInWithEmailFormInput): void {
     startTransition(async () => {
       try {
-        await signIn("resend", { email: formData.email })
+        await signIn("resend", {
+          email: formData.email,
+          callbackUrl: DEFAULT_SIGNIN_REDIRECT,
+        })
       } catch (error) {
         console.error(error)
 

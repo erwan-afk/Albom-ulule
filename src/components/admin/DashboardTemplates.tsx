@@ -6,6 +6,21 @@ import { BiLoaderAlt } from "react-icons/bi"
 
 import type { TemplateItem } from "@/components/admin/TemplateManager"
 
+const ProductPhotoSettings = dynamic(
+  () =>
+    import("@/components/admin/ProductPhotoSettings").then(
+      (m) => m.ProductPhotoSettings
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <BiLoaderAlt className="animate-spin text-muted-foreground" size={24} />
+      </div>
+    ),
+  }
+)
+
 const ProductTemplateAssociation = dynamic(
   () =>
     import("@/components/admin/ProductTemplateAssociation").then(
@@ -82,6 +97,9 @@ export function DashboardTemplates() {
 
   return (
     <>
+      {/* Config photos par produit */}
+      <ProductPhotoSettings />
+
       {/* Association Produit → Template */}
       <ProductTemplateAssociation
         orders={orders}

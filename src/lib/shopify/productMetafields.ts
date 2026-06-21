@@ -28,7 +28,7 @@ export function getPhotoProductConfig(
   const count = metafields["custom.photos_required"]
   if (count) {
     const n = parseInt(count, 10)
-    if (n > 0 && n <= 20) config.photosRequired = n
+    if (n > 0 && n <= 50) config.photosRequired = n
   }
 
   const ratio = metafields["custom.photo_ratio"]

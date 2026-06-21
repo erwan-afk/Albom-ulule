@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { getOrderByToken } from "@/actions/order"
 
 import { getProduct } from "@/lib/shopify"
-import { getPhotoProductConfig } from "@/lib/shopify/productMetafields"
+import { resolveUploadPhotoConfig } from "@/lib/upload/photoConfig"
 
 import { UploadFlow } from "@/components/upload/UploadFlow"
 
@@ -27,30 +27,15 @@ export default async function UploadPage({ params, searchParams }: Props) {
 
   // Récupérer le produit Shopify (metafields inclus dans la réponse)
   const product = await getProduct(productHandle)
-  const config = product
-    ? getPhotoProductConfig(product.metafields as Record<string, string>)
-    : null
-
-  // Fallback sans produit Shopify
-  if (!product || !config) {
-    return (
-      <UploadFlow
-        productTitle={order.productName ?? "Votre commande"}
-        productHandle={productHandle}
-        token={token}
-        config={{
-          photosRequired: 1,
-          photoRatio: "free",
-          ratioValue: 1,
-          ratioLabel: "libre",
-        }}
-      />
-    )
-  }
+  const metafields = product?.metafields as Record<string, string> | undefined
+  const config = resolveUploadPhotoConfig(
+    { productName: order.productName, productHandle },
+    metafields
+  )
 
   return (
     <UploadFlow
-      productTitle={product.title}
+      productTitle={product?.title ?? order.productName ?? "Votre commande"}
       productHandle={productHandle}
       token={token}
       config={config}

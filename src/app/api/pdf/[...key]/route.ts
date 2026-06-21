@@ -21,7 +21,8 @@ export async function GET(
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="${key[key.length - 1]}"`,
-      "Cache-Control": "public, max-age=3600",
+      // Même clé R2 à chaque régénération — pas de cache navigateur/CDN
+      "Cache-Control": "private, no-cache, no-store, must-revalidate",
     },
   })
 }

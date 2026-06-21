@@ -1,0 +1,83 @@
+{
+  "id": "albom-bdm-1",
+  "name": "Albom - Bord de mer V1",
+  "productIds": [],
+  "productKeywords": [],
+  "resolutionDpi": 150,
+  "label": {
+    "enabled": true,
+    "fontSize": 8,
+    "secondaryFontSize": 6,
+    "text": "{customerName}\n{orderNumber}",
+    "y": 10,
+    "color": [
+      0.2,
+      0.2,
+      0.2
+    ],
+    "secondaryColor": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "align": "center"
+  },
+  "zones": [
+    {
+      "id": 1,
+      "x_mm": 0,
+      "y_mm": 0,
+      "width_mm": 74,
+      "height_mm": 105
+    },
+    {
+      "id": 2,
+      "x_mm": 74.3,
+      "y_mm": 0,
+      "width_mm": 74,
+      "height_mm": 105
+    },
+    {
+      "id": 3,
+      "x_mm": 148.5,
+      "y_mm": 0,
+      "width_mm": 74,
+      "height_mm": 105
+    },
+    {
+      "id": 4,
+      "x_mm": 223,
+      "y_mm": 0,
+      "width_mm": 74,
+      "height_mm": 105
+    },
+    {
+      "id": 5,
+      "x_mm": 0,
+      "y_mm": 105,
+      "width_mm": 74,
+      "height_mm": 105
+    },
+    {
+      "id": 6,
+      "x_mm": 74.2,
+      "y_mm": 105,
+      "width_mm": 74,
+      "height_mm": 105
+    },
+    {
+      "id": 7,
+      "x_mm": 148.5,
+      "y_mm": 105,
+      "width_mm": 74,
+      "height_mm": 105
+    }
+  ],
+  "brandingZone": {
+    "id": 1,
+    "x_mm": 239.9,
+    "y_mm": 169.1,
+    "width_mm": 39.7,
+    "height_mm": 20.7
+  }
+}

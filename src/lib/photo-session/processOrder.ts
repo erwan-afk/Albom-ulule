@@ -24,6 +24,7 @@ import {
   emergencyCleanup,
   moveTempImagesToOrder,
   readObject,
+  syncLocalSessionToR2,
   uploadPdf,
 } from "@/lib/r2/upload"
 import { setOrderPdfUrl } from "@/lib/shopify/admin/orderMetafield"
@@ -135,13 +136,13 @@ export async function processOrder(
     }
 
     // ── Step 2: move temp → confirmed ──
-    // Si les fichiers sont deja dans orders/, on saute le deplacement
-    const alreadyMoved =
-      pending.tempKeys.length > 0 && pending.tempKeys[0]!.startsWith("orders/")
+    const firstKey = pending.tempKeys[0] ?? ""
+    const alreadyMoved = firstKey.startsWith("orders/")
+    const alreadyInSessions = firstKey.startsWith("sessions/")
     let finalKeys: string[]
     let finalUrls: string[]
 
-    if (alreadyMoved) {
+    if (alreadyMoved || alreadyInSessions) {
       setStatus(20, "Photos deja sauvegardees")
       finalKeys = pending.tempKeys
       finalUrls = finalKeys.map((k) => `/api/photo/${k}`)
@@ -152,6 +153,14 @@ export async function processOrder(
       finalUrls = moved.finalUrls
     }
     setStatus(20, "Sauvegarde des photos", { photoUrls: finalUrls })
+
+    const sessionToken = sessionId.startsWith("db-")
+      ? sessionId.slice(3)
+      : undefined
+    if (sessionToken) {
+      setStatus(22, "Synchronisation R2")
+      await syncLocalSessionToR2(sessionToken)
+    }
 
     // ── Step 3: load template ──
     const order = getOrder(sessionId)
@@ -190,20 +199,32 @@ export async function processOrder(
       images,
       customerName: customerName || "Client",
       orderNumber: orderName,
+      sessionId: sessionToken,
       template,
     })
 
     // ── Step 7: upload PDF + metafield ──
     setStatus(90, "Sauvegarde du PDF")
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || undefined
-    const pdfUpload = await uploadPdf(Buffer.from(pdfBytes), orderName, siteUrl)
+    const pdfUpload = await uploadPdf(
+      Buffer.from(pdfBytes),
+      orderName,
+      siteUrl,
+      sessionToken
+    )
 
-    try {
-      await setOrderPdfUrl(orderGid, pdfUpload.url)
-    } catch (err) {
-      console.warn(
-        `[process-order] Failed to write metafield (PDF still saved): ${(err as Error).message}`
-      )
+    // Metafield Shopify uniquement pour les vraies commandes Shopify
+    const isShopifyOrder =
+      /gid:\/\/shopify\/Order\/\d+$/.test(orderGid) &&
+      !orderGid.endsWith("/Order/0")
+    if (isShopifyOrder) {
+      try {
+        await setOrderPdfUrl(orderGid, pdfUpload.url)
+      } catch (err) {
+        console.warn(
+          `[process-order] Failed to write metafield (PDF still saved): ${(err as Error).message}`
+        )
+      }
     }
 
     // ── Step 8: cleanup confirmed source photos ──
@@ -213,8 +234,8 @@ export async function processOrder(
       photoUrls: finalUrls,
     })
 
-    // Ne pas supprimer les fichiers source si on est en regeneration (alreadyMoved)
-    if (isR2Configured() && !alreadyMoved) {
+    // Ne supprimer que les fichiers temporaires (jamais le dossier sessions/)
+    if (isR2Configured() && !alreadyMoved && !alreadyInSessions) {
       for (const key of finalKeys) {
         try {
           await deleteByKey(key)

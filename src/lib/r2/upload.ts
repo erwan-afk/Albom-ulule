@@ -9,6 +9,10 @@ import {
 } from "@aws-sdk/client-s3"
 
 import { getBucketName, getR2Client, isR2Configured } from "./client"
+import {
+  sessionPdfFilename,
+  sessionPdfR2Key,
+} from "@/lib/photo-session/names"
 
 // ─── Local fallback directory ───
 
@@ -28,32 +32,66 @@ async function ensureLocalDir(dir: string): Promise<void> {
 
 // ─── Read object (R2 or local) ───
 
-export async function readObject(key: string): Promise<Buffer | null> {
-  const r2 = getR2Client()
-  if (r2) {
-    try {
-      const res = await r2.send(
-        new GetObjectCommand({
-          Bucket: getBucketName(),
-          Key: key,
-        })
-      )
-      if (!res.Body) return null
-      return Buffer.from(await res.Body.transformToByteArray())
-    } catch (err) {
-      console.warn(
-        `[r2] readObject failed for ${key}: ${(err as Error).message}`
-      )
-      return null
+function localKeysForObject(key: string): string[] {
+  const keys = [key]
+  // sessions/{token}/{file} → uploads/{token}/{file}
+  if (key.startsWith("sessions/")) {
+    const parts = key.split("/")
+    if (parts.length >= 3) {
+      keys.push(`${parts[1]}/${parts.slice(2).join("/")}`)
     }
   }
+  // legacy: {token}/{file} on disk
+  if (!key.includes("/") || key.split("/").length === 2) {
+    keys.push(key)
+  }
+  return keys
+}
 
-  // Local fallback
+async function readLocalObject(key: string): Promise<Buffer | null> {
+  for (const localKey of localKeysForObject(key)) {
+    try {
+      return await readFile(localPath(localKey))
+    } catch {
+      // try next candidate
+    }
+  }
+  return null
+}
+
+async function readR2Object(key: string): Promise<Buffer | null> {
+  const r2 = getR2Client()
+  if (!r2) return null
   try {
-    return await readFile(localPath(key))
-  } catch {
+    const res = await r2.send(
+      new GetObjectCommand({
+        Bucket: getBucketName(),
+        Key: key,
+      })
+    )
+    if (!res.Body) return null
+    return Buffer.from(await res.Body.transformToByteArray())
+  } catch (err) {
+    console.warn(
+      `[r2] readObject failed for ${key}: ${(err as Error).message}`
+    )
     return null
   }
+}
+
+export async function readObject(key: string): Promise<Buffer | null> {
+  // En prod (R2) : sessions/* = R2 prioritaire (évite un vieux fichier local sur le serveur)
+  if (isR2Configured() && key.startsWith("sessions/")) {
+    const fromR2 = await readR2Object(key)
+    if (fromR2) return fromR2
+    return readLocalObject(key)
+  }
+
+  // Dev sans R2 : local d'abord
+  const local = await readLocalObject(key)
+  if (local) return local
+
+  return readR2Object(key)
 }
 
 // ─── Upload PDF (R2 or local) ───
@@ -66,27 +104,50 @@ export interface UploadResult {
 export async function uploadPdf(
   buffer: Buffer,
   orderName: string,
-  siteUrl?: string
+  siteUrl?: string,
+  sessionToken?: string
 ): Promise<UploadResult> {
   const sanitized = orderName.replace(/[^a-zA-Z0-9._-]/g, "_")
-  const key = `pdf/${sanitized}-${Date.now()}.pdf`
+  const key = sessionToken
+    ? sessionPdfR2Key(sessionToken)
+    : `pdf/${sanitized}-${Date.now()}.pdf`
+
+  // Copie locale par session (photos + PDF au même endroit)
+  if (sessionToken) {
+    try {
+      const sessionDir = localPath(sessionToken)
+      const pdfName = sessionPdfFilename(sessionToken)
+      await ensureLocalDir(sessionDir)
+      const { writeFile } = await import("fs/promises")
+      await writeFile(path.join(sessionDir, pdfName), buffer)
+      console.info(`[local] session PDF saved uploads/${sessionToken}/${pdfName}`)
+    } catch (err) {
+      console.warn(
+        `[local] session PDF save failed: ${(err as Error).message}`
+      )
+    }
+  }
 
   const r2 = getR2Client()
   if (r2) {
-    await r2.send(
-      new PutObjectCommand({
-        Bucket: getBucketName(),
-        Key: key,
-        Body: buffer,
-        ContentType: "application/pdf",
-      })
-    )
+    try {
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: getBucketName(),
+          Key: key,
+          Body: buffer,
+          ContentType: "application/pdf",
+        })
+      )
 
-    const url = siteUrl
-      ? `${siteUrl}/api/pdf/${key}`
-      : `${process.env.R2_PUBLIC_URL || ""}/${key}`
+      const url = buildPdfServeUrl(key, siteUrl)
 
-    return { key, url }
+      return { key, url }
+    } catch (err) {
+      console.warn(
+        `[r2] uploadPdf failed, using local: ${(err as Error).message}`
+      )
+    }
   }
 
   // Local fallback
@@ -95,9 +156,18 @@ export async function uploadPdf(
   const { writeFile } = await import("fs/promises")
   await writeFile(fullPath, buffer)
 
-  const url = siteUrl ? `${siteUrl}/api/pdf/${key}` : `/api/pdf/${key}`
+  const url = buildPdfServeUrl(key, siteUrl)
 
   return { key, url }
+}
+
+/** URL de lecture avec cache-bust (même clé R2 à chaque régénération). */
+function buildPdfServeUrl(key: string, siteUrl?: string): string {
+  const cacheBust = `v=${Date.now()}`
+  if (siteUrl) return `${siteUrl}/api/pdf/${key}?${cacheBust}`
+  const publicUrl = process.env.R2_PUBLIC_URL
+  if (publicUrl) return `${publicUrl}/${key}?${cacheBust}`
+  return `/api/pdf/${key}?${cacheBust}`
 }
 
 // ─── Move temp images to order (R2 or local) ───
@@ -182,7 +252,7 @@ export async function moveTempImagesToOrder(
   return { finalKeys, finalUrls }
 }
 
-// ─── Delete by key (R2 or local) ───
+// ─── Delete by key (R2 + local) ───
 
 export async function deleteByKey(key: string): Promise<void> {
   const r2 = getR2Client()
@@ -199,15 +269,94 @@ export async function deleteByKey(key: string): Promise<void> {
         `[r2] deleteByKey failed for ${key}: ${(err as Error).message}`
       )
     }
-    return
   }
 
-  // Local fallback
-  try {
-    await unlink(localPath(key))
-  } catch {
-    // already gone
+  for (const localKey of localKeysForObject(key)) {
+    try {
+      await unlink(localPath(localKey))
+    } catch {
+      // already gone
+    }
   }
+}
+
+async function deleteR2Prefix(prefix: string): Promise<number> {
+  const r2 = getR2Client()
+  if (!r2) return 0
+
+  let deleted = 0
+  let continuationToken: string | undefined
+
+  try {
+    do {
+      const listRes = await r2.send(
+        new ListObjectsV2Command({
+          Bucket: getBucketName(),
+          Prefix: prefix,
+          ContinuationToken: continuationToken,
+        })
+      )
+
+      for (const obj of listRes.Contents ?? []) {
+        if (!obj.Key) continue
+        try {
+          await r2.send(
+            new DeleteObjectCommand({
+              Bucket: getBucketName(),
+              Key: obj.Key,
+            })
+          )
+          deleted++
+        } catch {
+          /* best-effort */
+        }
+      }
+
+      continuationToken = listRes.IsTruncated
+        ? listRes.NextContinuationToken
+        : undefined
+    } while (continuationToken)
+  } catch (err) {
+    console.warn(
+      `[r2] deleteR2Prefix failed for ${prefix}: ${(err as Error).message}`
+    )
+  }
+
+  return deleted
+}
+
+async function deleteLocalDir(dir: string): Promise<boolean> {
+  try {
+    const { rm } = await import("fs/promises")
+    await rm(dir, { recursive: true, force: true })
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Supprime tous les fichiers d'une commande (photos, PDF) en local et sur R2.
+ */
+export async function deleteSessionStorage(sessionToken: string): Promise<{
+  r2ObjectsDeleted: number
+  localDirsRemoved: number
+}> {
+  const r2Prefix = `sessions/${sessionToken}/`
+  const r2ObjectsDeleted = await deleteR2Prefix(r2Prefix)
+
+  let localDirsRemoved = 0
+  if (await deleteLocalDir(localPath(sessionToken))) localDirsRemoved++
+  if (await deleteLocalDir(localPath(r2Prefix.replace(/\/$/, ""))))
+    localDirsRemoved++
+
+  await emergencyCleanup(`db-${sessionToken}`)
+
+  console.info(
+    `[storage] deleteSessionStorage ${sessionToken}: R2=${r2ObjectsDeleted} object(s), local dirs=${localDirsRemoved}`
+  )
+
+  return { r2ObjectsDeleted, localDirsRemoved }
 }
 
 // ─── Key from public URL ───
@@ -314,6 +463,85 @@ export async function emergencyCleanup(sessionId: string): Promise<number> {
     /* best-effort */
   }
   return deleted
+}
+
+// ─── Session photo upload (one folder per order token) ───
+
+export function sessionPhotoKey(sessionId: string, filename: string): string {
+  return `sessions/${sessionId}/${filename}`
+}
+
+/** Pousse les fichiers locaux d'une session vers R2 (photos uploadées avant fix TLS). */
+export async function syncLocalSessionToR2(sessionToken: string): Promise<void> {
+  const r2 = getR2Client()
+  if (!r2) return
+
+  const dir = localPath(sessionToken)
+  let entries: string[]
+  try {
+    const { readdir } = await import("fs/promises")
+    entries = await readdir(dir)
+  } catch {
+    return
+  }
+
+  for (const name of entries) {
+    if (name.endsWith("-albom.pdf")) continue
+
+    const key = sessionPhotoKey(sessionToken, name)
+    try {
+      const buf = await readFile(path.join(dir, name))
+      const contentType = name.toLowerCase().endsWith(".png")
+        ? "image/png"
+        : name.toLowerCase().endsWith(".webp")
+          ? "image/webp"
+          : "image/jpeg"
+
+      await r2.send(
+        new PutObjectCommand({
+          Bucket: getBucketName(),
+          Key: key,
+          Body: buf,
+          ContentType: contentType,
+        })
+      )
+      console.info(`[r2] syncLocalSessionToR2 OK ${key}`)
+    } catch (err) {
+      console.warn(
+        `[r2] syncLocalSessionToR2 failed for ${key}: ${(err as Error).message}`
+      )
+    }
+  }
+}
+
+export async function uploadSessionPhoto(
+  buffer: Buffer,
+  sessionId: string,
+  filename: string,
+  contentType: string
+): Promise<string | null> {
+  const key = sessionPhotoKey(sessionId, filename)
+
+  const r2 = getR2Client()
+  if (!r2) return null
+
+  try {
+    await r2.send(
+      new PutObjectCommand({
+        Bucket: getBucketName(),
+        Key: key,
+        Body: buffer,
+        ContentType: contentType,
+      })
+    )
+    console.info(`[r2] uploadSessionPhoto OK ${key}`)
+    return key
+  } catch (err) {
+    console.warn(
+      `[r2] uploadSessionPhoto failed for ${key}: ${(err as Error).message}`
+    )
+    return null
+  }
 }
 
 // ─── Upload temp photo (used during upload phase) ───

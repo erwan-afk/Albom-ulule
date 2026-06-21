@@ -10,6 +10,9 @@ import {
 } from "@/actions/email"
 
 import { prisma } from "@/config/db"
+import { deletePendingSession } from "@/lib/photo-session/pendingSessions"
+import { removeLiveOrder } from "@/lib/photo-session/ordersLog"
+import { deleteSessionStorage } from "@/lib/r2/upload"
 
 export type CreateOrderInput = {
   customerEmail: string
@@ -150,7 +153,9 @@ export async function confirmUpload(token: string) {
   revalidatePath("/dashboard")
 
   // Trigger PDF generation in background
-  const filePaths = order.files.map((f) => `${token}/${f.storedName}`)
+  const filePaths = order.files.map(
+    (f) => `sessions/${token}/${f.storedName}`
+  )
 
   const { processOrderFromDb } = await import(
     "@/lib/photo-session/processOrder"
@@ -211,10 +216,26 @@ export async function updateOrder(input: UpdateOrderInput) {
 }
 
 export async function deleteOrder(orderId: string) {
-  const order = await prisma.order.findUnique({ where: { id: orderId } })
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: { files: true },
+  })
   if (!order) {
     return { success: false, error: "Commande introuvable." }
   }
+
+  const sessionId = `db-${order.token}`
+
+  try {
+    await deleteSessionStorage(order.token)
+  } catch (err) {
+    console.error(
+      `[deleteOrder] Storage cleanup failed for ${order.token}: ${(err as Error).message}`
+    )
+  }
+
+  deletePendingSession(sessionId)
+  removeLiveOrder(sessionId)
 
   await prisma.order.delete({ where: { id: orderId } })
 
@@ -270,22 +291,15 @@ export async function regeneratePdf(orderId: string) {
     return { success: false, error: "Aucun fichier a inclure dans le PDF." }
   }
 
-  // Les fichiers ont peut-etre deja ete deplaces dans orders/<handle>/
-  // lors d'une premiere generation. On utilise ce chemin.
-  const sanitized = (order.productHandle || order.id).replace(
-    /[^a-zA-Z0-9._-]/g,
-    "_"
-  )
   const filePaths = order.files.map(
-    (f) => `orders/${sanitized}/${f.storedName}`
+    (f) => `sessions/${order.token}/${f.storedName}`
   )
 
   const { processOrderFromDb } = await import(
     "@/lib/photo-session/processOrder"
   )
 
-  // Declencher la generation en arriere-plan
-  processOrderFromDb(
+  const result = await processOrderFromDb(
     order.token,
     order.productHandle || order.id,
     order.customerName || "Client",
@@ -293,19 +307,20 @@ export async function regeneratePdf(orderId: string) {
     filePaths,
     undefined,
     undefined
-  ).then((result) => {
-    if (!result.ok) {
-      console.error(
-        `[regeneratePdf] PDF generation failed for ${orderId}: ${result.error}`
-      )
-    } else {
-      console.info(
-        `[regeneratePdf] PDF regenerated for ${orderId}: ${result.pdfUrl}`
-      )
-    }
-  })
+  )
+
+  if (!result.ok) {
+    console.error(
+      `[regeneratePdf] PDF generation failed for ${orderId}: ${result.error}`
+    )
+    return { success: false, error: result.error }
+  }
+
+  console.info(
+    `[regeneratePdf] PDF regenerated for ${orderId}: ${result.pdfUrl}`
+  )
 
   revalidatePath("/dashboard")
 
-  return { success: true }
+  return { success: true, pdfUrl: result.pdfUrl }
 }

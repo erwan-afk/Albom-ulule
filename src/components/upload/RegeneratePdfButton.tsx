@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { regeneratePdf } from "@/actions/order"
 
@@ -14,12 +15,16 @@ export function RegeneratePdfButton({
   orderId,
   fileCount,
 }: RegeneratePdfButtonProps) {
+  const router = useRouter()
   const [generating, setGenerating] = useState(false)
 
   async function handleRegenerate() {
     setGenerating(true)
-    await regeneratePdf(orderId)
+    const result = await regeneratePdf(orderId)
     setGenerating(false)
+    if (result.success) {
+      router.refresh()
+    }
   }
 
   if (fileCount === 0) return null

@@ -9,14 +9,19 @@ import {
   saveTemplatePdf,
 } from "@/lib/pdf/templateManager"
 
-// GET — servir le PDF du template
+// GET — servir le PDF du template (?view=background pour l'aperçu fidèle Illustrator)
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { id: string } }
 ) {
-  const pdfPath =
-    getTemplatePdfPath(params.id, "overlay") ||
-    getTemplatePdfPath(params.id, "background")
+  const view = new URL(req.url).searchParams.get("view")
+  const preferBackground = view === "background"
+
+  const pdfPath = preferBackground
+    ? getTemplatePdfPath(params.id, "background") ||
+      getTemplatePdfPath(params.id, "overlay")
+    : getTemplatePdfPath(params.id, "overlay") ||
+      getTemplatePdfPath(params.id, "background")
   if (!pdfPath) {
     return NextResponse.json({ error: "PDF introuvable" }, { status: 404 })
   }
@@ -89,12 +94,15 @@ export async function POST(
       label: existingConfig?.label || {
         enabled: true,
         fontSize: 8,
-        text: "{customerName} — {orderNumber}",
+        secondaryFontSize: 6,
+        text: "{customerName}\n{orderNumber}",
         y: 15,
-        color: [0.3, 0.3, 0.3],
+        color: [0.2, 0.2, 0.2],
+        secondaryColor: [0.55, 0.55, 0.55],
         align: "center",
       },
       zones: parseResult.zones,
+      brandingZone: parseResult.brandingZone,
     })
 
     // Step 5: Generate thumbnail from overlay (background)
@@ -105,6 +113,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       detectedZones: parseResult.zones,
+      brandingZone: parseResult.brandingZone,
       hasCleanOverlay: !!parseResult.cleanContentStream,
     })
   } catch (e) {

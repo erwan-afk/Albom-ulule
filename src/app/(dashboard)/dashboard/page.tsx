@@ -13,6 +13,7 @@ import { CreateOrderForm } from "@/components/upload/CreateOrderForm"
 import { DeleteOrderButton } from "@/components/upload/DeleteOrderButton"
 import { EditOrderDialog } from "@/components/upload/EditOrderDialog"
 import { RegeneratePdfButton } from "@/components/upload/RegeneratePdfButton"
+import { OrderSessionInfo } from "@/components/upload/OrderSessionInfo"
 import { ReminderEmailButton } from "@/components/upload/ReminderEmailButton"
 import { ResendOrderButton } from "@/components/upload/ResendOrderButton"
 import { ViewPdfButton } from "@/components/upload/ViewPdfButton"
@@ -107,6 +108,7 @@ export default async function DashboardPage(): Promise<JSX.Element> {
                           <p className="text-xs text-muted-foreground">
                             {order.customerEmail}
                           </p>
+                          <OrderSessionInfo sessionToken={order.token} />
                         </div>
                       </td>
                       <td className="py-3">{order.productName || "—"}</td>

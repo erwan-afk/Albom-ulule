@@ -104,3 +104,7 @@ export function getOrder(sessionId: string): OrderLogEntry | undefined {
 export function getAllLiveOrders(): OrderLogEntry[] {
   return Array.from(liveOrders.values())
 }
+
+export function removeLiveOrder(sessionId: string): void {
+  liveOrders.delete(liveKey(sessionId))
+}

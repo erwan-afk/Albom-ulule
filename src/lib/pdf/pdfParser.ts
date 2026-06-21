@@ -52,6 +52,47 @@ function extractContentStream(buffer: Buffer, text: string): string | null {
   return null
 }
 
+/** Remplace les aplats noirs Illustrator (0 0 0 k / rg) par du blanc avant un `re f`. */
+export function sanitizeBlackFillsInStream(stream: string): string {
+  const lines = stream.split("\n")
+  const out: string[] = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i].trim()
+    const isBlackFill =
+      /^0\s+0\s+0\s+0?\s+k$/.test(trimmed) ||
+      /^0\s+0\s+0\s+rg$/.test(trimmed) ||
+      /^0\s+g$/.test(trimmed)
+
+    if (isBlackFill && isBlackFillFollowedByRectFill(lines, i)) {
+      out.push("1 1 1 rg")
+      continue
+    }
+    out.push(lines[i])
+  }
+
+  return out.join("\n")
+}
+
+function isBlackFillFollowedByRectFill(
+  lines: string[],
+  colorIdx: number
+): boolean {
+  for (let j = colorIdx + 1; j < Math.min(colorIdx + 15, lines.length); j++) {
+    const t = lines[j].trim()
+    if (t.startsWith("/OC ") || t === "EMC") return false
+    if (t === "f" || t === "f*") return true
+    if (/re\s+f$/.test(t)) return true
+    if (t === "re" && j + 1 < lines.length && lines[j + 1].trim() === "f") {
+      return true
+    }
+    if (/^(S|s|B|b|n)$/.test(t)) return false
+  }
+  return false
+}
+
+export { extractContentStream as extractContentStreamFromPdf }
+
 // ─── Extract page height from MediaBox ───
 
 function extractPageHeight(text: string): number {
@@ -137,6 +178,7 @@ function extractBezierZone(
  *   File → Save As → PDF
  *   ☑ Create Acrobat Layers from Top-Level Layers
  *   Layer names must match: photo-1, photo-2, photo_1, photo_2
+ *   Optional branding text zone: info-1 (case logo + nom client, etc.)
  */
 export function parsePdfTemplate(pdfBuffer: Buffer): ParsePdfResult {
   const text = pdfBuffer.toString("latin1")
@@ -179,11 +221,12 @@ export function parsePdfTemplate(pdfBuffer: Buffer): ParsePdfResult {
     console.warn(
       "[pdf] In Illustrator: File → Save As → PDF → ☑ Create Acrobat Layers from Top-Level Layers"
     )
-    return { zones: [], cleanContentStream: null, pageHeight: 841.89 }
+    return { zones: [], brandingZone: null, cleanContentStream: null, pageHeight: 841.89 }
   }
 
   // Step 4: Parse BDC/EMC blocks
   const zones: TemplateZone[] = []
+  let brandingZone: TemplateZone | null = null
   const pageHeight = extractPageHeight(text)
   let cleanStream = contentStream
   const bdcPattern = /\/OC\s+\/(MC\d+)\s+BDC\s*([\s\S]*?)EMC/g
@@ -203,12 +246,17 @@ export function parsePdfTemplate(pdfBuffer: Buffer): ParsePdfResult {
     console.info(`[pdf] BDC #${bdcBlockCount}: MC=${mcName} → "${layerName}"`)
 
     const photoMatch = layerName.match(/^photo[-_]?(\d+)$/i)
-    if (!photoMatch) {
-      console.info(`[pdf]   "${layerName}" doesn't match photo-N pattern`)
+    const infoMatch = layerName.match(/^info[-_]?(\d+)$/i)
+
+    if (!photoMatch && !infoMatch) {
+      console.info(`[pdf]   "${layerName}" — calque décor (conservé dans l'overlay)`)
       continue
     }
 
-    const photoNum = parseInt(photoMatch[1], 10)
+    const zoneId = photoMatch
+      ? parseInt(photoMatch[1], 10)
+      : parseInt(infoMatch![1], 10)
+    const isBranding = Boolean(infoMatch)
     const rectPattern = /([\d.-]+)\s+([\d.-]+)\s+([\d.-]+)\s+([\d.-]+)\s+re/g
     let found = false
 
@@ -232,15 +280,17 @@ export function parsePdfTemplate(pdfBuffer: Buffer): ParsePdfResult {
       )
       if (afterRect.match(/^\s*W\s+n/)) continue
 
-      zones.push({
-        id: photoNum,
+      const zoneEntry: TemplateZone = {
+        id: zoneId,
         x_mm: round(x * PT_TO_MM),
         y_mm: round((pageHeight - y - h) * PT_TO_MM),
         width_mm: round(w * PT_TO_MM),
         height_mm: round(h * PT_TO_MM),
-      })
+      }
+      if (isBranding) brandingZone = zoneEntry
+      else zones.push(zoneEntry)
       console.info(
-        `[pdf] Zone photo-${photoNum} (rect): ${round(w * PT_TO_MM)}x${round(h * PT_TO_MM)}mm`
+        `[pdf] Zone ${isBranding ? "info" : "photo"}-${zoneId} (rect): ${round(w * PT_TO_MM)}x${round(h * PT_TO_MM)}mm`
       )
       found = true
     }
@@ -248,11 +298,18 @@ export function parsePdfTemplate(pdfBuffer: Buffer): ParsePdfResult {
     if (!found) {
       const zone = extractBezierZone(blockContent, pageHeight)
       if (zone) {
-        zone.id = photoNum
-        zones.push(zone)
-        console.info(
-          `[pdf] Zone photo-${photoNum} (bezier): ${zone.width_mm}x${zone.height_mm}mm`
-        )
+        zone.id = zoneId
+        if (isBranding) {
+          brandingZone = zone
+          console.info(
+            `[pdf] Zone info-${zoneId} (bezier): ${zone.width_mm}x${zone.height_mm}mm`
+          )
+        } else {
+          zones.push(zone)
+          console.info(
+            `[pdf] Zone photo-${zoneId} (bezier): ${zone.width_mm}x${zone.height_mm}mm`
+          )
+        }
         found = true
       }
     }
@@ -267,11 +324,14 @@ export function parsePdfTemplate(pdfBuffer: Buffer): ParsePdfResult {
   }
 
   console.info(
-    `[pdf] Total: ${bdcBlockCount} BDC block(s), ${zones.length} photo zone(s)`
+    `[pdf] Total: ${bdcBlockCount} BDC block(s), ${zones.length} photo zone(s)${brandingZone ? ", 1 zone info" : ""}`
   )
 
   zones.sort((a, b) => a.id - b.id)
-  return { zones, cleanContentStream: cleanStream, pageHeight }
+  if (cleanStream) {
+    cleanStream = sanitizeBlackFillsInStream(cleanStream)
+  }
+  return { zones, brandingZone, cleanContentStream: cleanStream, pageHeight }
 }
 
 // ─── Create clean PDF ───

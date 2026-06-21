@@ -178,7 +178,9 @@ export async function generateThumbnail(id: string): Promise<boolean> {
   const pdfPath = overlayPath || bgPath
   if (!pdfPath) return false
 
-  const pdfBuffer = fs.readFileSync(pdfPath)
+  // Aperçu = PDF original Illustrator (background), pas l'overlay nettoyé
+  const thumbSource = bgPath || pdfPath
+  const pdfBuffer = fs.readFileSync(thumbSource)
 
   // Try sharp first (fast, native)
   try {

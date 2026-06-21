@@ -4,6 +4,11 @@ import { writeFile, mkdir } from "fs/promises"
 import path from "path"
 
 import { prisma } from "@/config/db"
+import {
+  deleteByKey,
+  sessionPhotoKey,
+  uploadSessionPhoto,
+} from "@/lib/r2/upload"
 
 const ALLOWED_TYPES = [
   "image/jpeg",
@@ -55,7 +60,10 @@ export async function uploadFile(formData: FormData) {
   const filePath = path.join(uploadDir, storedName)
 
   const bytes = await file.arrayBuffer()
-  await writeFile(filePath, Buffer.from(bytes))
+  const buffer = Buffer.from(bytes)
+  await writeFile(filePath, buffer)
+
+  await uploadSessionPhoto(buffer, token, storedName, file.type)
 
   const savedFile = await prisma.orderFile.create({
     data: {
@@ -97,6 +105,8 @@ export async function deleteUploadedFile(fileId: string, token: string) {
   } catch {
     // Le fichier n'existe peut-être plus sur le disque, on continue
   }
+
+  await deleteByKey(sessionPhotoKey(token, file.storedName))
 
   await prisma.orderFile.delete({ where: { id: fileId } })
 
