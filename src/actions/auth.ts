@@ -8,7 +8,6 @@ import bcryptjs from "bcryptjs"
 import { AuthError } from "next-auth"
 
 import { env } from "@/env.mjs"
-import { DEFAULT_SIGNIN_REDIRECT } from "@/config/defaults"
 import { prisma } from "@/config/db"
 import { resend } from "@/config/email"
 import {
@@ -90,22 +89,21 @@ export async function signInWithPassword(
   if (!existingUser.emailVerified) return "unverified-email"
 
   try {
+    // redirect: false → on pose seulement le cookie de session, puis on
+    // redirige côté client. Évite le bug NEXT_REDIRECT → /undefined en prod.
     await signIn("credentials", {
       email: validatedInput.data.email,
       password: validatedInput.data.password,
-      redirectTo: DEFAULT_SIGNIN_REDIRECT,
+      redirect: false,
     })
   } catch (error) {
     // Mauvais mot de passe → message clair pour le formulaire
     if (error instanceof AuthError && error.type === "CredentialsSignin") {
       return "invalid-credentials"
     }
-    // En cas de succès, signIn lève une redirection NEXT_REDIRECT : on la
-    // laisse remonter pour que Next redirige vers le dashboard côté serveur.
     throw error
   }
 
-  // Inatteignable : signIn(redirectTo) redirige toujours en cas de succès.
   return "success"
 }
 
