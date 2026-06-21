@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 export default async function SignInPage(): Promise<JSX.Element> {
   const session = await auth()
-  if (session) redirect(DEFAULT_SIGNIN_REDIRECT)
+  if (session?.user) redirect(DEFAULT_SIGNIN_REDIRECT)
 
   const oauthProviders: ("google" | "github")[] = []
   if (env.GOOGLE_ID && env.GOOGLE_SECRET) oauthProviders.push("google")

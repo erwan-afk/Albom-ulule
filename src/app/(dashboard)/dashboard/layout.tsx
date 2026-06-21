@@ -16,8 +16,8 @@ export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps): Promise<JSX.Element> {
   const session = await auth()
-  if (!session) redirect(DEFAULT_UNAUTHENTICATED_REDIRECT)
-  if (session.user?.role !== "ADMIN") redirect(DEFAULT_UNAUTHORIZED_REDIRECT)
+  if (!session?.user) redirect(DEFAULT_UNAUTHENTICATED_REDIRECT)
+  if (session.user.role !== "ADMIN") redirect(DEFAULT_UNAUTHORIZED_REDIRECT)
 
   return <div>{children}</div>
 }
