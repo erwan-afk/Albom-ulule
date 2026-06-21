@@ -1,7 +1,10 @@
 import * as React from "react"
 import { redirect } from "next/navigation"
 
-import { DEFAULT_UNAUTHENTICATED_REDIRECT } from "@/config/defaults"
+import {
+  DEFAULT_SIGNIN_REDIRECT,
+  DEFAULT_UNAUTHENTICATED_REDIRECT,
+} from "@/config/defaults"
 
 import auth from "@/lib/auth"
 
@@ -14,6 +17,7 @@ export default async function DashboardLayout({
 }: DashboardLayoutProps): Promise<JSX.Element> {
   const session = await auth()
   if (!session) redirect(DEFAULT_UNAUTHENTICATED_REDIRECT)
+  if (session.user?.role !== "ADMIN") redirect(DEFAULT_SIGNIN_REDIRECT)
 
   return <div>{children}</div>
 }

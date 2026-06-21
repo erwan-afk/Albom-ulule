@@ -13,18 +13,31 @@ import { signInWithPasswordSchema } from "@/validations/auth"
 
 import { MagicLinkEmail } from "@/components/emails/magic-link-email"
 
-export default {
-  providers: [
+const oauthProviders = []
+
+if (env.GOOGLE_ID && env.GOOGLE_SECRET) {
+  oauthProviders.push(
     GoogleProvider({
       clientId: env.GOOGLE_ID,
       clientSecret: env.GOOGLE_SECRET,
       allowDangerousEmailAccountLinking: true,
-    }),
+    })
+  )
+}
+
+if (env.GITHUB_ID && env.GITHUB_SECRET) {
+  oauthProviders.push(
     GitHubProvider({
       clientId: env.GITHUB_ID,
       clientSecret: env.GITHUB_SECRET,
       allowDangerousEmailAccountLinking: true,
-    }),
+    })
+  )
+}
+
+export default {
+  providers: [
+    ...oauthProviders,
     CredentialsProvider({
       async authorize(rawCredentials) {
         const validatedCredentials =

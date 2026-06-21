@@ -30,6 +30,10 @@ export default async function SignUpPage(): Promise<JSX.Element> {
   const session = await auth()
   if (session) redirect(DEFAULT_SIGNIN_REDIRECT)
 
+  const oauthProviders: ("google" | "github")[] = []
+  if (env.GOOGLE_ID && env.GOOGLE_SECRET) oauthProviders.push("google")
+  if (env.GITHUB_ID && env.GITHUB_SECRET) oauthProviders.push("github")
+
   return (
     <div className="flex h-auto min-h-screen w-full items-center justify-center md:flex">
       <Card className="max-sm:flex max-sm:w-full max-sm:flex-col max-sm:items-center max-sm:justify-center max-sm:rounded-none max-sm:border-none sm:min-w-[370px] sm:max-w-[368px]">
@@ -45,17 +49,21 @@ export default async function SignUpPage(): Promise<JSX.Element> {
           </CardDescription>
         </CardHeader>
         <CardContent className="max-sm:w-full max-sm:max-w-[340px] max-sm:px-10">
-          <OAuthButtons />
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative mb-3 mt-6 flex justify-center text-xs uppercase">
-              <span className="bg-background px-2">
-                Or continue with magic link
-              </span>
-            </div>
-          </div>
+          {oauthProviders.length > 0 && (
+            <>
+              <OAuthButtons providers={oauthProviders} />
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative mb-3 mt-6 flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2">
+                    Or continue with magic link
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
           <SignInWithEmailForm />
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
