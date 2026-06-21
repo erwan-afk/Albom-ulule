@@ -2,8 +2,8 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { signInWithPassword } from "@/actions/auth"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { signIn } from "next-auth/react"
 import { useForm } from "react-hook-form"
 
 import { DEFAULT_SIGNIN_REDIRECT } from "@/config/defaults"
@@ -43,50 +43,26 @@ export function SignInWithPasswordForm(): JSX.Element {
   function onSubmit(formData: SignInWithPasswordFormInput) {
     startTransition(async () => {
       try {
-        const message = await signInWithPassword({
+        // signIn côté client (next-auth/react) : pose le cookie de session de
+        // façon fiable en prod, contrairement à signIn dans un server action.
+        const res = await signIn("credentials", {
           email: formData.email,
           password: formData.password,
+          redirect: false,
         })
 
-        switch (message) {
-          case "not-registered":
-            toast({
-              title: "First things first",
-              description:
-                "Please make sure you are signed up before signing in",
-            })
-            break
-          case "incorrect-provider":
-            toast({
-              title: "Email already in use with another provider",
-              description: "Perhaps you signed up with a different method?",
-            })
-            break
-          case "unverified-email":
-            toast({
-              title: "First things first",
-              description: "Please verify your email address before signing in",
-            })
-            break
-          case "invalid-credentials":
-            toast({
-              title: "Invalid email or Password",
-              description: "Double-check your credentials and try again",
-              variant: "destructive",
-            })
-            break
-          case "success":
-            // Le cookie de session est posé : on navigue vers le dashboard.
-            router.push(DEFAULT_SIGNIN_REDIRECT)
-            router.refresh()
-            break
-          default:
-            toast({
-              title: "Error signing in with password",
-              description: "Please try again",
-              variant: "destructive",
-            })
+        if (!res || res.error) {
+          toast({
+            title: "Connexion impossible",
+            description:
+              "Vérifie ton email et ton mot de passe, puis réessaie.",
+            variant: "destructive",
+          })
+          return
         }
+
+        router.push(DEFAULT_SIGNIN_REDIRECT)
+        router.refresh()
       } catch (error) {
         console.error(error)
         toast({
