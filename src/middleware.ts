@@ -1,25 +1,11 @@
-import { NextResponse } from "next/server"
+import NextAuth from "next-auth"
 
-import { auth } from "@/auth"
+import { authConfig } from "@/auth.config"
 
 /**
- * Protège /dashboard avec la même validation JWT que NextAuth (pas seulement
- * la présence d'un cookie, qui provoquait une boucle signin ↔ dashboard).
+ * Middleware Edge : utilise uniquement auth.config (pas auth.ts / emails / Prisma).
  */
-export default auth((req) => {
-  const isDashboard = req.nextUrl.pathname.startsWith("/dashboard")
-  if (!isDashboard) return NextResponse.next()
-
-  if (!req.auth?.user) {
-    return NextResponse.redirect(new URL("/signin", req.nextUrl))
-  }
-
-  if (req.auth.user.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/", req.nextUrl))
-  }
-
-  return NextResponse.next()
-})
+export const { auth: middleware } = NextAuth(authConfig)
 
 export const config = {
   matcher: ["/dashboard/:path*"],
