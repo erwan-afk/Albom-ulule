@@ -1,7 +1,6 @@
 "use server"
 
 import crypto from "crypto"
-import { redirect } from "next/navigation"
 
 import { getUserByEmail, getUserByResetPasswordToken } from "@/actions/user"
 import { signIn } from "@/auth"
@@ -76,41 +75,38 @@ export async function signInWithPassword(
   | "incorrect-provider"
   | "success"
 > {
+  // Validations AVANT le signIn : un return simple, jamais d'exception 500.
+  const validatedInput = signInWithPasswordSchema.safeParse(rawInput)
+  if (!validatedInput.success) return "invalid-input"
+
+  const existingUser = await getUserByEmail({
+    email: validatedInput.data.email,
+  })
+  if (!existingUser) return "not-registered"
+
+  if (!existingUser.email || !existingUser.passwordHash)
+    return "incorrect-provider"
+
+  if (!existingUser.emailVerified) return "unverified-email"
+
   try {
-    const validatedInput = signInWithPasswordSchema.safeParse(rawInput)
-    if (!validatedInput.success) return "invalid-input"
-
-    const existingUser = await getUserByEmail({
-      email: validatedInput.data.email,
-    })
-    if (!existingUser) return "not-registered"
-
-    if (!existingUser.email || !existingUser.passwordHash)
-      return "incorrect-provider"
-
-    if (!existingUser.emailVerified) return "unverified-email"
-
     await signIn("credentials", {
       email: validatedInput.data.email,
       password: validatedInput.data.password,
       redirectTo: DEFAULT_SIGNIN_REDIRECT,
     })
-
-    // signIn avec redirectTo ne retourne pas — garde-fou TypeScript
-    return "success"
   } catch (error) {
-    console.error(error)
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return "invalid-credentials"
-        default:
-          throw error
-      }
-    } else {
-      throw new Error("Error signin in with password")
+    // Mauvais mot de passe → message clair pour le formulaire
+    if (error instanceof AuthError && error.type === "CredentialsSignin") {
+      return "invalid-credentials"
     }
+    // En cas de succès, signIn lève une redirection NEXT_REDIRECT : on la
+    // laisse remonter pour que Next redirige vers le dashboard côté serveur.
+    throw error
   }
+
+  // Inatteignable : signIn(redirectTo) redirige toujours en cas de succès.
+  return "success"
 }
 
 export async function resetPassword(
