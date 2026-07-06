@@ -1,0 +1,9 @@
+# Coolify / Nixpacks — build stable pour Next.js + Contentlayer
+[variables]
+NODE_ENV = "production"
+# Next build (webpack + typecheck) peut dépasser 1–2 Go sur un petit VPS
+NODE_OPTIONS = "--max-old-space-size=4096"
+
+[phases.setup]
+# Forcer Node 20 (engines "20" seul ne suffit pas toujours avec les ranges)
+nixpkgsArchive = "ffeebf0acf3ae8b29f8c7049cd911b9636efd7e7"

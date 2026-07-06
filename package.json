@@ -135,8 +135,13 @@
     "typescript": "^5.4.5"
   },
   "engines": {
-    "node": ">=20.10.0 <21",
+    "node": "20",
     "pnpm": ">=9.0.0 <10"
   },
-  "packageManager": "pnpm@9.15.9"
+  "packageManager": "pnpm@9.15.9",
+  "pnpm": {
+    "patchedDependencies": {
+      "clipanion@3.2.1": "patches/clipanion@3.2.1.patch"
+    }
+  }
 }

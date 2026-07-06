@@ -1,0 +1,23 @@
+diff --git a/lib/advanced/Cli.js b/lib/advanced/Cli.js
+index b6946ca4ac6b2dd5d78598dfdef6caca7fcf5e33..c25f3ba1a6e524aab485dac4442e244f20047524 100644
+--- a/lib/advanced/Cli.js
++++ b/lib/advanced/Cli.js
+@@ -220,7 +220,7 @@ class Cli {
+             : noopCaptureActivator;
+         let exitCode;
+         try {
+-            exitCode = await activate(() => command.validateAndExecute().catch(error => command.catch(error).then(() => 0)));
++            exitCode = await activate(() => command.validateAndExecute().catch(error => command.catch(error)).then(() => 0));
+         }
+         catch (error) {
+             context.stdout.write(this.error(error, { colored, command }));
+@@ -229,7 +229,8 @@ class Cli {
+         return exitCode;
+     }
+     async runExit(input, context) {
+-        process.exitCode = await this.run(input, context);
++        const code = await this.run(input, context);
++        process.exitCode = typeof code === 'number' ? code : 0;
+     }
+     suggest(input, partial) {
+         const { suggest } = this.builder.compile();

@@ -1,0 +1,11 @@
+# Réduire le contexte Docker et éviter d'embarquer le cache local
+.git
+.next
+.contentlayer
+node_modules
+.pnpm-store
+uploads
+*.log
+.env
+.env.*
+!.env.example
