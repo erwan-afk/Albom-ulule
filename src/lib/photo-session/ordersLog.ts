@@ -52,33 +52,12 @@ async function persistToDb(entry: OrderLogEntry): Promise<void> {
     ? `PDF failed: ${entry.errorMessage}`
     : `PDF: ${entry.pdfUrl || "generated"}`
 
-  let updated = 0
-
-  // Try to find the order by productHandle (any processable status)
-  try {
-    const result = await prisma.order.updateMany({
-      where: {
-        productHandle: entry.orderName,
-        status: { in: ["PHOTOS_UPLOADED", "PRINTED"] },
-      },
-      data: { status: newStatus, notes },
-    })
-    updated = result.count
-  } catch (err) {
-    console.warn(
-      `[ordersLog] DB update by handle failed: ${(err as Error).message}`
-    )
-  }
-
-  // Fallback: if sessionId is db-<token>, match by token
-  if (updated === 0 && entry.sessionId.startsWith("db-")) {
+  // Flux dashboard : sessionId = db-<token> — une commande par token
+  if (entry.sessionId.startsWith("db-")) {
     const token = entry.sessionId.slice(3)
     try {
-      await prisma.order.updateMany({
-        where: {
-          token,
-          status: { in: ["PHOTOS_UPLOADED", "PRINTED"] },
-        },
+      await prisma.order.update({
+        where: { token },
         data: { status: newStatus, notes },
       })
     } catch (err) {
@@ -86,6 +65,22 @@ async function persistToDb(entry: OrderLogEntry): Promise<void> {
         `[ordersLog] DB update by token failed: ${(err as Error).message}`
       )
     }
+    return
+  }
+
+  // Autres flux (ex. Shopify) : orderName = numéro de commande unique
+  try {
+    await prisma.order.updateMany({
+      where: {
+        productHandle: entry.orderName,
+        status: { in: ["PHOTOS_UPLOADED", "PRINTED"] },
+      },
+      data: { status: newStatus, notes },
+    })
+  } catch (err) {
+    console.warn(
+      `[ordersLog] DB update by handle failed: ${(err as Error).message}`
+    )
   }
 
   // Clean up live entry after 5 minutes

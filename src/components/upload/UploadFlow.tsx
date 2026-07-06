@@ -262,7 +262,16 @@ export function UploadFlow({
       }
     }
 
-    await confirmUpload(token)
+    const confirmResult = await confirmUpload(token)
+    if (!confirmResult.success) {
+      setUploading(false)
+      setError(
+        confirmResult.error ||
+          "La génération du PDF a échoué. Réessaie ou contacte le support."
+      )
+      return
+    }
+
     setConfirmed(true)
     await fetchOrder()
     setUploading(false)
@@ -310,7 +319,7 @@ export function UploadFlow({
     selectedPhotos.every((p) => p.status === "ready")
 
   const confirmLabel = uploading
-    ? "Envoi en cours…"
+    ? "Génération du PDF…"
     : selectedCount >= photosRequired
       ? `Confirmer l'envoi (${selectedCount})`
       : `Confirmer (${selectedCount}/${photosRequired})`

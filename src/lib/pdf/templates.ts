@@ -1,3 +1,4 @@
+import { PRINT_RESOLUTION_DPI } from "@/lib/images/constants"
 import { mkdir, readFile, readdir, unlink, writeFile } from "fs/promises"
 import path from "path"
 
@@ -48,7 +49,7 @@ const DEFAULT_TEMPLATE: TemplateConfig = {
   id: "default",
   name: "Défaut",
   productKeywords: [],
-  resolutionDpi: 150,
+  resolutionDpi: PRINT_RESOLUTION_DPI,
   label: {
     enabled: true,
     fontSize: 8,

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+import { PRINT_JPEG_QUALITY } from "@/lib/images/constants"
+
 const MAX_BYTES = 50 * 1024 * 1024
 
 export const runtime = "nodejs"
@@ -26,7 +28,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     const jpeg = await sharp(input, { failOn: "none" })
       .rotate()
-      .jpeg({ quality: 92 })
+      .jpeg({ quality: PRINT_JPEG_QUALITY, mozjpeg: true, chromaSubsampling: "4:4:4" })
       .toBuffer()
 
     if (jpeg.length === 0) {

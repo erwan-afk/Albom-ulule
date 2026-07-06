@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { PRINT_RESOLUTION_DPI } from "@/lib/images/constants"
 import { createCleanPdf, parsePdfTemplate } from "@/lib/pdf/pdfParser"
 import {
   generateThumbnail,
@@ -90,7 +91,7 @@ export async function POST(
       name: existingConfig?.name,
       productIds: existingConfig?.productIds || [],
       productKeywords: existingConfig?.productKeywords || [],
-      resolutionDpi: existingConfig?.resolutionDpi || 150,
+      resolutionDpi: existingConfig?.resolutionDpi || PRINT_RESOLUTION_DPI,
       label: existingConfig?.label || {
         enabled: true,
         fontSize: 8,

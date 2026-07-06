@@ -145,7 +145,7 @@ export default async function DashboardPage(): Promise<JSX.Element> {
                           />
                           <ViewPdfButton
                             status={order.status}
-                            notes={order.notes}
+                            sessionToken={order.token}
                           />
                           <EditOrderDialog order={order} />
                           <DeleteOrderButton

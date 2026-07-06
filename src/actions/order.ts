@@ -161,8 +161,7 @@ export async function confirmUpload(token: string) {
     "@/lib/photo-session/processOrder"
   )
 
-  // Fire-and-forget: don't block the HTTP response
-  processOrderFromDb(
+  const result = await processOrderFromDb(
     token,
     order.productHandle || order.id,
     order.customerName || "Client",
@@ -170,15 +169,21 @@ export async function confirmUpload(token: string) {
     filePaths,
     undefined,
     undefined
-  ).then((result) => {
-    if (!result.ok) {
-      console.error(
-        `[confirmUpload] PDF generation failed for ${token}: ${result.error}`
-      )
-    }
-  })
+  )
 
-  return { success: true }
+  if (!result.ok) {
+    console.error(
+      `[confirmUpload] PDF generation failed for ${token}: ${result.error}`
+    )
+    return {
+      success: false,
+      error:
+        result.error ||
+        "Les photos sont enregistrées mais la génération du PDF a échoué.",
+    }
+  }
+
+  return { success: true, pdfUrl: result.pdfUrl }
 }
 
 export type UpdateOrderInput = {

@@ -1,3 +1,5 @@
+import { UPLOAD_JPEG_QUALITY } from "@/lib/images/constants"
+
 const HEIC_TYPES = new Set([
   "image/heic",
   "image/heif",
@@ -15,7 +17,7 @@ async function convertWithHeicTo(file: File): Promise<Blob> {
   return heicTo({
     blob: file,
     type: "image/jpeg",
-    quality: 0.92,
+    quality: UPLOAD_JPEG_QUALITY,
   })
 }
 
@@ -24,7 +26,7 @@ async function convertWithHeic2any(file: File): Promise<Blob> {
   const converted = await heic2any({
     blob: file,
     toType: "image/jpeg",
-    quality: 0.92,
+    quality: UPLOAD_JPEG_QUALITY,
   })
   return Array.isArray(converted) ? converted[0]! : converted
 }
@@ -48,7 +50,7 @@ async function convertWithServer(file: File): Promise<Blob> {
 
 /**
  * Browsers cannot render HEIC/HEIF in <img> or canvas.
- * Try modern decoder (heic-to), legacy (heic2any), then server sharp.
+ * Convertit en JPEG haute qualité avant upload (l'original HEIC n'est pas conservé).
  */
 export async function prepareImageForPreview(file: File): Promise<File> {
   if (!isHeicFile(file)) return file

@@ -16,8 +16,6 @@ const ALLOWED_TYPES = [
   "image/webp",
   "image/tiff",
   "application/pdf",
-  "image/heic",
-  "image/heif",
 ]
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50 Mo
 
@@ -39,7 +37,7 @@ export async function uploadFile(formData: FormData) {
   if (!ALLOWED_TYPES.includes(file.type)) {
     return {
       success: false,
-      error: `Type de fichier non supporté : ${file.type}. Types acceptés : JPG, PNG, WebP, TIFF, PDF, HEIC.`,
+      error: `Type de fichier non supporté : ${file.type}. Types acceptés : JPG, PNG, WebP, TIFF, PDF. (Les HEIC sont convertis en JPEG avant envoi.)`,
     }
   }
 

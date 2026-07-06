@@ -1,0 +1,25 @@
+{
+  "id": "Albom-V5",
+  "name": "Template Impression V5",
+  "productKeywords": [],
+  "resolutionDpi": 300,
+  "label": {
+    "enabled": true,
+    "fontSize": 8,
+    "secondaryFontSize": 6,
+    "text": "{customerName}\n{orderNumber}",
+    "y": 10,
+    "color": [
+      0.2,
+      0.2,
+      0.2
+    ],
+    "secondaryColor": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "align": "center"
+  },
+  "zones": []
+}

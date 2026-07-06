@@ -1,6 +1,7 @@
+import { THUMB_JPEG_QUALITY } from "@/lib/images/constants"
 import { isHeicFile, prepareImageForPreview } from "@/lib/images/prepareImageFile"
 
-/** Miniature légère pour l'UI (sidebar + grille). L'original reste pour l'upload. */
+/** Miniature légère pour l'UI. HEIC → JPEG haute qualité pour l'upload ; thumb séparée. */
 export async function createPreviewThumbnail(
   file: File,
   maxEdge = 480
@@ -36,7 +37,7 @@ export async function createPreviewThumbnail(
     canvas.toBlob(
       (b) => (b ? resolve(b) : reject(new Error("Thumbnail failed"))),
       "image/jpeg",
-      0.8
+      THUMB_JPEG_QUALITY
     )
   })
 

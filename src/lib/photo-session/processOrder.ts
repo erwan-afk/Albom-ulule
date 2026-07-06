@@ -9,8 +9,10 @@
  */
 
 import { generatePdf, getCellDimensions, ptToPx } from "@/lib/pdf/pdfGenerator"
+import { processImageBufferForPrint } from "@/lib/pdf/processImageForPrint"
 import { findTemplateForProduct, getTemplate } from "@/lib/pdf/templateManager"
 import type { ProcessedImage } from "@/lib/pdf/types"
+import { PRINT_RESOLUTION_DPI } from "@/lib/images/constants"
 import { getOrder, upsertOrder } from "@/lib/photo-session/ordersLog"
 import {
   createPendingSession,
@@ -23,7 +25,7 @@ import {
   deleteByKey,
   emergencyCleanup,
   moveTempImagesToOrder,
-  readObject,
+  readSessionPhoto,
   syncLocalSessionToR2,
   uploadPdf,
 } from "@/lib/r2/upload"
@@ -50,34 +52,18 @@ async function processWithSharp(
   cellWidthPx: number,
   cellHeightPx: number
 ): Promise<(ProcessedImage | null)[]> {
-  let sharp: any = null
-  try {
-    sharp = (await import("sharp")).default
-  } catch {
-    console.warn("[process-order] sharp not available, images kept as-is")
-  }
-
   return Promise.all(
     buffers.map(async (raw, idx) => {
-      try {
-        if (!raw) return null
-        if (sharp) {
-          const buffer = await sharp(raw)
-            .resize(cellWidthPx, cellHeightPx, {
-              fit: "cover",
-              position: "centre",
-            })
-            .jpeg({ quality: 90 })
-            .toBuffer()
-          return { buffer, format: "jpeg" as const }
-        }
-        return { buffer: raw, format: "jpeg" as const }
-      } catch (err) {
-        console.error(
-          `[process-order] sharp failed on image ${idx}: ${(err as Error).message}`
-        )
-        return null
+      if (!raw) return null
+      const processed = await processImageBufferForPrint(
+        raw,
+        cellWidthPx,
+        cellHeightPx
+      )
+      if (!processed) {
+        console.error(`[process-order] failed on image ${idx}`)
       }
+      return processed
     })
   )
 }
@@ -178,7 +164,7 @@ export async function processOrder(
     setStatus(35, "Téléchargement")
     const buffers: Buffer[] = []
     for (const key of finalKeys) {
-      const buf = await readObject(key)
+      const buf = await readSessionPhoto(key)
       if (buf) buffers.push(buf)
     }
     if (buffers.length === 0) {
@@ -188,7 +174,7 @@ export async function processOrder(
     // ── Step 5: sharp resize ──
     setStatus(55, "Optimisation")
     const { cellWidth, cellHeight } = getCellDimensions(template)
-    const dpi = template.resolutionDpi || 150
+    const dpi = template.resolutionDpi || PRINT_RESOLUTION_DPI
     const cellWidthPx = ptToPx(cellWidth, dpi)
     const cellHeightPx = ptToPx(cellHeight, dpi)
     const images = await processWithSharp(buffers, cellWidthPx, cellHeightPx)

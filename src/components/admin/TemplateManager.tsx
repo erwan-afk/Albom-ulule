@@ -1,5 +1,7 @@
 "use client"
 
+import { PRINT_RESOLUTION_DPI } from "@/lib/images/constants"
+
 import dynamic from "next/dynamic"
 import { useState } from "react"
 import { BiLoaderAlt } from "react-icons/bi"
@@ -63,7 +65,7 @@ export function TemplateManager({ templates, onRefresh }: Props) {
           id,
           name,
           productKeywords: [],
-          resolutionDpi: 150,
+          resolutionDpi: PRINT_RESOLUTION_DPI,
           label: {
             enabled: true,
             fontSize: 8,

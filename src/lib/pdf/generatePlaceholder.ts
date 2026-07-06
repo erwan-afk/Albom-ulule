@@ -1,3 +1,4 @@
+import { PRINT_RESOLUTION_DPI } from "@/lib/images/constants"
 import { uploadPdf } from "@/lib/r2/upload";
 import { deletePhotosByUrls } from "./cleanup";
 import { downloadAndProcessAll } from "./imageDownloader";
@@ -45,7 +46,7 @@ export async function generatePlaceholder(
   try {
     // Calculate image dimensions from template
     const { cellWidth, cellHeight } = getCellDimensions(template);
-    const dpi = template.resolutionDpi || 150;
+    const dpi = template.resolutionDpi || PRINT_RESOLUTION_DPI;
     const cellWidthPx = ptToPx(cellWidth, dpi);
     const cellHeightPx = ptToPx(cellHeight, dpi);
 

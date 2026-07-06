@@ -1,0 +1,85 @@
+{
+  "id": "PDF",
+  "name": "Template impression V4",
+  "productIds": [],
+  "productKeywords": [
+    "Album photo de famille"
+  ],
+  "resolutionDpi": 300,
+  "label": {
+    "enabled": true,
+    "fontSize": 8,
+    "secondaryFontSize": 6,
+    "text": "{customerName}\n{orderNumber}",
+    "y": 10,
+    "color": [
+      0.2,
+      0.2,
+      0.2
+    ],
+    "secondaryColor": [
+      0.55,
+      0.55,
+      0.55
+    ],
+    "align": "center"
+  },
+  "zones": [
+    {
+      "id": 1,
+      "x_mm": 0.7,
+      "y_mm": 2.1,
+      "width_mm": 69.2,
+      "height_mm": 100
+    },
+    {
+      "id": 2,
+      "x_mm": 75,
+      "y_mm": 2.1,
+      "width_mm": 69.2,
+      "height_mm": 100
+    },
+    {
+      "id": 3,
+      "x_mm": 149.2,
+      "y_mm": 2.1,
+      "width_mm": 69.2,
+      "height_mm": 100
+    },
+    {
+      "id": 4,
+      "x_mm": 223.5,
+      "y_mm": 2.1,
+      "width_mm": 69.2,
+      "height_mm": 100
+    },
+    {
+      "id": 5,
+      "x_mm": 0.7,
+      "y_mm": 107.1,
+      "width_mm": 69.2,
+      "height_mm": 100
+    },
+    {
+      "id": 6,
+      "x_mm": 75,
+      "y_mm": 107.1,
+      "width_mm": 69.2,
+      "height_mm": 100
+    },
+    {
+      "id": 7,
+      "x_mm": 149.2,
+      "y_mm": 107.1,
+      "width_mm": 69.2,
+      "height_mm": 100
+    }
+  ],
+  "brandingZone": {
+    "id": 1,
+    "x_mm": 238.2,
+    "y_mm": 168.8,
+    "width_mm": 39.7,
+    "height_mm": 20.7
+  }
+}

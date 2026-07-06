@@ -94,6 +94,21 @@ export async function readObject(key: string): Promise<Buffer | null> {
   return readR2Object(key)
 }
 
+/**
+ * Lit une photo de session : disque local d'abord (upload frais), puis R2.
+ * Évite de servir une version R2 obsolète ou incomplète juste après l'upload.
+ */
+export async function readSessionPhoto(key: string): Promise<Buffer | null> {
+  if (!key.startsWith("sessions/")) {
+    return readObject(key)
+  }
+
+  const local = await readLocalObject(key)
+  if (local) return local
+
+  return readR2Object(key)
+}
+
 // ─── Upload PDF (R2 or local) ───
 
 export interface UploadResult {
@@ -118,8 +133,11 @@ export async function uploadPdf(
       const sessionDir = localPath(sessionToken)
       const pdfName = sessionPdfFilename(sessionToken)
       await ensureLocalDir(sessionDir)
-      const { writeFile } = await import("fs/promises")
-      await writeFile(path.join(sessionDir, pdfName), buffer)
+      const { writeFile, rename } = await import("fs/promises")
+      const dest = path.join(sessionDir, pdfName)
+      const tmp = `${dest}.tmp`
+      await writeFile(tmp, buffer)
+      await rename(tmp, dest)
       console.info(`[local] session PDF saved uploads/${sessionToken}/${pdfName}`)
     } catch (err) {
       console.warn(

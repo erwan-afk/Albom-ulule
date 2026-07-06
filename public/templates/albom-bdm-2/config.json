@@ -2,10 +2,8 @@
   "id": "albom-bdm-2",
   "name": "Albom - Bord de mer V2",
   "productIds": [],
-  "productKeywords": [
-    "Album photo de famille"
-  ],
-  "resolutionDpi": 150,
+  "productKeywords": [],
+  "resolutionDpi": 300,
   "label": {
     "enabled": true,
     "fontSize": 8,

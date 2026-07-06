@@ -1,5 +1,7 @@
 import type { Area } from "react-easy-crop"
 
+import { UPLOAD_JPEG_QUALITY } from "@/lib/images/constants"
+
 export function createImage(url: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
@@ -47,7 +49,7 @@ export async function getCroppedImg(
         resolve(blob)
       },
       "image/jpeg",
-      0.95
+      UPLOAD_JPEG_QUALITY
     )
   })
 }
