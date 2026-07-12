@@ -5,17 +5,31 @@ import Cropper, { type Area } from "react-easy-crop"
 
 import { Button } from "@/components/ui/button"
 import { cropToBlob } from "@/components/upload/cropImage"
+import type { CropState } from "@/components/upload/uploadPhoto.types"
+
+export type CropResult = CropState & {
+  blob: Blob
+}
 
 type Props = {
   imageSrc: string
   ratio: number
+  initialCrop?: CropState["crop"]
+  initialZoom?: number
   onCancel: () => void
-  onConfirm: (blob: Blob) => Promise<void> | void
+  onConfirm: (result: CropResult) => Promise<void> | void
 }
 
-export function PhotoCropper({ imageSrc, ratio, onCancel, onConfirm }: Props) {
-  const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
+export function PhotoCropper({
+  imageSrc,
+  ratio,
+  initialCrop,
+  initialZoom,
+  onCancel,
+  onConfirm,
+}: Props): JSX.Element {
+  const [crop, setCrop] = useState(initialCrop ?? { x: 0, y: 0 })
+  const [zoom, setZoom] = useState(initialZoom ?? 1)
   const [pixelArea, setPixelArea] = useState<Area | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -33,7 +47,7 @@ export function PhotoCropper({ imageSrc, ratio, onCancel, onConfirm }: Props) {
     setError(null)
     try {
       const blob = await cropToBlob(imageSrc, pixelArea)
-      await onConfirm(blob)
+      await onConfirm({ blob, crop, zoom })
     } catch (e: unknown) {
       console.error("[PhotoCropper] Erreur:", e)
       setError(e instanceof Error ? e.message : "Échec du recadrage")
@@ -45,7 +59,6 @@ export function PhotoCropper({ imageSrc, ratio, onCancel, onConfirm }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
       <div className="flex w-full max-w-2xl flex-col rounded-lg bg-background">
-        {/* Header */}
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h3 className="font-semibold">Recadrer la photo</h3>
           <button
@@ -58,7 +71,6 @@ export function PhotoCropper({ imageSrc, ratio, onCancel, onConfirm }: Props) {
           </button>
         </div>
 
-        {/* Zone de crop */}
         <div className="relative h-[60vh] bg-black">
           <Cropper
             image={imageSrc}
@@ -72,7 +84,6 @@ export function PhotoCropper({ imageSrc, ratio, onCancel, onConfirm }: Props) {
           />
         </div>
 
-        {/* Footer */}
         <div className="flex flex-col gap-3 p-4">
           {error && (
             <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20">
