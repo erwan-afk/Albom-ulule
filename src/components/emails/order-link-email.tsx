@@ -55,7 +55,7 @@ export function OrderLinkEmail({
                 Formats acceptés : JPG, PNG, WebP, TIFF, PDF, HEIC.
               </Text>
               <Text className="text-sm">
-                Taille maximale par fichier : 50 Mo.
+                Taille maximale par fichier : 10 Mo.
               </Text>
             </Section>
           </Container>

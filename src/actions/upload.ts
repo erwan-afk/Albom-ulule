@@ -17,7 +17,7 @@ const ALLOWED_TYPES = [
   "image/tiff",
   "application/pdf",
 ]
-const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50 Mo
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 Mo
 
 export async function uploadFile(formData: FormData) {
   const token = formData.get("token") as string
@@ -45,7 +45,7 @@ export async function uploadFile(formData: FormData) {
   if (file.size > MAX_FILE_SIZE) {
     return {
       success: false,
-      error: `Fichier trop volumineux (${(file.size / (1024 * 1024)).toFixed(1)} Mo). Taille maximale : 50 Mo.`,
+      error: `Fichier trop volumineux (${(file.size / (1024 * 1024)).toFixed(1)} Mo). Taille maximale : 10 Mo.`,
     }
   }
 

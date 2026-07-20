@@ -4,6 +4,12 @@ import { useState } from "react"
 import { BiLoaderAlt } from "react-icons/bi"
 
 import type { TemplateItem } from "@/components/admin/TemplateManager"
+import {
+  AdminMobileCard,
+  AdminMobileField,
+  AdminTableDesktop,
+  AdminTableMobile,
+} from "@/components/admin/admin-table-layout"
 
 type OrderRow = {
   id: string
@@ -105,7 +111,7 @@ export function ProductTemplateAssociation({
   }
 
   return (
-    <div className="rounded-xl border bg-card p-6">
+    <div className="min-w-0 rounded-xl border bg-card p-4 sm:p-6">
       <h2 className="mb-1 text-lg font-bold text-foreground">
         🔗 Association Produit → Template
       </h2>
@@ -114,7 +120,7 @@ export function ProductTemplateAssociation({
         utilisé automatiquement pour toutes les commandes de ce produit.
       </p>
 
-      <div className="overflow-x-auto">
+      <AdminTableDesktop>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50 text-left">
@@ -127,7 +133,7 @@ export function ProductTemplateAssociation({
               <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Template actuel
               </th>
-              <th className="min-w-[220px] px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Nouveau template
               </th>
             </tr>
@@ -168,7 +174,7 @@ export function ProductTemplateAssociation({
                         onChange={(e) =>
                           handleAssignTemplate(o.productTitle, e.target.value)
                         }
-                        className="min-w-[200px] cursor-pointer rounded-md border px-2.5 py-1.5 text-sm text-foreground"
+                        className="w-full max-w-xs cursor-pointer rounded-md border px-2.5 py-1.5 text-sm text-foreground"
                       >
                         <option value="">— Aucun (auto) —</option>
                         {templates.map((t) => (
@@ -190,7 +196,62 @@ export function ProductTemplateAssociation({
             })}
           </tbody>
         </table>
-      </div>
+      </AdminTableDesktop>
+
+      <AdminTableMobile>
+        {products.map((o) => {
+          const current = findMatchingTemplate(o.productTitle)
+          const orderCount = orders.filter(
+            (ord) => ord.productTitle === o.productTitle
+          ).length
+          return (
+            <AdminMobileCard key={o.productTitle}>
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-medium">{o.productTitle}</p>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {orderCount} commande{orderCount > 1 ? "s" : ""}
+                </span>
+              </div>
+
+              <AdminMobileField label="Template actuel">
+                {current ? (
+                  <span className="inline-flex rounded-full bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300">
+                    {current.name}
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground">Aucun</span>
+                )}
+              </AdminMobileField>
+
+              <AdminMobileField label="Nouveau template">
+                <div className="flex items-center gap-2">
+                  <select
+                    defaultValue={current?.id || ""}
+                    disabled={saving === o.productTitle}
+                    onChange={(e) =>
+                      handleAssignTemplate(o.productTitle, e.target.value)
+                    }
+                    className="w-full cursor-pointer rounded-md border px-2.5 py-1.5 text-sm text-foreground"
+                  >
+                    <option value="">— Aucun (auto) —</option>
+                    {templates.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name} ({t.zonesCount} zones)
+                      </option>
+                    ))}
+                  </select>
+                  {saving === o.productTitle && (
+                    <BiLoaderAlt
+                      className="shrink-0 animate-spin text-muted-foreground"
+                      size={14}
+                    />
+                  )}
+                </div>
+              </AdminMobileField>
+            </AdminMobileCard>
+          )
+        })}
+      </AdminTableMobile>
     </div>
   )
 }

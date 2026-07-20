@@ -56,7 +56,7 @@ export function OrderReminderEmail({
                 Formats acceptes : JPG, PNG, WebP, TIFF, PDF, HEIC.
               </Text>
               <Text className="text-sm">
-                Taille maximale par fichier : 50 Mo.
+                Taille maximale par fichier : 10 Mo.
               </Text>
             </Section>
           </Container>

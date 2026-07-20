@@ -6,6 +6,7 @@ import { deleteUploadedFile, uploadFile } from "@/actions/upload"
 import {
   CheckCircledIcon,
   CrossCircledIcon,
+  ExclamationTriangleIcon,
   TrashIcon,
   UpdateIcon,
 } from "@radix-ui/react-icons"
@@ -15,6 +16,7 @@ import {
   createFullPreviewUrl,
   createPreviewThumbnail,
 } from "@/lib/images/createPreviewThumbnail"
+import { cn } from "@/lib/utils"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -71,6 +73,16 @@ export function UploadFlow({
     [photos]
   )
   const selectedCount = selectedPhotos.length
+  const uncroppedCount = useMemo(
+    () =>
+      photos.filter(
+        (p) =>
+          p.selected &&
+          p.status === "ready" &&
+          photoHasGapZones(p, frameAspect)
+      ).length,
+    [photos, frameAspect]
+  )
   const uncroppedSelectedCount = useMemo(
     () =>
       selectedPhotos.filter((p) => photoHasGapZones(p, frameAspect)).length,
@@ -124,7 +136,20 @@ export function UploadFlow({
         selected: false,
       }))
 
-      setPhotos((prev) => [...prev, ...placeholders])
+      setPhotos((prev) => {
+        let slotsRemaining = Math.max(
+          0,
+          photosRequired - prev.filter((p) => p.selected).length
+        )
+
+        const newPhotos = placeholders.map((placeholder) => {
+          const selected = slotsRemaining > 0
+          if (selected) slotsRemaining -= 1
+          return { ...placeholder, selected }
+        })
+
+        return [...prev, ...newPhotos]
+      })
 
       void (async () => {
         for (const placeholder of placeholders) {
@@ -166,7 +191,7 @@ export function UploadFlow({
         }
       })()
     },
-    [trackUrl]
+    [photosRequired, trackUrl]
   )
 
   const handleToggleSelect = useCallback(
@@ -348,69 +373,78 @@ export function UploadFlow({
   const confirmLabel = uploading ? "Génération du PDF…" : "Confirmer la sélection"
   const photosLabel = `${photosRequired} photo${photosRequired > 1 ? "s" : ""}`
 
+  const showUploadChrome = confirmed || photos.length > 0
+  const isEmptyState = !confirmed && photos.length === 0
+
   return (
     <div className="flex min-h-[100dvh] flex-col">
-      <div className="sticky top-0 z-20 shrink-0 bg-background">
-        <header className="flex items-center justify-between gap-4 border-b px-4 py-3 sm:px-6">
-        <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold">
-            {confirmed
-              ? "Photos déposées"
-              : "Choisis tes meilleurs souvenirs photo"}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {confirmed
-              ? `${photosLabel} déposées`
-              : `Sélectionne ${photosLabel} pour ton Albom`}
-          </p>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2">
-          {!confirmed && (
-            <Button
-              size="sm"
-              className="sm:size-default"
-              onClick={() => setConfirmDialogOpen(true)}
-              disabled={!allReady || uploading}
-              title={
-                !allReady
-                  ? `Sélectionne ${photosRequired} photos prêtes pour confirmer`
-                  : undefined
-              }
-            >
-              {uploading && (
-                <UpdateIcon className="mr-2 size-4 animate-spin" />
-              )}
-              {confirmLabel}
-            </Button>
-          )}
-          {confirmed && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
-              <CheckCircledIcon className="size-3.5" />
-              Terminé
-            </span>
-          )}
-        </div>
-      </header>
-
-        {!confirmed && (
-          <div className="flex items-center gap-3 border-b px-4 py-2 sm:px-6">
-            <div className="flex-1 rounded-full bg-muted">
-              <div
-                className="h-2 rounded-full bg-primary transition-[width] duration-300"
-                style={{
-                  width: `${Math.min(100, (selectedCount / photosRequired) * 100)}%`,
-                }}
-              />
+      {showUploadChrome ? (
+        <div className="sticky top-0 z-20 shrink-0 bg-background">
+          <header className="flex items-center justify-between gap-4 border-b px-4 py-3 sm:px-6">
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold">
+                {confirmed
+                  ? "Photos déposées"
+                  : "Choisis tes meilleurs souvenirs photo"}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {confirmed
+                  ? `${photosLabel} déposées`
+                  : `Sélectionne ${photosLabel} pour ton Albom`}
+              </p>
             </div>
-            <span className="shrink-0 text-sm font-medium tabular-nums">
-              {selectedCount}/{photosRequired}
-            </span>
-          </div>
-        )}
-      </div>
 
-      <div className="p-4 sm:p-6">
+            <div className="flex shrink-0 items-center gap-2">
+              {!confirmed && (
+                <Button
+                  size="sm"
+                  onClick={() => setConfirmDialogOpen(true)}
+                  disabled={!allReady || uploading}
+                  title={
+                    !allReady
+                      ? `Sélectionne ${photosRequired} photos prêtes pour confirmer`
+                      : undefined
+                  }
+                >
+                  {uploading && (
+                    <UpdateIcon className="mr-2 size-4 animate-spin" />
+                  )}
+                  {confirmLabel}
+                </Button>
+              )}
+              {confirmed && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
+                  <CheckCircledIcon className="size-3.5" />
+                  Terminé
+                </span>
+              )}
+            </div>
+          </header>
+
+          {!confirmed && (
+            <div className="flex items-center gap-3 border-b px-4 py-2 sm:px-6">
+              <div className="flex-1 rounded-full bg-muted">
+                <div
+                  className="h-2 rounded-full bg-primary transition-[width] duration-300"
+                  style={{
+                    width: `${Math.min(100, (selectedCount / photosRequired) * 100)}%`,
+                  }}
+                />
+              </div>
+              <span className="shrink-0 text-sm font-medium tabular-nums">
+                {selectedCount}/{photosRequired}
+              </span>
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      <div
+        className={cn(
+          "p-4 sm:p-6",
+          isEmptyState && "flex flex-1 flex-col items-center justify-center"
+        )}
+      >
           {confirmed ? (
             <div className="mx-auto max-w-md rounded-xl border border-green-200 bg-green-50 p-8 text-center dark:border-green-800 dark:bg-green-950">
               <CheckCircledIcon className="mx-auto mb-4 size-12 text-green-500" />
@@ -437,12 +471,18 @@ export function UploadFlow({
           ) : (
             <>
               {photos.length === 0 ? (
-                <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 py-8">
-                  <p className="text-center text-sm text-muted-foreground">
-                    Importe tes photos, puis coche-en {photosRequired} pour ton
-                    Albom. Tu peux en importer autant que tu veux pour faire le
-                    tri.
-                  </p>
+                <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6">
+                  <div className="space-y-3 text-center">
+                    <h2 className="text-center text-[clamp(32px,4vw,56px)] font-bold leading-[0.9] tracking-[-0.06em] text-brun">
+                      Compose ton Albom
+                    </h2>
+                    <p className="text-base leading-relaxed text-muted-foreground">
+                      Importe tes photos, puis coche-en {photosRequired} pour
+                      créer ton Albom. Tu peux en importer autant que tu veux
+                      et faire le tri directement dans cette interface. Bonne
+                      sélection ! &lt;3
+                    </p>
+                  </div>
                   <PhotoDropzone
                     onFiles={handleAddFiles}
                     disabled={confirmed}
@@ -451,11 +491,21 @@ export function UploadFlow({
                 </div>
               ) : (
                 <div className="mx-auto max-w-5xl space-y-6">
-                  {selectedCount > 0 && (
-                    <p className="text-center text-sm leading-relaxed text-muted-foreground sm:text-base">
-                      Aperçu polaroid — les zones rouges indiquent les espaces
-                      vides si la photo ne remplit pas le cadre. Recadre pour
-                      les faire disparaître.
+                  {uncroppedCount > 0 && (
+                    <p className="flex w-full items-center justify-center gap-2 text-center text-sm leading-relaxed text-muted-foreground sm:text-base">
+                      <span
+                        className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-beurre shadow-sm"
+                        aria-hidden
+                      >
+                        <ExclamationTriangleIcon className="size-4 text-black" />
+                      </span>
+                      <span>
+                        {uncroppedCount === 1
+                          ? "1 photo n'est pas cadrée correctement."
+                          : `${uncroppedCount} photos ne sont pas cadrées correctement.`}{" "}
+                        Les zones rouges indiquent les espaces vides si la
+                        photo ne remplit pas le cadre.
+                      </span>
                     </p>
                   )}
 
@@ -495,6 +545,7 @@ export function UploadFlow({
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="size-9"
                           onClick={() => handleDeleteServerFile(f.id)}
                         >
                           <TrashIcon className="size-4 text-destructive" />
@@ -531,7 +582,7 @@ export function UploadFlow({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button type="button" onClick={() => setLimitDialogOpen(false)}>
+            <Button type="button" size="sm" onClick={() => setLimitDialogOpen(false)}>
               Compris
             </Button>
           </DialogFooter>
@@ -572,12 +623,13 @@ export function UploadFlow({
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => setConfirmDialogOpen(false)}
               disabled={uploading}
             >
               Annuler
             </Button>
-            <Button type="button" onClick={submitSelection} disabled={uploading}>
+            <Button type="button" size="sm" onClick={submitSelection} disabled={uploading}>
               {uploading ? (
                 <>
                   <UpdateIcon className="mr-2 size-4 animate-spin" />

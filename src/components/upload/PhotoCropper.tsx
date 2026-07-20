@@ -105,6 +105,7 @@ export function PhotoCropper({
             </label>
             <Button
               type="button"
+              size="sm"
               onClick={handleConfirm}
               disabled={busy || !pixelArea}
             >

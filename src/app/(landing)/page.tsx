@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 }
 
 const T = {
-  display1: "text-[clamp(40px,5.4vw,64px)] font-bold leading-[0.9] tracking-[-0.06em]",
+  display1: "text-[clamp(40px,5.4vw,56px)] font-bold leading-[0.9] tracking-[-0.06em]",
   display2: "text-[clamp(32px,4vw,56px)] font-bold leading-[0.9] tracking-[-0.06em]",
   display3: "text-[clamp(28px,3vw,40px)] font-bold leading-[1.02] tracking-[-0.06em]",
   bodyLead: "text-[20px] leading-[1.3] font-medium",
@@ -32,7 +32,7 @@ const T = {
 } as const
 
 const buttonClass =
-  "inline-flex items-center justify-center rounded-full border border-transparent bg-brun px-6 py-3 text-base font-semibold text-blanc-casse transition-all duration-200 hover:bg-brun-deep hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brun/40 focus-visible:ring-offset-2 focus-visible:ring-offset-blanc-casse"
+  "inline-flex items-center justify-center gap-2 rounded-full border border-transparent bg-brun px-5 py-2.5 font-display text-[clamp(20px,2.2vw,28px)] font-bold leading-none tracking-[-0.04em] text-blanc-casse transition-all duration-200 hover:bg-brun-deep hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brun/40 focus-visible:ring-offset-2 focus-visible:ring-offset-blanc-casse"
 
 function Container({
   className,

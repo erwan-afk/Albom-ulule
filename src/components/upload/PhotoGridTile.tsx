@@ -21,8 +21,13 @@ type Props = {
   onCrop: (id: string) => void
 }
 
-const actionBtn =
-  "inline-flex items-center justify-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-sm font-semibold text-foreground shadow-md transition-colors hover:bg-white/90"
+const actionBtnBase =
+  "inline-flex items-center justify-center gap-1.5 rounded-full px-2.5 py-2 font-display text-lg font-bold leading-none tracking-[-0.04em] shadow-md transition-colors"
+
+const actionBtnSelect =
+  "bg-brun text-beurre hover:bg-brun-deep"
+
+const actionBtnCrop = "bg-maya text-brun hover:bg-maya-deep"
 
 function CropIcon({ className }: { className?: string }) {
   return (
@@ -45,15 +50,25 @@ function ActionButton({
   icon,
   label,
   onClick,
+  variant = "select",
   className,
 }: {
   icon: ReactNode
   label: string
   onClick: () => void
+  variant?: "select" | "crop"
   className?: string
 }) {
   return (
-    <button type="button" onClick={onClick} className={cn(actionBtn, className)}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        actionBtnBase,
+        variant === "crop" ? actionBtnCrop : actionBtnSelect,
+        className
+      )}
+    >
       {icon}
       {label}
     </button>
@@ -72,7 +87,8 @@ export const PhotoGridTile = memo(function PhotoGridTile({
   const showDeselect = p.selected && isReady && !disabled
   const showCrop = p.selected && isReady && !disabled
   const hasActions = showSelect || showDeselect || showCrop
-  const showGapWarning = photoHasGapZones(p, frameAspect)
+  const showGapWarning =
+    p.selected && photoHasGapZones(p, frameAspect)
 
   const iconClass = "size-3.5 shrink-0"
 
@@ -96,6 +112,7 @@ export const PhotoGridTile = memo(function PhotoGridTile({
         <ActionButton
           icon={<CropIcon className={iconClass} />}
           label="Recadrer"
+          variant="crop"
           onClick={() => onCrop(p.id)}
         />
       )}
@@ -105,8 +122,7 @@ export const PhotoGridTile = memo(function PhotoGridTile({
   return (
     <div
       className={cn(
-        "group/tile flex flex-col items-center transition-all duration-200",
-        !p.selected && "opacity-45 grayscale hover:opacity-70 hover:grayscale-[0.35]"
+        "group/tile flex flex-col items-center transition-all duration-200"
       )}
     >
       <div className="relative w-full max-w-[180px]">
@@ -159,6 +175,7 @@ export const PhotoGridTile = memo(function PhotoGridTile({
             <ActionButton
               icon={<CropIcon className={iconClass} />}
               label="Recadrer"
+              variant="crop"
               onClick={() => onCrop(p.id)}
               className="w-full"
             />

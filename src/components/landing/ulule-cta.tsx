@@ -43,11 +43,9 @@ export function UluleCta({
   external = true,
   ariaLabel,
 }: UluleCtaProps) {
-  // Une seule taille de texte (16px / text-base) pour rester aligné sur le
-  // système typo. Les variantes se distinguent uniquement par le padding.
   const sizes = {
-    md: "px-6 py-3",
-    lg: "px-7 py-4",
+    md: "px-5 py-2.5 text-[clamp(20px,2.2vw,28px)]",
+    lg: "px-6 py-3 text-[clamp(22px,2.4vw,32px)]",
   }
   return (
     <a
@@ -56,7 +54,7 @@ export function UluleCta({
       rel={external ? "noopener noreferrer" : undefined}
       aria-label={ariaLabel}
       className={cn(
-        "group inline-flex items-center gap-2.5 rounded-full text-base font-medium leading-none transition-all duration-200 ease-out",
+        "group inline-flex items-center gap-2.5 rounded-full font-display font-bold leading-none tracking-[-0.04em] transition-all duration-200 ease-out",
         "hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-blanc-casse",
         sizes[size],
         variants[variant],
@@ -66,7 +64,7 @@ export function UluleCta({
       <span>{children}</span>
       {showArrow ? (
         <span className="transition-transform duration-200 group-hover:translate-x-[3px]">
-          <ArrowRight size={16} />
+          <ArrowRight size={18} />
         </span>
       ) : null}
     </a>

@@ -6,6 +6,12 @@ import { BiLoaderAlt } from "react-icons/bi"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
+import {
+  AdminMobileCard,
+  AdminMobileField,
+  AdminTableDesktop,
+  AdminTableMobile,
+} from "@/components/admin/admin-table-layout"
 import type { StoredProductPhotoConfig } from "@/lib/products/photoConfigStore"
 import { fieldsFromRatioLabel } from "@/lib/upload/ratio"
 
@@ -43,7 +49,7 @@ function RatioMmInput({
 }) {
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Input
           type="number"
           min={1}
@@ -193,7 +199,7 @@ export function ProductPhotoSettings() {
   }
 
   return (
-    <div className="rounded-xl border bg-card p-6">
+    <div className="min-w-0 rounded-xl border bg-card p-4 sm:p-6">
       <h2 className="mb-1 text-lg font-bold text-foreground">
         Photos par produit
       </h2>
@@ -212,50 +218,97 @@ export function ProductPhotoSettings() {
 
       {error && <p className="mb-4 text-sm text-destructive">{error}</p>}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50 text-left">
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Produit
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Commandes
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Nb photos
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Taille photo (mm)
-              </th>
-              <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                &nbsp;
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-8 text-center text-muted-foreground"
-                >
-                  Aucun produit pour l&apos;instant. Crée d&apos;abord une
-                  commande en haut de page — le produit apparaîtra ici
-                  automatiquement.
-                </td>
-              </tr>
-            )}
+      {rows.length === 0 ? (
+        <p className="py-8 text-center text-sm text-muted-foreground">
+          Aucun produit pour l&apos;instant. Crée d&apos;abord une commande en
+          haut de page — le produit apparaîtra ici automatiquement.
+        </p>
+      ) : (
+        <>
+          <AdminTableDesktop>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50 text-left">
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Produit
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Commandes
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Nb photos
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Taille photo (mm)
+                  </th>
+                  <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    &nbsp;
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr
+                    key={row.handle}
+                    className="border-b transition-colors hover:bg-muted/30"
+                  >
+                    <td className="px-4 py-3 font-medium">{row.name}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {row.orderCount}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Input
+                        type="number"
+                        min={1}
+                        max={50}
+                        value={row.photosRequired}
+                        onChange={(e) =>
+                          updateRow(row.handle, {
+                            photosRequired: Number(e.target.value) || 1,
+                          })
+                        }
+                        className="w-20"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <RatioMmInput
+                        width={row.ratioWidth}
+                        height={row.ratioHeight}
+                        free={row.ratioFree}
+                        onChange={(patch) => updateRow(row.handle, patch)}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={saving === row.handle}
+                        onClick={() => saveRow(row)}
+                      >
+                        {saving === row.handle ? (
+                          <BiLoaderAlt className="animate-spin" size={14} />
+                        ) : (
+                          "Enregistrer"
+                        )}
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </AdminTableDesktop>
+
+          <AdminTableMobile>
             {rows.map((row) => (
-              <tr
-                key={row.handle}
-                className="border-b transition-colors hover:bg-muted/30"
-              >
-                <td className="px-4 py-3 font-medium">{row.name}</td>
-                <td className="px-4 py-3 text-muted-foreground">
-                  {row.orderCount}
-                </td>
-                <td className="px-4 py-3">
+              <AdminMobileCard key={row.handle}>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-medium">{row.name}</p>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {row.orderCount} commande{row.orderCount > 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                <AdminMobileField label="Nb photos">
                   <Input
                     type="number"
                     min={1}
@@ -266,36 +319,37 @@ export function ProductPhotoSettings() {
                         photosRequired: Number(e.target.value) || 1,
                       })
                     }
-                    className="w-20"
+                    className="w-full max-w-[8rem]"
                   />
-                </td>
-                <td className="px-4 py-3">
+                </AdminMobileField>
+
+                <AdminMobileField label="Taille photo (mm)">
                   <RatioMmInput
                     width={row.ratioWidth}
                     height={row.ratioHeight}
                     free={row.ratioFree}
                     onChange={(patch) => updateRow(row.handle, patch)}
                   />
-                </td>
-                <td className="px-4 py-3">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    disabled={saving === row.handle}
-                    onClick={() => saveRow(row)}
-                  >
-                    {saving === row.handle ? (
-                      <BiLoaderAlt className="animate-spin" size={14} />
-                    ) : (
-                      "Enregistrer"
-                    )}
-                  </Button>
-                </td>
-              </tr>
+                </AdminMobileField>
+
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="w-full sm:w-auto"
+                  disabled={saving === row.handle}
+                  onClick={() => saveRow(row)}
+                >
+                  {saving === row.handle ? (
+                    <BiLoaderAlt className="animate-spin" size={14} />
+                  ) : (
+                    "Enregistrer"
+                  )}
+                </Button>
+              </AdminMobileCard>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </AdminTableMobile>
+        </>
+      )}
     </div>
   )
 }

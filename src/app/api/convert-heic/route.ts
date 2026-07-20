@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { PRINT_JPEG_QUALITY } from "@/lib/images/constants"
 
-const MAX_BYTES = 50 * 1024 * 1024
+const MAX_BYTES = 10 * 1024 * 1024
 
 export const runtime = "nodejs"
 export const maxDuration = 60
@@ -18,7 +18,7 @@ export async function POST(req: Request): Promise<NextResponse> {
 
     if (file.size > MAX_BYTES) {
       return NextResponse.json(
-        { error: "Fichier trop volumineux (50 Mo max)." },
+        { error: "Fichier trop volumineux (10 Mo max)." },
         { status: 400 }
       )
     }

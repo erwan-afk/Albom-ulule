@@ -93,9 +93,9 @@ export function PhotoDropzone({
               Ajouter des photos
             </p>
             <p className="text-center text-xs leading-snug text-muted-foreground">
-              JPG · PNG · WebP · TIFF · HEIC
+              JPG · PNG · HEIC
               <br />
-              50 Mo max par fichier
+              10 Mo max par fichier
             </p>
           </div>
         </div>
@@ -139,11 +139,13 @@ export function PhotoDropzone({
         }
       }}
     >
-      <UploadPhotosIcon className="size-10" />
+      <UploadPhotosIcon className="size-14" />
       <div className="text-center">
-        <p className="text-sm font-medium">Glisse tes photos ici ou clique</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          JPG, PNG, WebP, TIFF, HEIC — 50 Mo max
+        <p className="font-display text-[28px] font-bold leading-none tracking-[-0.04em]">
+          Glisse tes photos ici ou importe-les
+        </p>
+        <p className="mt-2 text-xs text-muted-foreground">
+          JPG, PNG, HEIC — 10 Mo max
         </p>
       </div>
       <input
