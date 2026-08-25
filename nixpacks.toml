@@ -1,8 +1,8 @@
 # Coolify / Nixpacks — build stable pour Next.js + Contentlayer
 [variables]
 NODE_ENV = "production"
-# Next build (webpack + typecheck) peut dépasser 1–2 Go sur un petit VPS
-NODE_OPTIONS = "--max-old-space-size=4096"
+# Limiter le heap Node au build : 4096 provoque des OOM sur VPS 2 Go
+NODE_OPTIONS = "--max-old-space-size=2048"
 
 [phases.setup]
 # Forcer Node 20 (engines "20" seul ne suffit pas toujours avec les ranges)
