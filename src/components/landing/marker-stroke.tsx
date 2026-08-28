@@ -37,9 +37,9 @@ export function MarkerStroke({
 }: MarkerStrokeProps) {
   const prefersReducedMotion = useReducedMotion()
   const palette = {
-    maya: "#BAD0EF",
+    maya: "#C0DFFF",
     beurre: "#F8F5CA",
-    brun: "#492929",
+    brun: "#673A36",
   }[color]
 
   const shouldAnimate = animateOnView && !prefersReducedMotion

@@ -124,7 +124,7 @@ export function StickyPack() {
             <div className="relative aspect-[4/5] w-full max-w-[420px]">
               {/* Magazine */}
               <motion.div
-                className="absolute inset-0 origin-bottom-left rounded-[6px] shadow-[0_30px_60px_-20px_rgba(73,41,41,0.45)]"
+                className="absolute inset-0 origin-bottom-left rounded-[6px] shadow-[0_30px_60px_-20px_rgba(103,58,54,0.45)]"
                 style={noMotion ? undefined : { rotate: coverRotate }}
               >
                 <MagazineCover state={active >= 1 ? "opened" : "closed"} />
@@ -133,7 +133,7 @@ export function StickyPack() {
               {/* Planche photos */}
               <motion.div
                 aria-hidden
-                className="absolute -right-12 top-12 w-[55%] rotate-[10deg] rounded-[8px] bg-blanc-casse shadow-[0_20px_40px_-12px_rgba(73,41,41,0.4)]"
+                className="absolute -right-12 top-12 w-[55%] rotate-[10deg] rounded-[8px] bg-blanc-casse shadow-[0_20px_40px_-12px_rgba(103,58,54,0.4)]"
                 style={
                   noMotion
                     ? { opacity: active >= 1 ? 1 : 0 }
@@ -146,7 +146,7 @@ export function StickyPack() {
               {/* Planche de stickers */}
               <motion.div
                 aria-hidden
-                className="absolute -left-10 bottom-14 w-[48%] -rotate-[8deg] rounded-[8px] shadow-[0_20px_40px_-12px_rgba(73,41,41,0.4)]"
+                className="absolute -left-10 bottom-14 w-[48%] -rotate-[8deg] rounded-[8px] shadow-[0_20px_40px_-12px_rgba(103,58,54,0.4)]"
                 style={
                   noMotion
                     ? { opacity: active >= 2 ? 1 : 0 }
@@ -179,7 +179,7 @@ export function StickyPack() {
               <MagazineCover />
             </div>
             <div className="flex flex-col gap-4">
-              <div className="-rotate-3 rounded-[8px] shadow-[0_20px_40px_-12px_rgba(73,41,41,0.3)]">
+              <div className="-rotate-3 rounded-[8px] shadow-[0_20px_40px_-12px_rgba(103,58,54,0.3)]">
                 <PhotoSheet />
               </div>
               <div className="rotate-2">

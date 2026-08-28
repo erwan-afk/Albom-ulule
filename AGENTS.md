@@ -216,8 +216,8 @@ Toute la DA suit **strictement** le brandboard fourni par Charlotte. Pas d'impro
 
 | Token        | HEX       | Usage                                                                   |
 | ------------ | --------- | ----------------------------------------------------------------------- |
-| Brun         | `#492929` | Texte principal, fond fort des sections d'autorité (FAQ, How, Footer)   |
-| Maya         | `#BAD0EF` | Accents, surlignages, badges, sections de respiration                   |
+| Brun         | `#673A36` | Texte principal, fond fort des sections d'autorité (FAQ, How, Footer)   |
+| Maya         | `#C0DFFF` | Accents, surlignages, badges, sections de respiration                   |
 | Beurre       | `#F8F5CA` | Jaune beurre pâle. Sections Pack + Histoire, cartes/badges chauds.      |
 | Blanc Cassé  | `#F9F9F4` | **Fond par défaut** de la page et de la majorité des sections claires   |
 
@@ -439,7 +439,7 @@ Avant chaque merge sur la branche principale : `pnpm lint && pnpm typecheck && p
 ## 8. Conventions de code
 
 - TSX strict (`tsconfig` déjà en `strict`).
-- Pas de classes Tailwind avec valeurs arbitraires hex (`bg-[#492929]`) pour les couleurs de marque : utiliser les tokens (`bg-brun`, `text-beurre`, `bg-maya`, `bg-blanc-casse`) déjà mappés dans `tailwind.config.ts`.
+- Pas de classes Tailwind avec valeurs arbitraires hex (`bg-[#673A36]`) pour les couleurs de marque : utiliser les tokens (`bg-brun`, `text-beurre`, `bg-maya`, `bg-blanc-casse`) déjà mappés dans `tailwind.config.ts`.
 - Les arbitrary values restent OK pour des espacements ponctuels ou des `clamp()` typographiques.
 - Composants de section dans `src/components/landing/` (un fichier par section), composés dans `src/app/(landing)/page.tsx`.
 - Tout composant qui a besoin de state (`useState`, FAQ accordion par ex.) est marqué `"use client"` ; le reste reste serveur pour profiter du SSR et exposer les metadata.

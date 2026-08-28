@@ -25,7 +25,7 @@ export function FounderFigure({ src, alt, className }: FounderFigureProps) {
   return (
     <motion.figure
       className={cn(
-        "relative inline-flex flex-col bg-[#FAF7F1] p-3 pb-12 shadow-[0_30px_60px_-20px_rgba(73,41,41,0.4)]",
+        "relative inline-flex flex-col bg-[#FAF7F1] p-3 pb-12 shadow-[0_30px_60px_-20px_rgba(103,58,54,0.4)]",
         className
       )}
       style={{ transform: "rotate(1.5deg)" }}

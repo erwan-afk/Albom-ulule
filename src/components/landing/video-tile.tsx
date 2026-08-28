@@ -65,7 +65,7 @@ export function VideoTile({
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(circle at 30% 30%,rgba(186,208,239,.18),transparent 65%),repeating-linear-gradient(135deg,rgba(248,245,202,.04) 0 12px,rgba(248,245,202,.08) 12px 24px)",
+              "radial-gradient(circle at 30% 30%,rgba(192,223,255,.18),transparent 65%),repeating-linear-gradient(135deg,rgba(248,245,202,.04) 0 12px,rgba(248,245,202,.08) 12px 24px)",
           }}
         />
       )}
@@ -105,7 +105,7 @@ export function VideoTile({
               animate={{ scale: 1, rotate: -8 }}
               exit={{ scale: 0, rotate: -20 }}
               transition={{ type: "spring", stiffness: 280, damping: 16 }}
-              className="pointer-events-none absolute bottom-12 right-3 z-20 inline-flex h-12 w-12 items-center justify-center rounded-full bg-maya text-center text-[9px] font-bold uppercase leading-tight tracking-[0.18em] text-brun shadow-[0_8px_20px_rgba(73,41,41,0.18)]"
+              className="pointer-events-none absolute bottom-12 right-3 z-20 inline-flex h-12 w-12 items-center justify-center rounded-full bg-maya text-center text-[9px] font-bold uppercase leading-tight tracking-[0.18em] text-brun shadow-[0_8px_20px_rgba(103,58,54,0.18)]"
             >
               {hoverSticker}
             </motion.span>

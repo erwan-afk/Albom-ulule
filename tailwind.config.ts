@@ -28,12 +28,12 @@ module.exports = {
       },
       colors: {
         brun: {
-          DEFAULT: "#492929",
-          deep: "#2c1717",
+          DEFAULT: "#673A36",
+          deep: "#3E211E",
         },
         maya: {
-          DEFAULT: "#BAD0EF",
-          deep: "#9CB7DB",
+          DEFAULT: "#C0DFFF",
+          deep: "#A3BDD8",
         },
         beurre: {
           DEFAULT: "#F8F5CA",

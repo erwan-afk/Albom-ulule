@@ -66,7 +66,7 @@ export function ReasonCard({
             exit={reduce ? undefined : { scale: 0, rotate: -20 }}
             transition={{ type: "spring", stiffness: 320, damping: 18 }}
             className={cn(
-              "absolute -right-3 -top-3 inline-flex size-16 items-center justify-center rounded-full text-center text-[9px] font-bold uppercase leading-tight tracking-[0.18em] shadow-[0_8px_20px_rgba(73,41,41,0.18)]",
+              "absolute -right-3 -top-3 inline-flex size-16 items-center justify-center rounded-full text-center text-[9px] font-bold uppercase leading-tight tracking-[0.18em] shadow-[0_8px_20px_rgba(103,58,54,0.18)]",
               stickerPalette
             )}
           >

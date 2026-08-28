@@ -44,7 +44,7 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
           patternUnits="userSpaceOnUse"
         >
           <rect width="3" height="3" fill="transparent" />
-          <circle cx="1" cy="1" r="0.35" fill="#492929" fillOpacity="0.045" />
+          <circle cx="1" cy="1" r="0.35" fill="#673A36" fillOpacity="0.045" />
         </pattern>
       </defs>
 
@@ -52,12 +52,12 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
         <rect width="400" height="520" rx="6" fill="url(#cover-grain)" />
         <rect width="400" height="520" rx="6" fill="url(#cover-noise)" />
 
-        <rect x="6" y="6" width="388" height="508" rx="3" fill="none" stroke="#492929" strokeOpacity="0.08" />
+        <rect x="6" y="6" width="388" height="508" rx="3" fill="none" stroke="#673A36" strokeOpacity="0.08" />
 
         <text
           x="40"
           y="58"
-          fill="#492929"
+          fill="#673A36"
           fillOpacity="0.6"
           fontFamily="ui-sans-serif, system-ui"
           fontSize="11"
@@ -66,12 +66,12 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
         >
           ÉDITION 01
         </text>
-        <line x1="40" y1="68" x2="120" y2="68" stroke="#492929" strokeOpacity="0.3" strokeWidth="0.8" />
+        <line x1="40" y1="68" x2="120" y2="68" stroke="#673A36" strokeOpacity="0.3" strokeWidth="0.8" />
 
         <text
           x="360"
           y="58"
-          fill="#492929"
+          fill="#673A36"
           fillOpacity="0.6"
           fontFamily="ui-sans-serif, system-ui"
           fontSize="11"
@@ -84,7 +84,7 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
 
         <g transform="translate(40 130)">
           <text
-            fill="#492929"
+            fill="#673A36"
             fontFamily="Georgia, serif"
             fontSize="58"
             fontWeight="700"
@@ -98,7 +98,7 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
         <text
           x="40"
           y="290"
-          fill="#492929"
+          fill="#673A36"
           fillOpacity="0.75"
           fontFamily="ui-sans-serif, system-ui"
           fontSize="13"
@@ -111,25 +111,25 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
           <path
             d="M 0 50 Q 30 20 70 30 Q 110 40 150 25 Q 200 8 250 30"
             fill="none"
-            stroke="#492929"
+            stroke="#673A36"
             strokeWidth="1.2"
             strokeLinecap="round"
             strokeDasharray="0"
           />
-          <circle cx="240" cy="35" r="6" fill="#BAD0EF" />
+          <circle cx="240" cy="35" r="6" fill="#C0DFFF" />
           <path
             d="M 80 40 L 90 30 L 100 45 L 110 35 L 120 48"
             fill="none"
-            stroke="#492929"
+            stroke="#673A36"
             strokeWidth="0.8"
             strokeLinecap="round"
           />
         </g>
 
         <g transform="translate(305 220) rotate(-14)">
-          <circle r="36" fill="#BAD0EF" />
+          <circle r="36" fill="#C0DFFF" />
           <text
-            fill="#492929"
+            fill="#673A36"
             fontFamily="ui-sans-serif, system-ui"
             fontSize="9"
             fontWeight="800"
@@ -140,7 +140,7 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
             21 PHOTOS
           </text>
           <text
-            fill="#492929"
+            fill="#673A36"
             fontFamily="ui-sans-serif, system-ui"
             fontSize="9"
             fontWeight="800"
@@ -153,13 +153,13 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
         </g>
 
         <g transform="translate(40 460)">
-          <g transform="translate(0 0)" color="#492929">
+          <g transform="translate(0 0)" color="#673A36">
             <LogoAlbom height={28} />
           </g>
           <text
             x="0"
             y="42"
-            fill="#492929"
+            fill="#673A36"
             fillOpacity="0.6"
             fontFamily="ui-sans-serif, system-ui"
             fontSize="10"
@@ -176,7 +176,7 @@ export function MagazineCover({ className, state = "closed" }: MagazineCoverProp
               y1="0"
               x2="200"
               y2="520"
-              stroke="#492929"
+              stroke="#673A36"
               strokeOpacity="0.18"
               strokeDasharray="2 3"
             />
@@ -203,9 +203,9 @@ type PhotoSheetProps = {
 export function PhotoSheet({ className }: PhotoSheetProps) {
   const cells = Array.from({ length: 21 }, (_, i) => i)
   const palettes = [
-    ["#BAD0EF", "#9CB7DB"],
+    ["#C0DFFF", "#A3BDD8"],
     ["#F8F5CA", "#EBE39E"],
-    ["#492929", "#2c1717"],
+    ["#673A36", "#3E211E"],
     ["#D7C5A0", "#B59E7A"],
     ["#A5B8C9", "#7E92A5"],
   ]
@@ -240,7 +240,7 @@ export function PhotoSheet({ className }: PhotoSheetProps) {
         height="464"
         rx="4"
         fill="none"
-        stroke="#492929"
+        stroke="#673A36"
         strokeOpacity="0.18"
         strokeDasharray="3 3"
       />
@@ -249,7 +249,7 @@ export function PhotoSheet({ className }: PhotoSheetProps) {
         x="120"
         y="28"
         textAnchor="middle"
-        fill="#492929"
+        fill="#673A36"
         fillOpacity="0.65"
         fontFamily="ui-sans-serif, system-ui"
         fontSize="8"
@@ -291,7 +291,7 @@ export function PhotoSheet({ className }: PhotoSheetProps) {
         x="120"
         y="466"
         textAnchor="middle"
-        fill="#492929"
+        fill="#673A36"
         fillOpacity="0.45"
         fontFamily="ui-sans-serif, system-ui"
         fontSize="7"
@@ -315,7 +315,7 @@ export function StickerSheet({ className }: { className?: string }) {
       aria-label="Planche de stickers illustrations Bord de mer"
       className={cn("block size-full", className)}
     >
-      <rect width="240" height="320" rx="8" fill="#BAD0EF" />
+      <rect width="240" height="320" rx="8" fill="#C0DFFF" />
       <rect
         x="8"
         y="8"
@@ -323,7 +323,7 @@ export function StickerSheet({ className }: { className?: string }) {
         height="304"
         rx="4"
         fill="none"
-        stroke="#492929"
+        stroke="#673A36"
         strokeOpacity="0.18"
         strokeDasharray="3 3"
       />
@@ -332,7 +332,7 @@ export function StickerSheet({ className }: { className?: string }) {
         x="120"
         y="30"
         textAnchor="middle"
-        fill="#492929"
+        fill="#673A36"
         fontFamily="ui-sans-serif, system-ui"
         fontSize="9"
         fontWeight="700"
@@ -341,29 +341,29 @@ export function StickerSheet({ className }: { className?: string }) {
         STICKERS · ÉDITION 01
       </text>
 
-      <g transform="translate(40 60)" fill="none" stroke="#492929" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <g transform="translate(40 60)" fill="none" stroke="#673A36" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <path d="M0 20 Q 10 0 24 8 Q 32 0 40 12 Q 50 24 36 32 Q 20 40 8 32 Q 0 28 0 20Z" fill="#F9F9F4" />
         <path d="M8 18 L 12 22 M 22 14 L 26 18 M 16 26 L 20 30" />
       </g>
 
       <g transform="translate(140 60)">
-        <circle r="22" cx="22" cy="22" fill="#F8F5CA" stroke="#492929" strokeWidth="1.6" />
-        <path d="M 8 22 Q 22 10 36 22 Q 22 34 8 22Z" fill="none" stroke="#492929" strokeWidth="1.4" />
-        <circle cx="22" cy="22" r="3" fill="#492929" />
+        <circle r="22" cx="22" cy="22" fill="#F8F5CA" stroke="#673A36" strokeWidth="1.6" />
+        <path d="M 8 22 Q 22 10 36 22 Q 22 34 8 22Z" fill="none" stroke="#673A36" strokeWidth="1.4" />
+        <circle cx="22" cy="22" r="3" fill="#673A36" />
       </g>
 
       <g transform="translate(36 140)">
         <path
           d="M 0 30 Q 0 0 30 0 L 50 0 Q 80 0 80 30 L 80 50 Q 80 80 50 80 L 30 80 Q 0 80 0 50 Z"
           fill="#F9F9F4"
-          stroke="#492929"
+          stroke="#673A36"
           strokeWidth="1.6"
         />
         <text
           x="40"
           y="48"
           textAnchor="middle"
-          fill="#492929"
+          fill="#673A36"
           fontFamily="Georgia, serif"
           fontStyle="italic"
           fontSize="20"
@@ -377,25 +377,25 @@ export function StickerSheet({ className }: { className?: string }) {
         <path
           d="M 30 0 L 60 30 L 30 60 L 0 30 Z"
           fill="#F8F5CA"
-          stroke="#492929"
+          stroke="#673A36"
           strokeWidth="1.6"
         />
-        <circle cx="30" cy="30" r="14" fill="none" stroke="#492929" strokeWidth="1.4" />
-        <circle cx="30" cy="30" r="5" fill="#492929" />
+        <circle cx="30" cy="30" r="14" fill="none" stroke="#673A36" strokeWidth="1.4" />
+        <circle cx="30" cy="30" r="5" fill="#673A36" />
       </g>
 
-      <g transform="translate(38 230) rotate(-6)" fill="none" stroke="#492929" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <g transform="translate(38 230) rotate(-6)" fill="none" stroke="#673A36" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <rect x="0" y="0" width="70" height="40" rx="20" fill="#F9F9F4" />
         <path d="M 14 20 Q 22 8 30 20 Q 38 32 46 20 Q 54 8 60 20" />
       </g>
 
       <g transform="translate(146 244) rotate(8)">
-        <rect width="60" height="32" rx="4" fill="#F9F9F4" stroke="#492929" strokeWidth="1.4" />
+        <rect width="60" height="32" rx="4" fill="#F9F9F4" stroke="#673A36" strokeWidth="1.4" />
         <text
           x="30"
           y="20"
           textAnchor="middle"
-          fill="#492929"
+          fill="#673A36"
           fontFamily="Georgia, serif"
           fontStyle="italic"
           fontSize="12"
@@ -421,16 +421,16 @@ export function Markers({ className }: { className?: string }) {
       className={cn("block h-auto w-full", className)}
     >
       <g transform="translate(0 14)">
-        <rect x="6" y="12" width="160" height="22" rx="11" fill="#492929" />
-        <rect x="6" y="12" width="20" height="22" rx="11" fill="#2c1717" />
+        <rect x="6" y="12" width="160" height="22" rx="11" fill="#673A36" />
+        <rect x="6" y="12" width="20" height="22" rx="11" fill="#3E211E" />
         <rect x="158" y="14" width="18" height="18" rx="9" fill="#F8F5CA" />
-        <circle cx="176" cy="23" r="3" fill="#492929" />
+        <circle cx="176" cy="23" r="3" fill="#673A36" />
       </g>
       <g transform="translate(40 42)">
-        <rect x="6" y="12" width="160" height="22" rx="11" fill="#BAD0EF" />
-        <rect x="6" y="12" width="20" height="22" rx="11" fill="#9CB7DB" />
+        <rect x="6" y="12" width="160" height="22" rx="11" fill="#C0DFFF" />
+        <rect x="6" y="12" width="20" height="22" rx="11" fill="#A3BDD8" />
         <rect x="158" y="14" width="18" height="18" rx="9" fill="#F9F9F4" />
-        <circle cx="176" cy="23" r="3" fill="#492929" />
+        <circle cx="176" cy="23" r="3" fill="#673A36" />
       </g>
     </svg>
   )
@@ -458,9 +458,9 @@ export function WashiTape({
   rotation = -8,
 }: WashiTapeProps) {
   const palette = {
-    beurre: { bg: "rgba(248, 245, 202, 0.85)", line: "rgba(73, 41, 41, 0.18)" },
-    maya: { bg: "rgba(186, 208, 239, 0.85)", line: "rgba(73, 41, 41, 0.2)" },
-    kraft: { bg: "rgba(215, 197, 160, 0.8)", line: "rgba(73, 41, 41, 0.25)" },
+    beurre: { bg: "rgba(248, 245, 202, 0.85)", line: "rgba(103, 58, 54, 0.18)" },
+    maya: { bg: "rgba(192, 223, 255, 0.85)", line: "rgba(103, 58, 54, 0.2)" },
+    kraft: { bg: "rgba(215, 197, 160, 0.8)", line: "rgba(103, 58, 54, 0.25)" },
   }[tone]
   return (
     <svg
@@ -486,7 +486,7 @@ export function WashiTape({
       <path
         d="M 4 6 L 156 4 L 156 30 L 4 32 Z"
         fill="none"
-        stroke="rgba(73, 41, 41, 0.06)"
+        stroke="rgba(103, 58, 54, 0.06)"
         strokeWidth="0.5"
       />
     </svg>
@@ -510,7 +510,7 @@ export function Stamp({
   rotation = -8,
   tone = "brun",
 }: StampProps) {
-  const color = tone === "brun" ? "#492929" : "#8C2A2A"
+  const color = tone === "brun" ? "#673A36" : "#8C2A2A"
   return (
     <div
       className={cn(
@@ -562,7 +562,7 @@ export function StickerBadge({
     <span
       aria-hidden
       className={cn(
-        "inline-flex items-center justify-center rounded-full text-center text-[11px] font-extrabold uppercase leading-tight tracking-[0.18em] shadow-[0_8px_20px_rgba(73,41,41,0.18)]",
+        "inline-flex items-center justify-center rounded-full text-center text-[11px] font-extrabold uppercase leading-tight tracking-[0.18em] shadow-[0_8px_20px_rgba(103,58,54,0.18)]",
         palette,
         className
       )}
@@ -597,7 +597,7 @@ export function Polaroid({
   return (
     <figure
       className={cn(
-        "relative inline-flex flex-col bg-[#FAF7F1] p-3 pb-10 shadow-[0_30px_60px_-20px_rgba(73,41,41,0.45)]",
+        "relative inline-flex flex-col bg-[#FAF7F1] p-3 pb-10 shadow-[0_30px_60px_-20px_rgba(103,58,54,0.45)]",
         className
       )}
       style={{ transform: `rotate(${rotation}deg)` }}

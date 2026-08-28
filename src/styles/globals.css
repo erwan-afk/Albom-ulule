@@ -5,8 +5,8 @@
 @layer base {
   :root {
     /* Albom brand tokens (HSL) — voir AGENTS.md §3 */
-    --brun: 0 28% 22%; /* #492929 */
-    --maya: 213 65% 83%; /* #BAD0EF */
+    --brun: 5 31% 31%; /* #673A36 */
+    --maya: 210 100% 88%; /* #C0DFFF */
     --beurre: 56 76% 88%; /* #F8F5CA — jaune beurre pâle */
     --blanc-casse: 60 26% 97%; /* #F9F9F4 — fond par défaut */
 
@@ -68,8 +68,8 @@
   }
 
   ::selection {
-    background-color: #BAD0EF;
-    color: #492929;
+    background-color: #C0DFFF;
+    color: #673A36;
   }
 }
 
@@ -90,7 +90,7 @@
     width: 0.45rem;
     height: 0.45rem;
     border-radius: 9999px;
-    background-color: #492929;
+    background-color: #673A36;
     margin-right: 0.75rem;
     vertical-align: middle;
   }
