@@ -4,6 +4,8 @@ import Image from "next/image"
 import { TopChrome } from "@/components/landing/top-chrome"
 import { BenefitsCarousel } from "@/components/landing/benefits-carousel"
 import { LogoAlbom } from "@/components/landing/logo"
+import { MarkerHighlight } from "@/components/landing/marker-highlight"
+import { PackDiagram } from "@/components/landing/pack-diagram"
 import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
 
@@ -75,7 +77,7 @@ function Hero() {
             className="object-cover"
           />
         </div>
-        <div className="relative flex min-h-[520px] flex-col justify-center bg-blanc-casse px-6 py-10 md:h-[724px] md:min-h-0 md:px-16">
+        <div className="relative flex min-h-[520px] flex-col justify-end bg-blanc-casse px-6 pb-12 pt-28 md:h-[724px] md:min-h-0 md:px-16 md:pb-20 md:pt-0">
           <div
             aria-hidden
             className="absolute inset-0 opacity-70"
@@ -87,9 +89,11 @@ function Hero() {
           />
           <div className="relative z-10 max-w-[625px]">
             <LogoAlbom className="mb-8 text-brun" height={48} />
-            <h1 className={cn(T.display1, "text-brun")}>Une activité créative pour tes vacances</h1>
-            <p className={cn(T.bodyLead, "mt-6 text-brun/90")}>
-              Albom te propose un kit créatif qui contient un carnet à compléter, tes plus belles photos,
+            <h1 className={cn(T.display1, "text-brun")}>
+              <MarkerHighlight color="maya">Une activité créative</MarkerHighlight> pour tes vacances
+            </h1>
+            <p className={cn(T.bodyLead, "mt-6 font-normal text-brun/90")}>
+              <strong className="font-semibold">Albom te propose un kit créatif</strong> qui contient un carnet à compléter, tes plus belles photos,
               des stickers et des feutres. L&apos;objet parfait à conserver précieusement ou à offrir à tes proches.
             </p>
             <UluleButton className="mt-10">Voir le pack</UluleButton>
@@ -125,49 +129,18 @@ function ValuesStrip() {
 }
 
 function PackSection() {
-  const items = [
-    "1 Albom au format magazine sur le thème de ton choix",
-    "20 photos autocollantes de tes meilleurs souvenirs de vacances",
-    "2 planches de stickers dans l'univers du magazine sélectionné",
-    "2 feutres Stabilo aux couleurs de l'édition du magazine",
-  ]
-
   return (
-    <section className="bg-blanc-casse py-16 md:py-24">
+    <section id="contenu" className="scroll-mt-20 bg-blanc-casse py-16 md:py-24">
       <Container>
-        <h2 className={cn(T.display2, "text-center text-brun")}>Le contenu du pack Albom</h2>
+        <h2 className={cn(T.display2, "text-center text-brun")}>
+          <MarkerHighlight color="beurre">Le contenu du pack Albom</MarkerHighlight>
+        </h2>
         <p className={cn(T.bodyLead, "mx-auto mt-5 max-w-[716px] text-center text-brun/85")}>
           Notre pack contient l&apos;essentiel pour un moment créatif. Tu prépares une bonne boisson,
           tu poses ton téléphone et tu redonnes vie à tes souvenirs.
         </p>
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_1.15fr_1fr]">
-          <ul className="space-y-6 text-brun">
-            {items.slice(0, 2).map((item) => (
-              <li key={item} className="rounded-2xl border border-brun/15 bg-beurre p-5">
-                <p className={cn(T.body, "text-brun")}>{item}</p>
-              </li>
-            ))}
-          </ul>
-
-          <div className="relative min-h-[520px] rounded-2xl bg-beurre p-4">
-            <Image
-              src="/images/benefits/benefits-V1-01.webp"
-              alt="Éléments du kit Albom posés sur une table."
-              fill
-              sizes="(max-width: 1024px) 100vw, 40vw"
-              className="rounded-2xl object-cover"
-            />
-          </div>
-
-          <ul className="space-y-6 text-brun">
-            {items.slice(2).map((item) => (
-              <li key={item} className="rounded-2xl border border-brun/15 bg-beurre p-5">
-                <p className={cn(T.body, "text-brun")}>{item}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <PackDiagram />
 
         <div className="mt-12 text-center">
           <UluleButton>Soutenir sur Ulule</UluleButton>
@@ -248,12 +221,14 @@ function Steps() {
   ]
 
   return (
-    <section className="bg-blanc-casse py-16 md:py-24">
+    <section id="concept" className="scroll-mt-20 bg-blanc-casse py-16 md:py-24">
       <Container>
-        <h2 className={cn(T.display2, "text-center text-brun")}>Comment ça marche ?</h2>
+        <h2 className={cn(T.display2, "text-center text-brun")}>
+          <MarkerHighlight color="beurre">Comment ça marche ?</MarkerHighlight>
+        </h2>
         <div className="mt-12 grid gap-5 md:grid-cols-3">
           {steps.map((step, idx) => (
-            <article key={step.title} className="group rounded-xl bg-white p-4 text-brun shadow-sm transition-shadow duration-200 hover:shadow-[0_12px_24px_rgba(73,41,41,0.14)]">
+            <article key={step.title} className="group rounded-xl bg-white p-4 text-brun shadow-sm transition-shadow duration-200 hover:shadow-[0_12px_24px_rgba(103,58,54,0.14)]">
               <div className="relative aspect-[440/290] overflow-hidden rounded-lg">
                 <Image
                   src={step.image}
@@ -291,7 +266,10 @@ function SocialProof() {
   return (
     <section className="bg-brun py-16 text-beurre md:py-24">
       <Container>
-        <h2 className={cn(T.display2, "text-center text-beurre")}>Ils en parlent mieux que nous</h2>
+        <h2 className={cn(T.display2, "text-center text-beurre")}>
+          Ils en parlent{" "}
+          <MarkerHighlight color="noir">mieux que nous</MarkerHighlight>
+        </h2>
         <p className={cn(T.body, "mx-auto mt-4 max-w-[720px] text-center text-beurre/85")}>
           Leurs premiers retours sentent déjà les vacances, le papier et le dimanche cosy.
         </p>
@@ -309,7 +287,7 @@ function SocialProof() {
           ))}
         </div>
         <div className="mt-12 text-center">
-          <UluleButton className="bg-maya text-brun hover:bg-maya-deep">Je commande mon Albom</UluleButton>
+          <UluleButton className="bg-beurre text-brun hover:bg-beurre-deep">Je commande mon Albom</UluleButton>
         </div>
       </Container>
     </section>
@@ -336,7 +314,7 @@ function Benefits() {
     },
   ]
   return (
-    <section className="bg-beurre py-16 md:py-24">
+    <section id="avantages" className="scroll-mt-20 bg-beurre py-16 md:py-24">
       <Container className="grid gap-6 lg:grid-cols-2">
         <div className="relative min-h-[420px] overflow-hidden rounded-xl md:min-h-[596px]">
           <Image
@@ -348,7 +326,9 @@ function Benefits() {
           />
         </div>
         <div className="rounded-xl p-2 text-brun md:p-0">
-          <h2 className={cn(T.display3, "bg-brun px-4 py-2 text-beurre")}>Pourquoi tu vas l'adorer</h2>
+          <h2 className={cn(T.display2, "text-brun")}>
+            <MarkerHighlight color="maya">Pourquoi tu vas l&apos;adorer</MarkerHighlight>
+          </h2>
           <div className="mt-5">
             <BenefitsCarousel items={benefits} />
           </div>
@@ -360,9 +340,9 @@ function Benefits() {
 
 function Founder() {
   return (
-    <section className="bg-blanc-casse py-16 md:py-24">
-      <Container className="grid gap-8 lg:grid-cols-2">
-        <div className="flex flex-col justify-center">
+    <section id="a-propos" className="scroll-mt-20 bg-blanc-casse">
+      <Container className="grid gap-8 pr-0 sm:pr-0 lg:grid-cols-2">
+        <div className="flex flex-col justify-center pr-4 sm:pr-8">
           <h2 className={cn(T.display2, "text-brun")}>
             J'ai créé Albom pour proposer une nouvelle façon de conserver ses souvenirs.
           </h2>
@@ -372,7 +352,16 @@ function Founder() {
           </p>
           <UluleButton className="mt-8 w-fit">Personnaliser mon Albom</UluleButton>
         </div>
-        <div className="relative overflow-hidden rounded-xl bg-maya p-6 md:min-h-[724px]">
+        <div className="relative overflow-hidden bg-maya p-6 md:min-h-[724px]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-60"
+            style={{
+              backgroundImage:
+                "linear-gradient(to right, rgba(103,58,54,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(103,58,54,0.12) 1px, transparent 1px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
           <div className="relative mx-auto h-[520px] max-w-[420px] overflow-hidden border-[14px] border-blanc-casse">
             <Image
               src="/images/socialproofs/cha-portrait-V1.webp"
@@ -382,10 +371,10 @@ function Founder() {
               className="object-cover"
             />
           </div>
-          <p className="absolute right-7 top-7 max-w-[220px] bg-blanc-casse px-3 py-2 font-display text-[30px] leading-none text-brun shadow-sm">
+          <p className="absolute right-7 top-7 z-10 max-w-[220px] bg-blanc-casse px-3 py-2 font-display text-[30px] leading-none text-brun shadow-sm">
             Je suis super contente de partager ce site avec vous
           </p>
-          <p className="absolute bottom-8 left-8 font-display text-[42px] text-brun">Charlotte</p>
+          <p className="absolute bottom-8 left-8 z-10 font-display text-[42px] text-brun">Charlotte</p>
         </div>
       </Container>
     </section>
