@@ -11,7 +11,8 @@ import {
   UpdateIcon,
 } from "@radix-ui/react-icons"
 
-import type { PhotoProductConfig } from "@/lib/shopify/productMetafields"
+import { siteConfig } from "@/config/site"
+import type { PhotoProductConfig } from "@/lib/upload/photoConfig"
 import {
   createFullPreviewUrl,
   createPreviewThumbnail,
@@ -373,7 +374,7 @@ export function UploadFlow({
   const confirmLabel = uploading ? "Génération du PDF…" : "Confirmer la sélection"
   const photosLabel = `${photosRequired} photo${photosRequired > 1 ? "s" : ""}`
 
-  const showUploadChrome = confirmed || photos.length > 0
+  const showUploadChrome = !confirmed && photos.length > 0
   const isEmptyState = !confirmed && photos.length === 0
 
   return (
@@ -383,41 +384,29 @@ export function UploadFlow({
           <header className="flex items-center justify-between gap-4 border-b px-4 py-3 sm:px-6">
             <div className="min-w-0">
               <h1 className="truncate text-lg font-semibold">
-                {confirmed
-                  ? "Photos déposées"
-                  : "Choisis tes meilleurs souvenirs photo"}
+                Choisis tes meilleurs souvenirs photo
               </h1>
               <p className="text-sm text-muted-foreground">
-                {confirmed
-                  ? `${photosLabel} déposées`
-                  : `Sélectionne ${photosLabel} pour ton Albom`}
+                Sélectionne {photosLabel} pour ton Albom
               </p>
             </div>
 
             <div className="flex shrink-0 items-center gap-2">
-              {!confirmed && (
-                <Button
-                  size="sm"
-                  onClick={() => setConfirmDialogOpen(true)}
-                  disabled={!allReady || uploading}
-                  title={
-                    !allReady
-                      ? `Sélectionne ${photosRequired} photos prêtes pour confirmer`
-                      : undefined
-                  }
-                >
-                  {uploading && (
-                    <UpdateIcon className="mr-2 size-4 animate-spin" />
-                  )}
-                  {confirmLabel}
-                </Button>
-              )}
-              {confirmed && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300">
-                  <CheckCircledIcon className="size-3.5" />
-                  Terminé
-                </span>
-              )}
+              <Button
+                size="sm"
+                onClick={() => setConfirmDialogOpen(true)}
+                disabled={!allReady || uploading}
+                title={
+                  !allReady
+                    ? `Sélectionne ${photosRequired} photos prêtes pour confirmer`
+                    : undefined
+                }
+              >
+                {uploading && (
+                  <UpdateIcon className="mr-2 size-4 animate-spin" />
+                )}
+                {confirmLabel}
+              </Button>
             </div>
           </header>
 
@@ -442,31 +431,38 @@ export function UploadFlow({
       <div
         className={cn(
           "p-4 sm:p-6",
-          isEmptyState && "flex flex-1 flex-col items-center justify-center"
+          (isEmptyState || confirmed) &&
+            "flex flex-1 flex-col items-center justify-center"
         )}
       >
           {confirmed ? (
-            <div className="mx-auto max-w-md rounded-xl border border-green-200 bg-green-50 p-8 text-center dark:border-green-800 dark:bg-green-950">
-              <CheckCircledIcon className="mx-auto mb-4 size-12 text-green-500" />
-              <h2 className="text-xl font-semibold text-green-700 dark:text-green-300">
-                Photos réceptionnées
-              </h2>
-              <p className="mt-2 text-sm text-green-600 dark:text-green-400">
-                Tu vas recevoir un e-mail de confirmation.
-              </p>
-              {serverFiles.length > 0 && (
-                <ul className="mt-6 space-y-1.5 text-left">
-                  {serverFiles.map((f) => (
-                    <li
-                      key={f.id}
-                      className="flex items-center gap-3 rounded-lg border bg-white/50 px-4 py-2 dark:bg-black/20"
-                    >
-                      <CheckCircledIcon className="size-4 shrink-0 text-green-500" />
-                      <span className="truncate text-sm">{f.originalName}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+            <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 text-center">
+              <CheckCircledIcon className="size-12 text-brun" />
+              <div className="space-y-3">
+                <h1 className="text-center text-[clamp(32px,4vw,56px)] font-bold leading-[0.9] tracking-[-0.06em] text-brun">
+                  Merci !
+                </h1>
+                <p className="text-base leading-relaxed text-muted-foreground">
+                  Tes photos sont bien arrivées. Merci d&apos;avoir commandé ton
+                  Albom et d&apos;avoir pris le temps de déposer tes souvenirs —
+                  on s&apos;occupe de la suite. Tu vas recevoir un e-mail de
+                  confirmation.
+                </p>
+              </div>
+              <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+                <Button asChild>
+                  <a href="/">Retourner sur le site</a>
+                </Button>
+                <Button asChild variant="outline">
+                  <a
+                    href={siteConfig.links.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Nous suivre sur Instagram
+                  </a>
+                </Button>
+              </div>
             </div>
           ) : (
             <>

@@ -1,14 +1,12 @@
+import { Text } from "@react-email/components"
+
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "@react-email/components"
+  EmailButton,
+  EmailFallbackLink,
+  EmailInfoBox,
+  EmailLayout,
+  emailStyles,
+} from "@/components/emails/email-layout"
 
 interface OrderReminderEmailProps {
   customerName: string
@@ -23,45 +21,37 @@ export function OrderReminderEmail({
   productName,
   orderId,
 }: Readonly<OrderReminderEmailProps>): JSX.Element {
-  const previewText = `Rappel : deposez vos photos pour ${productName}`
-  return (
-    <Html lang="fr">
-      <Head>
-        <title>{previewText}</title>
-      </Head>
-      <Preview>{previewText}</Preview>
-      <Tailwind>
-        <Body>
-          <Container>
-            <Section>
-              <Text className="text-xl">Bonjour {customerName},</Text>
-              <Text className="text-base">
-                Nous n&apos;avons pas encore reçu vos photos pour votre
-                commande de <strong>{productName}</strong>.
-              </Text>
-              <Text className="text-base">
-                Pensez a les deposer des maintenant pour que nous puissions
-                avancer sur votre commande :
-              </Text>
-              <Button href={uploadUrl}>
-                Deposer mes photos
-              </Button>
-              <Text className="text-sm text-gray-500">
-                Reference commande : {orderId}
-              </Text>
-            </Section>
+  const greeting = customerName?.trim()
+    ? `Bonjour ${customerName},`
+    : "Bonjour,"
 
-            <Section>
-              <Text className="text-sm">
-                Formats acceptes : JPG, PNG, WebP, TIFF, PDF, HEIC.
-              </Text>
-              <Text className="text-sm">
-                Taille maximale par fichier : 10 Mo.
-              </Text>
-            </Section>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+  return (
+    <EmailLayout
+      preview={`Petit rappel : tes photos pour ${productName}`}
+      heading="Tes photos n'ont pas encore été déposées"
+      badge={productName}
+    >
+      <Text style={emailStyles.paragraph}>{greeting}</Text>
+      <Text style={emailStyles.paragraph}>
+        On n&apos;a pas encore reçu tes photos pour <strong>{productName}</strong>.
+        Sans elles, Charlotte ne peut pas imprimer ta planche ni envoyer le kit.
+      </Text>
+      <Text style={emailStyles.paragraph}>
+        Deux minutes, tes meilleurs clichés, et c&apos;est parti.
+      </Text>
+      <EmailButton href={uploadUrl}>Déposer mes photos</EmailButton>
+      <EmailFallbackLink href={uploadUrl} />
+      <EmailInfoBox>
+        <Text style={{ ...emailStyles.muted, margin: "0 0 6px" }}>
+          Formats acceptés : JPG, PNG, WebP, TIFF, PDF, HEIC.
+        </Text>
+        <Text style={{ ...emailStyles.muted, margin: "0 0 6px" }}>
+          Taille max : 10 Mo par fichier.
+        </Text>
+        <Text style={{ ...emailStyles.muted, margin: 0 }}>
+          Référence commande : {orderId}
+        </Text>
+      </EmailInfoBox>
+    </EmailLayout>
   )
 }

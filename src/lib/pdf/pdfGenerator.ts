@@ -187,7 +187,7 @@ export async function generatePdf(
     }
   }
 
-  // Label — zone info-1 : nom en gras + commande discrète, haut centre
+  // Label : nom en gras + email, haut centre
   if (template.label && template.label.enabled) {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica)
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
@@ -222,23 +222,32 @@ export async function generatePdf(
           color: rgb(nameColor[0], nameColor[1], nameColor[2]),
         })
 
-        const orderW = font.widthOfTextAtSize(orderNumber, orderSize)
-        const orderX = zoneX + (zoneW - orderW) / 2
-        const orderY = nameY - lineGap - orderSize
+        if (orderNumber) {
+          const maxW = Math.max(8, zoneW - padding * 2)
+          let emailSize = orderSize
+          let emailW = font.widthOfTextAtSize(orderNumber, emailSize)
+          while (emailW > maxW && emailSize > 4) {
+            emailSize -= 0.5
+            emailW = font.widthOfTextAtSize(orderNumber, emailSize)
+          }
+          const orderX = zoneX + (zoneW - emailW) / 2
+          const orderY = nameY - lineGap - emailSize
 
-        page.drawText(orderNumber, {
-          x: orderX,
-          y: orderY,
-          size: orderSize,
-          font,
-          color: rgb(orderColor[0], orderColor[1], orderColor[2]),
-        })
+          page.drawText(orderNumber, {
+            x: orderX,
+            y: orderY,
+            size: emailSize,
+            font,
+            color: rgb(orderColor[0], orderColor[1], orderColor[2]),
+          })
+        }
         continue
       }
 
       // Fallback sans zone info-1
-      const rawText = (lbl.text || "{customerName}\n{orderNumber}")
+      const rawText = (lbl.text || "{customerName}\n{customerEmail}")
         .replace("{customerName}", customerName)
+        .replace("{customerEmail}", orderNumber)
         .replace("{orderNumber}", orderNumber)
       const lines = rawText.split("\n").filter(Boolean)
       const fontSize = nameSize

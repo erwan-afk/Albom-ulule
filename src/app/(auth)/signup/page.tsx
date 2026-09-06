@@ -109,7 +109,7 @@ export default async function SignUpPage(): Promise<JSX.Element> {
             By continuing, you agree to our{" "}
             <Link
               aria-label="Terms of Service"
-              href="/tos"
+              href="/mentions-legales"
               className="font-semibold underline-offset-4 transition-all hover:underline"
             >
               ToS
@@ -118,7 +118,7 @@ export default async function SignUpPage(): Promise<JSX.Element> {
             and
             <Link
               aria-label="Privacy Policy"
-              href="/privacy"
+              href="/confidentialite"
               className="font-semibold underline-offset-4 transition-all hover:underline"
             >
               {" "}

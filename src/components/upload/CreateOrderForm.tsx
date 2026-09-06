@@ -1,7 +1,9 @@
 "use client"
 
-import { useRef, useState } from "react"
-import { createOrder, sendOrderLink } from "@/actions/order"
+import { useCallback, useRef, useState, type FormEvent } from "react"
+import { createOrder } from "@/actions/order"
+
+import { useToast } from "@/hooks/use-toast"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,35 +12,71 @@ import { ProductSelector } from "@/components/upload/ProductSelector"
 
 export function CreateOrderForm(): JSX.Element {
   const formRef = useRef<HTMLFormElement>(null)
+  const { toast } = useToast()
   const [productName, setProductName] = useState("")
   const [productHandle, setProductHandle] = useState("")
   const [sending, setSending] = useState(false)
 
+  const handleProductChange = useCallback((name: string, handle: string) => {
+    setProductName(name)
+    setProductHandle(handle)
+  }, [])
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setSending(true)
+    const formData = new FormData(event.currentTarget)
+    const customerEmail = formData.get("customerEmail") as string
+    const customerName = formData.get("customerName") as string
+
+    if (!customerEmail) {
+      setSending(false)
+      return
+    }
+
+    const result = await createOrder({
+      customerEmail,
+      customerName: customerName || undefined,
+      productName: productName || undefined,
+      productHandle: productHandle || undefined,
+    })
+
+    if (!result.success) {
+      toast({
+        title: "Commande non créée",
+        description: "Réessaie dans un instant.",
+        variant: "destructive",
+      })
+      setSending(false)
+      return
+    }
+
+    if (!result.emailSent) {
+      toast({
+        title: "Commande créée, email non envoyé",
+        description:
+          result.error ??
+          "La commande existe : tu peux renvoyer le lien depuis le tableau.",
+        variant: "destructive",
+      })
+    } else {
+      toast({
+        title: "Lien envoyé",
+        description: `Email de dépôt envoyé à ${customerEmail}.`,
+      })
+    }
+
+    formRef.current?.reset()
+    setProductName("")
+    setProductHandle("")
+    setSending(false)
+  }
+
   return (
     <form
       ref={formRef}
-      action={async (formData: FormData) => {
-        setSending(true)
-        const customerEmail = formData.get("customerEmail") as string
-        const customerName = formData.get("customerName") as string
-
-        if (!customerEmail) return
-
-        const result = await createOrder({
-          customerEmail,
-          customerName: customerName || undefined,
-          productName: productName || undefined,
-          productHandle: productHandle || undefined,
-        })
-
-        if (result.success && result.order) {
-          await sendOrderLink(result.order.id)
-        }
-
-        formRef.current?.reset()
-        setProductName("")
-        setProductHandle("")
-        setSending(false)
+      onSubmit={(event) => {
+        void handleSubmit(event)
       }}
       className="space-y-4"
     >
@@ -62,13 +100,12 @@ export function CreateOrderForm(): JSX.Element {
           />
         </div>
         <div className="space-y-2">
-          <Label>Produit Shopify</Label>
+          <Label>Produit</Label>
           <ProductSelector
-            value={productName}
-            onChange={(value, product) => {
-              setProductName(value)
-              setProductHandle(product?.handle ?? "")
-            }}
+            valueHandle={productHandle}
+            valueName={productName}
+            autoSelectFirst
+            onChange={handleProductChange}
           />
         </div>
       </div>

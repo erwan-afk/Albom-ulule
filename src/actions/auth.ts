@@ -7,9 +7,8 @@ import { signIn } from "@/auth"
 import bcryptjs from "bcryptjs"
 import { AuthError } from "next-auth"
 
-import { env } from "@/env.mjs"
 import { prisma } from "@/config/db"
-import { resend } from "@/config/email"
+import { resend, resendFrom } from "@/config/email"
 import {
   linkOAuthAccountSchema,
   passwordResetSchema,
@@ -48,9 +47,9 @@ export async function signUpWithPassword(
     })
 
     const emailSent = await resend.emails.send({
-      from: env.RESEND_EMAIL_FROM,
+      from: resendFrom(),
       to: [validatedInput.data.email],
-      subject: "Verify your email address",
+      subject: "Confirme ton adresse email",
       react: EmailVerificationEmail({
         email: validatedInput.data.email,
         emailVerificationToken,
@@ -134,9 +133,9 @@ export async function resetPassword(
     })
 
     const emailSent = await resend.emails.send({
-      from: env.RESEND_EMAIL_FROM,
+      from: resendFrom(),
       to: [validatedInput.data.email],
-      subject: "Reset your password",
+      subject: "Réinitialise ton mot de passe Albom",
       react: ResetPasswordEmail({
         email: validatedInput.data.email,
         resetPasswordToken,

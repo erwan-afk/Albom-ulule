@@ -7,8 +7,7 @@ import GoogleProvider from "next-auth/providers/google"
 import ResendProvider from "next-auth/providers/resend"
 
 import { env } from "@/env.mjs"
-import { resend } from "@/config/email"
-import { siteConfig } from "@/config/site"
+import { resend, resendFrom } from "@/config/email"
 import { signInWithPasswordSchema } from "@/validations/auth"
 
 import { MagicLinkEmail } from "@/components/emails/magic-link-email"
@@ -77,9 +76,9 @@ export default {
       }) {
         try {
           await resend.emails.send({
-            from: env.RESEND_EMAIL_FROM,
+            from: resendFrom(),
             to: [identifier],
-            subject: `${siteConfig.name} magic link sign in`,
+            subject: "Ton lien de connexion Albom",
             react: MagicLinkEmail({ identifier, url }),
           })
 

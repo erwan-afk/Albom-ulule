@@ -1,4 +1,4 @@
-import type { PhotoProductConfig } from "@/lib/shopify/productMetafields"
+import type { PhotoProductConfig } from "@/lib/upload/photoConfig"
 
 export type RatioFields = {
   width: string

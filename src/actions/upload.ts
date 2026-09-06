@@ -3,12 +3,23 @@
 import { writeFile, mkdir } from "fs/promises"
 import path from "path"
 
+import type { OrderStatus } from "@prisma/client"
+
 import { prisma } from "@/config/db"
 import {
   deleteByKey,
   sessionPhotoKey,
   uploadSessionPhoto,
 } from "@/lib/r2/upload"
+
+const LOCKED_STATUSES: OrderStatus[] = [
+  "PHOTOS_UPLOADED",
+  "PRINTED",
+  "CANCELLED",
+]
+
+const DEPOSIT_LOCKED_MESSAGE =
+  "Ce dépôt est déjà confirmé et ne peut plus être modifié."
 
 const ALLOWED_TYPES = [
   "image/jpeg",
@@ -31,6 +42,10 @@ export async function uploadFile(formData: FormData) {
   const order = await prisma.order.findUnique({ where: { token } })
   if (!order) {
     return { success: false, error: "Commande introuvable." }
+  }
+
+  if (LOCKED_STATUSES.includes(order.status)) {
+    return { success: false, error: DEPOSIT_LOCKED_MESSAGE }
   }
 
   // Vérifier le type MIME
@@ -86,9 +101,16 @@ export async function uploadFile(formData: FormData) {
 export async function deleteUploadedFile(fileId: string, token: string) {
   const fs = await import("fs/promises")
 
-  const file = await prisma.orderFile.findUnique({ where: { id: fileId } })
-  if (!file) {
+  const file = await prisma.orderFile.findUnique({
+    where: { id: fileId },
+    include: { order: { select: { token: true, status: true } } },
+  })
+  if (!file || file.order.token !== token) {
     return { success: false, error: "Fichier introuvable." }
+  }
+
+  if (LOCKED_STATUSES.includes(file.order.status)) {
+    return { success: false, error: DEPOSIT_LOCKED_MESSAGE }
   }
 
   const filePath = path.join(

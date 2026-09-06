@@ -1,18 +1,18 @@
 import { type NavItem, type NavItemFooter } from "@/types"
 
 /**
- * URL de la campagne Ulule.
- * À remplacer par l'URL définitive dès qu'elle est connue.
- * Tous les CTA de la landing pointent vers cette constante.
+ * URL Ulule de repli, utilisée tant qu'aucune URL n'a été enregistrée
+ * depuis le dashboard. Le lien réel des CTA est lu en base.
  */
-export const ULULE_URL = "#"
+export const DEFAULT_ULULE_URL = "https://fr.ulule.com"
+export const ULULE_URL = DEFAULT_ULULE_URL
 
 const links = {
-  instagram: "https://www.instagram.com/albom.studio",
-  tiktok: "https://www.tiktok.com/@albom.studio",
+  instagram: "https://www.instagram.com/albom.fr",
+  tiktok: "https://www.tiktok.com/@cha.serre",
   pinterest: "https://www.pinterest.com/albom.studio",
   ulule: ULULE_URL,
-  contactEmail: "mailto:hello@albom.fr",
+  contactEmail: "mailto:contact@albom.fr",
   authorsWebsite: "https://albom.fr",
   openGraphImage: "/opengraph-image.png",
   // ─ Hérités du template, conservés pour compat des composants non-landing ─
@@ -29,8 +29,7 @@ export const siteConfig = {
   },
   description:
     "Albom, c'est l'activité créative pour transformer tes photos en souvenir unique : un kit prêt à compléter, sans écran, sans complexité, juste tes mains et tes meilleurs moments.",
-  shortDescription:
-    "L'activité créative pour donner vie à tes photos — édition Bord de mer.",
+  shortDescription: "L'activité créative pour tes vacances",
   links,
   ululeUrl: ULULE_URL,
   url: "https://albom.fr",

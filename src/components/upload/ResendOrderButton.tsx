@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { resendOrderLink } from "@/actions/order"
 
+import { useToast } from "@/hooks/use-toast"
+
 import { Button } from "@/components/ui/button"
 
 type ResendOrderButtonProps = {
@@ -10,12 +12,27 @@ type ResendOrderButtonProps = {
 }
 
 export function ResendOrderButton({ orderId }: ResendOrderButtonProps) {
+  const { toast } = useToast()
   const [sending, setSending] = useState(false)
 
   async function handleResend() {
     setSending(true)
-    await resendOrderLink(orderId)
+    const result = await resendOrderLink(orderId)
     setSending(false)
+
+    if (!result.success) {
+      toast({
+        title: "Email non envoyé",
+        description: result.error ?? "Réessaie dans un instant.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    toast({
+      title: "Lien renvoyé",
+      description: "L'email de dépôt a bien été envoyé.",
+    })
   }
 
   return (

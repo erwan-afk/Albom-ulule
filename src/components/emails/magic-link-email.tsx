@@ -1,16 +1,11 @@
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "@react-email/components"
+import { Text } from "@react-email/components"
 
-import { siteConfig } from "@/config/site"
+import {
+  EmailButton,
+  EmailFallbackLink,
+  EmailLayout,
+  emailStyles,
+} from "@/components/emails/email-layout"
 
 interface MagicLinkEmailProps {
   identifier: string
@@ -21,47 +16,23 @@ export function MagicLinkEmail({
   identifier,
   url,
 }: MagicLinkEmailProps): JSX.Element {
-  const previewText = `${siteConfig.name} magic link sign in.`
   return (
-    <Html lang="en">
-      <Head>
-        <title>{previewText}</title>
-      </Head>
-      <Preview>{previewText}</Preview>
-      <Tailwind>
-        <Body>
-          <Container>
-            <Section>
-              <Text>Hi,</Text>
-              <Text>
-                Someone just requested a Sign In magic link for {identifier}
-              </Text>
-              <Text>If this was you, you can sign in here:</Text>
-              <Button href={url}>Sign in</Button>
-            </Section>
-            <Section>
-              <Text>
-                If you didn&apos;t try to login, you can safely ignore this
-                email.
-              </Text>
-            </Section>
-            <Section>
-              <Text className="text-base font-medium">
-                Enjoy{" "}
-                <span className="font-semibold tracking-wide">
-                  {siteConfig.name}
-                </span>{" "}
-                and have a nice day!
-              </Text>
-            </Section>
-            <Section>
-              <Text className="text-xs">
-                Hint: You can set a permanent password in Dashboard → Settings
-              </Text>
-            </Section>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <EmailLayout
+      preview="Ton lien de connexion Albom"
+      heading="C'est bien toi ?"
+    >
+      <Text style={emailStyles.paragraph}>Bonjour,</Text>
+      <Text style={emailStyles.paragraph}>
+        Quelqu&apos;un a demandé un lien de connexion pour{" "}
+        <strong>{identifier}</strong>. Si c&apos;est toi, clique sur le bouton
+        ci-dessous, tu seras connecté·e tout de suite.
+      </Text>
+      <EmailButton href={url}>Se connecter</EmailButton>
+      <EmailFallbackLink href={url} />
+      <Text style={emailStyles.muted}>
+        Si tu n&apos;es pas à l&apos;origine de cette demande, ignore cet email,
+        ton compte reste inchangé.
+      </Text>
+    </EmailLayout>
   )
 }

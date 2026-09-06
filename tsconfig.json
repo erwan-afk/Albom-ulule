@@ -22,8 +22,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "contentlayer/generated": ["./.contentlayer/generated"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
@@ -31,8 +30,7 @@
     "**/*.tsx",
     "**/*.mjs",
     "next-env.d.ts",
-    ".next/types/**/*.ts",
-    ".contentlayer/generated"
+    ".next/types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

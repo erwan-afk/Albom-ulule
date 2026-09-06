@@ -1,3 +1,12 @@
-export default function PrivacyPolicyPage(): JSX.Element {
-  return <div>Privacy Policy Page</div>
+import type { Metadata } from "next"
+import { redirect } from "next/navigation"
+
+import { noIndexRobots } from "@/config/seo"
+
+export const metadata: Metadata = {
+  robots: noIndexRobots,
+}
+
+export default function PrivacyPolicyPage(): never {
+  redirect("/confidentialite")
 }

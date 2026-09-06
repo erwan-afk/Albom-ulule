@@ -70,7 +70,7 @@ export function TemplateManager({ templates, onRefresh }: Props) {
             enabled: true,
             fontSize: 8,
             secondaryFontSize: 6,
-            text: "{customerName}\n{orderNumber}",
+            text: "{customerName}\n{customerEmail}",
             y: 10,
             color: [0.2, 0.2, 0.2],
             secondaryColor: [0.55, 0.55, 0.55],
@@ -200,10 +200,10 @@ export function TemplateManager({ templates, onRefresh }: Props) {
   }
 
   return (
-    <div className="rounded-xl border bg-card p-6">
+    <div className="rounded-xl border bg-card p-6 shadow-none">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-base font-semibold text-foreground">
+          <h3 className="text-2xl font-semibold leading-tight tracking-tight text-foreground">
             📄 Templates PDF disponibles
           </h3>
           <p className="text-sm text-muted-foreground">

@@ -1,18 +1,13 @@
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "@react-email/components"
-
-import { siteConfig } from "@/config/site"
+import { Text } from "@react-email/components"
 
 import { absoluteUrl } from "@/lib/utils"
+
+import {
+  EmailButton,
+  EmailFallbackLink,
+  EmailLayout,
+  emailStyles,
+} from "@/components/emails/email-layout"
 
 interface ResetPasswordEmailProps {
   email: string
@@ -23,57 +18,30 @@ export function ResetPasswordEmail({
   email,
   resetPasswordToken,
 }: Readonly<ResetPasswordEmailProps>): JSX.Element {
-  const previewText = `${siteConfig.name} password reset.`
+  const resetUrl = absoluteUrl(
+    `/signin/password-update?token=${resetPasswordToken}`
+  )
 
   return (
-    <Html lang="en">
-      <Head>
-        <title>{previewText}</title>
-      </Head>
-      <Preview>{previewText}</Preview>
-      <Tailwind>
-        <Body>
-          <Container>
-            <Section>
-              <Text className="text-xl">Hi,</Text>
-              <Text className="text-base">
-                Someone just requested a password change for your{" "}
-                {siteConfig.name}
-                account associated with {email}.
-              </Text>
-              <Text className="text-base">
-                If this was you, you can set a new password here:
-              </Text>
-              <Button
-                href={absoluteUrl(
-                  `/signin/password-update?token=${resetPasswordToken}`
-                )}
-              >
-                Set new password
-              </Button>
-            </Section>
-            <Section>
-              <Text className="text-xs">
-                If you don&apos;t want to change your password or didn&apos;t
-                request this, just ignore and delete this message.
-              </Text>
-              <Text className="text-xs">
-                To keep your account secure, please don&apos;t forward this
-                email to anyone.
-              </Text>
-            </Section>
-            <Section>
-              <Text className="text-base font-medium">
-                Enjoy{" "}
-                <span className="font-semibold tracking-wide">
-                  {siteConfig.name}
-                </span>{" "}
-                and have a nice day!
-              </Text>
-            </Section>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <EmailLayout
+      preview="Réinitialise ton mot de passe Albom"
+      heading="On change le mot de passe ?"
+    >
+      <Text style={emailStyles.paragraph}>Bonjour,</Text>
+      <Text style={emailStyles.paragraph}>
+        Une demande de nouveau mot de passe a été faite pour le compte associé
+        à <strong>{email}</strong>.
+      </Text>
+      <Text style={emailStyles.paragraph}>
+        Si c&apos;est toi, choisis-en un nouveau avec le bouton ci-dessous. Le
+        lien expire dans 24 heures.
+      </Text>
+      <EmailButton href={resetUrl}>Choisir un mot de passe</EmailButton>
+      <EmailFallbackLink href={resetUrl} />
+      <Text style={emailStyles.muted}>
+        Si tu n&apos;as rien demandé, ignore cet email, ton mot de passe actuel
+        reste valable. Ne transmets ce message à personne.
+      </Text>
+    </EmailLayout>
   )
 }

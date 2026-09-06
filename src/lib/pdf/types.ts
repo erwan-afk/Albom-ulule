@@ -22,14 +22,14 @@ export interface TemplateZone {
 export interface TemplateLabel {
   enabled: boolean
   fontSize: number
-  /** Taille du numéro de commande (ligne secondaire) */
+  /** Taille de la ligne secondaire (email) */
   secondaryFontSize?: number
   text: string
   x?: number
   y: number
   marginRight?: number
   color: [number, number, number]
-  /** Couleur plus discrète pour le numéro de commande */
+  /** Couleur plus discrète pour l'email */
   secondaryColor?: [number, number, number]
   align: "left" | "center" | "right"
 }
@@ -58,6 +58,7 @@ export interface ProcessedImage {
 export interface GeneratePdfInput {
   images: (ProcessedImage | null)[]
   customerName: string
+  /** Ligne secondaire du label (email du client). */
   orderNumber: string
   sessionId?: string
   template: TemplateConfig

@@ -21,21 +21,6 @@ const ProductPhotoSettings = dynamic(
   }
 )
 
-const ProductTemplateAssociation = dynamic(
-  () =>
-    import("@/components/admin/ProductTemplateAssociation").then(
-      (m) => m.ProductTemplateAssociation
-    ),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center py-12">
-        <BiLoaderAlt className="animate-spin text-muted-foreground" size={24} />
-      </div>
-    ),
-  }
-)
-
 const TemplateManager = dynamic(
   () =>
     import("@/components/admin/TemplateManager").then((m) => m.TemplateManager),
@@ -49,13 +34,7 @@ const TemplateManager = dynamic(
   }
 )
 
-type OrderRow = {
-  id: string
-  productTitle: string
-}
-
 export function DashboardTemplates() {
-  const [orders, setOrders] = useState<OrderRow[]>([])
   const [templates, setTemplates] = useState<TemplateItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -64,51 +43,42 @@ export function DashboardTemplates() {
     try {
       const res = await fetch("/api/admin/orders", { cache: "no-store" })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const data = await res.json()
-      setOrders(data.orders || [])
+      const data = (await res.json()) as { templates?: TemplateItem[] }
       setTemplates(data.templates || [])
       setError(null)
-    } catch (e: any) {
-      setError(e?.message || "Erreur de chargement")
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Erreur de chargement")
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    fetchData()
+    void fetchData()
   }, [fetchData])
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <BiLoaderAlt className="animate-spin text-muted-foreground" size={24} />
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-6 text-center">
-        <p className="text-sm text-destructive">{error}</p>
-      </div>
-    )
-  }
 
   return (
     <>
-      {/* Config photos par produit */}
-      <ProductPhotoSettings />
+      <section id="produits" className="scroll-mt-8">
+        <ProductPhotoSettings />
+      </section>
 
-      {/* Association Produit → Template */}
-      <ProductTemplateAssociation
-        orders={orders}
-        templates={templates}
-        onRefresh={fetchData}
-      />
-
-      {/* Gestion des templates */}
-      <TemplateManager templates={templates} onRefresh={fetchData} />
+      <section id="templates-pdf" className="scroll-mt-8">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <BiLoaderAlt
+              className="animate-spin text-muted-foreground"
+              size={24}
+            />
+          </div>
+        ) : error ? (
+          <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-6 text-center">
+            <p className="text-sm text-destructive">{error}</p>
+          </div>
+        ) : (
+          <TemplateManager templates={templates} onRefresh={() => void fetchData()} />
+        )}
+      </section>
     </>
   )
 }

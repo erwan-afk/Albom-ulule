@@ -96,7 +96,7 @@ export async function POST(
         enabled: true,
         fontSize: 8,
         secondaryFontSize: 6,
-        text: "{customerName}\n{orderNumber}",
+        text: "{customerName}\n{customerEmail}",
         y: 15,
         color: [0.2, 0.2, 0.2],
         secondaryColor: [0.55, 0.55, 0.55],

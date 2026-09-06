@@ -1,67 +1,42 @@
+import { Text } from "@react-email/components"
+
 import {
-  Body,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "@react-email/components"
+  EmailLayout,
+  emailStyles,
+} from "@/components/emails/email-layout"
 
 interface UploadConfirmationEmailProps {
   customerName: string
-  uploadUrl: string
   productName: string
   fileCount: number
 }
 
 export function UploadConfirmationEmail({
   customerName,
-  uploadUrl,
   productName,
   fileCount,
 }: Readonly<UploadConfirmationEmailProps>): JSX.Element {
-  const previewText = `Vos ${fileCount} photo(s) pour ${productName} ont bien été reçues`
+  const greeting = customerName?.trim()
+    ? `Bonjour ${customerName},`
+    : "Bonjour,"
+  const photoLabel =
+    fileCount > 1 ? `${fileCount} photos` : `${fileCount} photo`
+
   return (
-    <Html lang="fr">
-      <Head>
-        <title>{previewText}</title>
-      </Head>
-      <Preview>{previewText}</Preview>
-      <Tailwind>
-        <Body>
-          <Container>
-            <Section>
-              <Text className="text-xl">Bonjour {customerName},</Text>
-              <Text className="text-base">
-                Nous avons bien reçu vos <strong>{fileCount} photo(s)</strong>{" "}
-                pour votre commande <strong>{productName}</strong>.
-              </Text>
-              <Text className="text-base">
-                Votre commande est maintenant en cours de traitement. Vous
-                recevrez une notification dès qu&apos;elle sera expédiée.
-              </Text>
-            </Section>
-
-            <Section>
-              <Text className="text-sm text-gray-500">
-                Si vous souhaitez modifier vos fichiers, vous pouvez toujours
-                retourner sur votre espace de dépôt :{" "}
-                <a href={uploadUrl} className="text-blue-600 underline">
-                  {uploadUrl}
-                </a>
-              </Text>
-            </Section>
-
-            <Section>
-              <Text className="text-base">
-                Merci de votre confiance et à bientôt !
-              </Text>
-            </Section>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+    <EmailLayout
+      preview={`Tes ${photoLabel} pour ${productName} sont bien arrivées`}
+      heading="C'est reçu !"
+      badge={productName}
+    >
+      <Text style={emailStyles.paragraph}>{greeting}</Text>
+      <Text style={emailStyles.paragraph}>
+        On a bien reçu tes <strong>{photoLabel}</strong> pour{" "}
+        <strong>{productName}</strong>. Charlotte s&apos;occupe de
+        l&apos;impression : tu n&apos;as plus rien à faire de ton côté.
+      </Text>
+      <Text style={emailStyles.paragraph}>
+        Tu recevras un message dès que le kit sera en route.
+      </Text>
+    </EmailLayout>
   )
 }

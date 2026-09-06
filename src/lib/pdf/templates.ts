@@ -53,7 +53,7 @@ const DEFAULT_TEMPLATE: TemplateConfig = {
   label: {
     enabled: true,
     fontSize: 8,
-    text: "{customerName} — {orderNumber}",
+    text: "{customerName} {customerEmail}",
     y: 15,
     color: [0.3, 0.3, 0.3],
     align: "center",

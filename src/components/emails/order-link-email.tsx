@@ -1,14 +1,12 @@
+import { Text } from "@react-email/components"
+
 import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "@react-email/components"
+  EmailButton,
+  EmailFallbackLink,
+  EmailInfoBox,
+  EmailLayout,
+  emailStyles,
+} from "@/components/emails/email-layout"
 
 interface OrderLinkEmailProps {
   customerName: string
@@ -23,44 +21,35 @@ export function OrderLinkEmail({
   productName,
   orderId,
 }: Readonly<OrderLinkEmailProps>): JSX.Element {
-  const previewText = `Déposez vos photos pour ${productName}`
-  return (
-    <Html lang="fr">
-      <Head>
-        <title>{previewText}</title>
-      </Head>
-      <Preview>{previewText}</Preview>
-      <Tailwind>
-        <Body>
-          <Container>
-            <Section>
-              <Text className="text-xl">Bonjour {customerName},</Text>
-              <Text className="text-base">
-                Merci pour votre commande de <strong>{productName}</strong> !
-              </Text>
-              <Text className="text-base">
-                Afin de personnaliser votre produit, merci de bien vouloir
-                déposer vos photos via le lien ci-dessous :
-              </Text>
-              <Button href={uploadUrl}>
-                Déposer mes photos
-              </Button>
-              <Text className="text-sm text-gray-500">
-                Référence commande : {orderId}
-              </Text>
-            </Section>
+  const greeting = customerName?.trim()
+    ? `Bonjour ${customerName},`
+    : "Bonjour,"
 
-            <Section>
-              <Text className="text-sm">
-                Formats acceptés : JPG, PNG, WebP, TIFF, PDF, HEIC.
-              </Text>
-              <Text className="text-sm">
-                Taille maximale par fichier : 10 Mo.
-              </Text>
-            </Section>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+  return (
+    <EmailLayout
+      preview={`Dépose tes photos pour ${productName}`}
+      heading="Tes souvenirs t'attendent"
+      badge={productName}
+    >
+      <Text style={emailStyles.paragraph}>{greeting}</Text>
+      <Text style={emailStyles.paragraph}>
+        Merci pour ta commande. Pour que Charlotte imprime tes photos en
+        autocollants, dépose-les ici. Ça prend deux minutes, et après tu
+        n&apos;as plus qu&apos;à attendre le kit.
+      </Text>
+      <EmailButton href={uploadUrl}>Déposer mes photos</EmailButton>
+      <EmailFallbackLink href={uploadUrl} />
+      <EmailInfoBox>
+        <Text style={{ ...emailStyles.muted, margin: "0 0 6px" }}>
+          Formats acceptés : JPG, PNG, WebP, TIFF, PDF, HEIC.
+        </Text>
+        <Text style={{ ...emailStyles.muted, margin: "0 0 6px" }}>
+          Taille max : 10 Mo par fichier.
+        </Text>
+        <Text style={{ ...emailStyles.muted, margin: 0 }}>
+          Référence commande : {orderId}
+        </Text>
+      </EmailInfoBox>
+    </EmailLayout>
   )
 }

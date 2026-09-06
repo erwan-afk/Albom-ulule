@@ -86,7 +86,7 @@ export async function Header(): Promise<JSX.Element> {
                         Account
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild disabled>
+                    <DropdownMenuItem asChild>
                       <Link href="/dashboard/settings">
                         <Icons.settings
                           className="mr-2 size-4"

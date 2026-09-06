@@ -119,3 +119,11 @@ model OrderFile {
 
   @@map("order_files")
 }
+
+model SiteSettings {
+  id        String   @id @default("default")
+  ululeUrl  String   @map("ulule_url")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}

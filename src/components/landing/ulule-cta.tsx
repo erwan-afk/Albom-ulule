@@ -1,10 +1,11 @@
-import * as React from "react"
+"use client"
 
-import { siteConfig } from "@/config/site"
+import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
 import { ArrowRight } from "./icons"
+import { useUluleUrl } from "./ulule-url-provider"
 
 type Variant = "primary" | "maya" | "ghost" | "ghost-light"
 
@@ -39,17 +40,19 @@ export function UluleCta({
   size = "md",
   className,
   showArrow = true,
-  href = siteConfig.ululeUrl,
+  href,
   external = true,
   ariaLabel,
 }: UluleCtaProps) {
+  const ululeUrl = useUluleUrl()
+  const resolvedHref = href ?? ululeUrl
   const sizes = {
     md: "px-5 py-2.5 text-[clamp(20px,2.2vw,28px)]",
     lg: "px-6 py-3 text-[clamp(22px,2.4vw,32px)]",
   }
   return (
     <a
-      href={href}
+      href={resolvedHref}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
       aria-label={ariaLabel}

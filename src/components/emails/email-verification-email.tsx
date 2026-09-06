@@ -1,17 +1,13 @@
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Html,
-  Preview,
-  Section,
-  Tailwind,
-  Text,
-} from "@react-email/components"
+import { Text } from "@react-email/components"
 
 import { env } from "@/env.mjs"
-import { siteConfig } from "@/config/site"
+
+import {
+  EmailButton,
+  EmailFallbackLink,
+  EmailLayout,
+  emailStyles,
+} from "@/components/emails/email-layout"
 
 interface EmailVerificationEmailProps {
   email: string
@@ -22,51 +18,23 @@ export function EmailVerificationEmail({
   email,
   emailVerificationToken,
 }: Readonly<EmailVerificationEmailProps>): JSX.Element {
-  const previewText = `${siteConfig.name} email verification.`
-  return (
-    <Html lang="en">
-      <Head>
-        <title>{previewText}</title>
-      </Head>
-      <Preview>{previewText}</Preview>
-      <Tailwind>
-        <Body>
-          <Container>
-            <Section>
-              <Text className="text-xl">Hi,</Text>
-              <Text className="text-base">
-                Your email address, {email}, was recently used to sign up at{" "}
-                <span className="font-semibold tracking-wide">
-                  {siteConfig.name}
-                </span>
-                .
-              </Text>
-              <Text className="text-base">
-                Please verify this address by clicking the button below
-              </Text>
-              <Button
-                href={`${env.NEXT_PUBLIC_APP_URL}/signup/verify-email?token=${emailVerificationToken}`}
-              >
-                Verify email now
-              </Button>
-            </Section>
+  const verifyUrl = `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/signup/verify-email?token=${emailVerificationToken}`
 
-            <Section>
-              <Text className="text-xs">
-                If you didn&apos;t sign up at {siteConfig.name}, just ignore and
-                delete this message.
-              </Text>
-              <Text className="text-base font-medium">
-                Enjoy{" "}
-                <span className="font-semibold tracking-wide">
-                  {siteConfig.name}
-                </span>{" "}
-                and have a nice day!
-              </Text>
-            </Section>
-          </Container>
-        </Body>
-      </Tailwind>
-    </Html>
+  return (
+    <EmailLayout
+      preview="Confirme ton adresse email pour Albom"
+      heading="Encore une petite étape"
+    >
+      <Text style={emailStyles.paragraph}>Bonjour,</Text>
+      <Text style={emailStyles.paragraph}>
+        L&apos;adresse <strong>{email}</strong> a été utilisée pour créer un
+        compte Albom. Confirme-la pour activer l&apos;accès.
+      </Text>
+      <EmailButton href={verifyUrl}>Confirmer mon email</EmailButton>
+      <EmailFallbackLink href={verifyUrl} />
+      <Text style={emailStyles.muted}>
+        Si tu n&apos;as pas créé de compte, ignore et supprime ce message.
+      </Text>
+    </EmailLayout>
   )
 }

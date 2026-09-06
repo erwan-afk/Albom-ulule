@@ -92,12 +92,13 @@ export function EditOrderDialog({ order }: EditOrderDialogProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label>Produit Shopify</Label>
+            <Label>Produit</Label>
             <ProductSelector
-              value={productName}
-              onChange={(value, product) => {
-                setProductName(value)
-                setProductHandle(product?.handle ?? "")
+              valueHandle={productHandle}
+              valueName={productName}
+              onChange={(name, handle) => {
+                setProductName(name)
+                setProductHandle(handle)
               }}
             />
           </div>

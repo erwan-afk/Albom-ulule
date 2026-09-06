@@ -1,7 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 
-import type { PhotoProductConfig } from "@/lib/shopify/productMetafields"
+import type { PhotoProductConfig } from "@/lib/upload/photoConfig"
 import { parseRatioLabel, ratioLabelFromFields } from "@/lib/upload/ratio"
 
 const CONFIG_PATH = path.join(process.cwd(), "data/product-photo-config.json")
@@ -13,6 +13,7 @@ export type StoredProductPhotoConfig = {
   photosRequired: number
   photoRatio: PhotoProductConfig["photoRatio"]
   ratioLabel: string
+  templateId?: string
   updatedAt: number
 }
 
@@ -30,7 +31,9 @@ function ensureConfigFile(): void {
 
 function readFile(): ConfigFile {
   ensureConfigFile()
-  return JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8")) as ConfigFile
+  const parsed = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8")) as ConfigFile
+  if (!Array.isArray(parsed.products)) return { products: [] }
+  return parsed
 }
 
 function writeFile(data: ConfigFile): void {
@@ -44,6 +47,14 @@ function normalizeHandle(handle: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
+}
+
+function uniqueHandle(name: string, taken: string[]): string {
+  const base = normalizeHandle(name) || "produit"
+  if (!taken.includes(base)) return base
+  let i = 2
+  while (taken.includes(`${base}-${i}`)) i += 1
+  return `${base}-${i}`
 }
 
 export function storedToPhotoProductConfig(
@@ -60,16 +71,16 @@ export function listProductPhotoConfigs(): StoredProductPhotoConfig[] {
   return readFile().products.sort((a, b) => a.name.localeCompare(b.name, "fr"))
 }
 
-export function getProductPhotoConfig(
+export function getStoredProduct(
   productHandle?: string | null,
   productName?: string | null
-): PhotoProductConfig | null {
+): StoredProductPhotoConfig | null {
   const products = readFile().products
   const handle = productHandle?.trim().toLowerCase()
 
   if (handle) {
     const byHandle = products.find((p) => p.handle === handle)
-    if (byHandle) return storedToPhotoProductConfig(byHandle)
+    if (byHandle) return byHandle
   }
 
   if (productName) {
@@ -77,10 +88,41 @@ export function getProductPhotoConfig(
     const byName = products.find(
       (p) => p.name.trim().toLowerCase() === nameLower
     )
-    if (byName) return storedToPhotoProductConfig(byName)
+    if (byName) return byName
   }
 
   return null
+}
+
+export function getProductPhotoConfig(
+  productHandle?: string | null,
+  productName?: string | null
+): PhotoProductConfig | null {
+  const stored = getStoredProduct(productHandle, productName)
+  return stored ? storedToPhotoProductConfig(stored) : null
+}
+
+export function createProductPhotoConfig(
+  name: string
+): StoredProductPhotoConfig {
+  const trimmed = name.trim()
+  if (!trimmed) throw new Error("Nom produit requis")
+
+  const data = readFile()
+  const nameLower = trimmed.toLowerCase()
+  if (data.products.some((p) => p.name.trim().toLowerCase() === nameLower)) {
+    throw new Error("Un produit avec ce nom existe déjà")
+  }
+
+  return upsertProductPhotoConfig({
+    handle: uniqueHandle(
+      trimmed,
+      data.products.map((p) => p.handle)
+    ),
+    name: trimmed,
+    photosRequired: 1,
+    ratioFree: true,
+  })
 }
 
 export function upsertProductPhotoConfig(input: {
@@ -91,6 +133,7 @@ export function upsertProductPhotoConfig(input: {
   ratioWidth?: string | number
   ratioHeight?: string | number
   ratioFree?: boolean
+  templateId?: string | null
 }): StoredProductPhotoConfig {
   const handle = normalizeHandle(input.handle)
   if (!handle) throw new Error("Handle produit invalide")
@@ -113,6 +156,19 @@ export function upsertProductPhotoConfig(input: {
   }
 
   const ratio = parseRatioLabel(ratioLabel)
+  const data = readFile()
+  const existing = data.products.find((p) => p.handle === handle)
+
+  const nameLower = name.toLowerCase()
+  const clash = data.products.find(
+    (p) => p.handle !== handle && p.name.trim().toLowerCase() === nameLower
+  )
+  if (clash) throw new Error("Un produit avec ce nom existe déjà")
+
+  const templateId =
+    input.templateId === undefined
+      ? existing?.templateId
+      : (input.templateId ?? "").trim() || undefined
 
   const entry: StoredProductPhotoConfig = {
     handle,
@@ -120,10 +176,10 @@ export function upsertProductPhotoConfig(input: {
     photosRequired,
     photoRatio: ratio.photoRatio,
     ratioLabel: ratio.ratioLabel,
+    ...(templateId ? { templateId } : {}),
     updatedAt: Date.now(),
   }
 
-  const data = readFile()
   const idx = data.products.findIndex((p) => p.handle === handle)
   if (idx >= 0) data.products[idx] = entry
   else data.products.push(entry)

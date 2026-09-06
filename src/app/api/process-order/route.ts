@@ -20,6 +20,7 @@ interface ProcessOrderBody {
   customerName: string
   productTitle: string
   productGid?: string
+  customerEmail?: string
 }
 
 export async function POST(req: NextRequest) {
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
     customerName,
     productTitle,
     productGid,
+    customerEmail,
   } = body
 
   if (!sessionId || !orderGid || !orderName) {
@@ -57,6 +59,7 @@ export async function POST(req: NextRequest) {
     customerName: customerName || "Client",
     productTitle: productTitle || "",
     productGid,
+    customerEmail,
   })
 
   if (!result.ok) {

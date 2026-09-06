@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation"
 import { getOrderByToken } from "@/actions/order"
 
-import { getProduct } from "@/lib/shopify"
 import { resolveUploadPhotoConfig } from "@/lib/upload/photoConfig"
 
 import { UploadFlow } from "@/components/upload/UploadFlow"
@@ -11,8 +10,14 @@ type Props = {
   searchParams: { token?: string }
 }
 
-export async function generateMetadata({ params }: Props) {
-  return { title: `Vos photos — ${params.productHandle}` }
+export function generateMetadata({ params }: Props) {
+  return {
+    title: `Vos photos — ${params.productHandle}`,
+    robots: {
+      index: false,
+      follow: false,
+    },
+  }
 }
 
 export default async function UploadPage({ params, searchParams }: Props) {
@@ -21,22 +26,18 @@ export default async function UploadPage({ params, searchParams }: Props) {
 
   if (!token) return notFound()
 
-  // Vérifier la commande
   const order = await getOrderByToken(token)
   if (!order) return notFound()
 
-  // Récupérer le produit Shopify (metafields inclus dans la réponse)
-  const product = await getProduct(productHandle)
-  const metafields = product?.metafields as Record<string, string> | undefined
-  const config = resolveUploadPhotoConfig(
-    { productName: order.productName, productHandle },
-    metafields
-  )
+  const config = resolveUploadPhotoConfig({
+    productName: order.productName,
+    productHandle: order.productHandle ?? productHandle,
+  })
 
   return (
     <UploadFlow
-      productTitle={product?.title ?? order.productName ?? "Votre commande"}
-      productHandle={productHandle}
+      productTitle={order.productName ?? "Votre commande"}
+      productHandle={order.productHandle ?? productHandle}
       token={token}
       config={config}
     />

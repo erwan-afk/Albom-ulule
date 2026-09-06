@@ -11,6 +11,7 @@
 import { generatePdf, getCellDimensions, ptToPx } from "@/lib/pdf/pdfGenerator"
 import { processImageBufferForPrint } from "@/lib/pdf/processImageForPrint"
 import { findTemplateForProduct, getTemplate } from "@/lib/pdf/templateManager"
+import { getStoredProduct } from "@/lib/products/photoConfigStore"
 import type { ProcessedImage } from "@/lib/pdf/types"
 import { PRINT_RESOLUTION_DPI } from "@/lib/images/constants"
 import { getOrder, upsertOrder } from "@/lib/photo-session/ordersLog"
@@ -38,6 +39,7 @@ export interface ProcessOrderParams {
   customerName: string
   productTitle: string
   productGid?: string
+  customerEmail?: string
 }
 
 export interface ProcessOrderResult {
@@ -82,6 +84,7 @@ export async function processOrder(
     customerName,
     productTitle,
     productGid,
+    customerEmail,
   } = params
 
   const baseEntry = {
@@ -152,6 +155,12 @@ export async function processOrder(
     const order = getOrder(sessionId)
     let template = order?.templateId ? getTemplate(order.templateId) : null
     if (!template) {
+      const stored = getStoredProduct(orderName, productTitle)
+      if (stored?.templateId) {
+        template = getTemplate(stored.templateId)
+      }
+    }
+    if (!template) {
       template = findTemplateForProduct(productTitle, productGid)
     }
     if (!template) {
@@ -184,7 +193,7 @@ export async function processOrder(
     const pdfBytes = await generatePdf({
       images,
       customerName: customerName || "Client",
-      orderNumber: orderName,
+      orderNumber: customerEmail?.trim() || "",
       sessionId: sessionToken,
       template,
     })
@@ -271,7 +280,8 @@ export async function processOrderFromDb(
   productTitle: string,
   filePaths: string[],
   orderGid?: string,
-  productGid?: string
+  productGid?: string,
+  customerEmail?: string
 ): Promise<ProcessOrderResult> {
   const sessionId = `db-${token}`
 
@@ -296,5 +306,6 @@ export async function processOrderFromDb(
     customerName,
     productTitle,
     productGid,
+    customerEmail,
   })
 }

@@ -9,10 +9,17 @@ import {
   sendUploadConfirmationEmail,
 } from "@/actions/email"
 
+import { env } from "@/env.mjs"
 import { prisma } from "@/config/db"
 import { deletePendingSession } from "@/lib/photo-session/pendingSessions"
 import { removeLiveOrder } from "@/lib/photo-session/ordersLog"
 import { deleteSessionStorage } from "@/lib/r2/upload"
+
+function buildUploadUrl(productHandle: string | null, token: string): string {
+  const base = env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")
+  const handle = productHandle || "product"
+  return `${base}/upload/${handle}?token=${token}`
+}
 
 export type CreateOrderInput = {
   customerEmail: string
@@ -40,10 +47,14 @@ export async function createOrder(input: CreateOrderInput) {
     },
   })
 
+  const emailResult = await sendOrderLink(order.id)
+
   revalidatePath("/dashboard")
 
   return {
     success: true,
+    emailSent: emailResult.success,
+    error: emailResult.success ? undefined : emailResult.error,
     order: {
       id: order.id,
       token: order.token,
@@ -62,8 +73,7 @@ export async function sendOrderLink(orderId: string) {
     return { success: false, error: "Commande introuvable." }
   }
 
-  const handle = order.productHandle ?? "product"
-  const uploadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/upload/${handle}?token=${order.token}`
+  const uploadUrl = buildUploadUrl(order.productHandle, order.token)
 
   const emailResult = await sendOrderLinkEmail({
     to: order.customerEmail,
@@ -74,7 +84,10 @@ export async function sendOrderLink(orderId: string) {
   })
 
   if (!emailResult.success) {
-    return { success: false, error: "Echec de l'envoi de l'e-mail." }
+    return {
+      success: false,
+      error: emailResult.error || "Échec de l'envoi de l'e-mail.",
+    }
   }
 
   await prisma.order.update({
@@ -101,6 +114,7 @@ export async function getOrderByToken(token: string) {
     customerEmail: order.customerEmail,
     customerName: order.customerName,
     productName: order.productName,
+    productHandle: order.productHandle,
     status: order.status,
     notes: order.notes,
     files: order.files,
@@ -127,6 +141,14 @@ export async function confirmUpload(token: string) {
     return { success: false, error: "Commande introuvable." }
   }
 
+  if (
+    order.status === "PHOTOS_UPLOADED" ||
+    order.status === "PRINTED" ||
+    order.status === "CANCELLED"
+  ) {
+    return { success: true }
+  }
+
   if (order.files.length === 0) {
     return { success: false, error: "Aucune photo telechargee." }
   }
@@ -136,14 +158,10 @@ export async function confirmUpload(token: string) {
     data: { status: "PHOTOS_UPLOADED" },
   })
 
-  const handle = order.productHandle ?? "product"
-  const uploadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/upload/${handle}?token=${token}`
-
   // Send confirmation email (non-blocking)
   sendUploadConfirmationEmail({
     to: order.customerEmail,
     customerName: order.customerName || "Client",
-    uploadUrl,
     productName: order.productName || "votre commande",
     fileCount: order.files.length,
   }).catch((err) => {
@@ -168,7 +186,8 @@ export async function confirmUpload(token: string) {
     order.productName || "",
     filePaths,
     undefined,
-    undefined
+    undefined,
+    order.customerEmail
   )
 
   if (!result.ok) {
@@ -262,8 +281,7 @@ export async function sendReminderEmail(orderId: string) {
     return { success: false, error: "Commande introuvable." }
   }
 
-  const handle = order.productHandle ?? "product"
-  const uploadUrl = `${process.env.NEXT_PUBLIC_APP_URL}/upload/${handle}?token=${order.token}`
+  const uploadUrl = buildUploadUrl(order.productHandle, order.token)
 
   const emailResult = await sendOrderReminderEmail({
     to: order.customerEmail,
@@ -274,7 +292,10 @@ export async function sendReminderEmail(orderId: string) {
   })
 
   if (!emailResult.success) {
-    return { success: false, error: "Echec de l'envoi de l'email de relance." }
+    return {
+      success: false,
+      error: emailResult.error || "Échec de l'envoi de l'email de relance.",
+    }
   }
 
   revalidatePath("/dashboard")
@@ -311,7 +332,8 @@ export async function regeneratePdf(orderId: string) {
     order.productName || "",
     filePaths,
     undefined,
-    undefined
+    undefined,
+    order.customerEmail
   )
 
   if (!result.ok) {

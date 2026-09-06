@@ -1,24 +1,24 @@
 "use client"
 
 import * as React from "react"
-import { useLenis } from "@studio-freight/react-lenis"
 
-import { LogoAlbom } from "@/components/landing/logo"
-import { UluleIcon } from "@/components/landing/icons"
-import { siteConfig } from "@/config/site"
 import { cn } from "@/lib/utils"
+
+import { UluleIcon } from "@/components/landing/icons"
+import { LogoAlbom } from "@/components/landing/logo"
+
+import { UluleLink } from "./ulule-link"
 
 const headerButtonClass =
   "inline-flex min-h-[46px] items-center justify-center gap-2 rounded-full border border-transparent bg-brun px-5 py-2.5 font-display text-[clamp(20px,2.2vw,28px)] font-bold leading-none tracking-[-0.04em] text-blanc-casse transition-all duration-200 hover:bg-brun-deep hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brun/40 focus-visible:ring-offset-2 focus-visible:ring-offset-blanc-casse"
 
 const bannerBodyClass = "font-normal text-brun"
 const bannerLinkClass =
-  "font-bold text-brun underline decoration-2 underline-offset-2 transition-opacity hover:opacity-70"
+  "font-medium text-brun underline decoration-2 underline-offset-2 transition-opacity hover:opacity-70"
 
 const navLinks = [
   { href: "#contenu", label: "Contenu" },
   { href: "#concept", label: "Concept" },
-  { href: "#avantages", label: "Avantages" },
   { href: "#a-propos", label: "À propos" },
 ] as const
 
@@ -27,7 +27,6 @@ const NAV_SCROLL_OFFSET = -80
 
 export function TopChrome() {
   const [isBannerOpen, setIsBannerOpen] = React.useState(true)
-  const lenis = useLenis()
 
   function handleNavClick(
     event: React.MouseEvent<HTMLAnchorElement>,
@@ -37,14 +36,9 @@ export function TopChrome() {
     const target = document.querySelector(href)
     if (!target) return
 
-    if (lenis) {
-      lenis.scrollTo(target, { offset: NAV_SCROLL_OFFSET })
-    } else {
-      const top =
-        target.getBoundingClientRect().top + window.scrollY + NAV_SCROLL_OFFSET
-      window.scrollTo({ top, behavior: "smooth" })
-    }
-
+    const top =
+      target.getBoundingClientRect().top + window.scrollY + NAV_SCROLL_OFFSET
+    window.scrollTo({ top, behavior: "smooth" })
     window.history.replaceState(null, "", href)
   }
 
@@ -55,27 +49,15 @@ export function TopChrome() {
           <div className="mx-auto flex min-h-14 w-full max-w-[1512px] items-center justify-center px-4 py-2.5 sm:px-8">
             <div className="inline-flex max-w-full items-start gap-1 sm:items-center">
               <p className="text-center text-sm font-normal leading-snug sm:text-base">
-                <a
-                  href={siteConfig.ululeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={bannerLinkClass}
-                >
+                <UluleLink className={bannerLinkClass}>
                   Soutiens Albom
-                </a>
+                </UluleLink>
                 <span className={bannerBodyClass}>
                   {" "}
                   dans le lancement de sa campagne Ulule, édition bord de mer,
                   et gagne pleeein de{" "}
                 </span>
-                <a
-                  href={siteConfig.ululeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={bannerLinkClass}
-                >
-                  contreparties
-                </a>
+                <UluleLink className={bannerLinkClass}>contreparties</UluleLink>
                 <span className={bannerBodyClass}>.</span>
               </p>
               <button
@@ -122,15 +104,10 @@ export function TopChrome() {
                 </a>
               ))}
             </nav>
-            <a
-              href={siteConfig.ululeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(headerButtonClass, "shrink-0")}
-            >
-              <UluleIcon size={24} className="shrink-0" />
+            <UluleLink className={cn(headerButtonClass, "shrink-0")}>
               Soutenir sur Ulule
-            </a>
+              <UluleIcon size={24} className="shrink-0" />
+            </UluleLink>
           </div>
         </div>
       </header>

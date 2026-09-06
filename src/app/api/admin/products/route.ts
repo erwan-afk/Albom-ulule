@@ -2,7 +2,9 @@ import { NextResponse } from "next/server"
 import { getOrders } from "@/actions/order"
 
 import auth from "@/lib/auth"
+import { listTemplates } from "@/lib/pdf/templateManager"
 import {
+  createProductPhotoConfig,
   deleteProductPhotoConfig,
   listProductPhotoConfigs,
   normalizeHandle,
@@ -23,9 +25,10 @@ export async function GET() {
   }
 
   try {
-    const [configs, orders] = await Promise.all([
+    const [configs, orders, templates] = await Promise.all([
       listProductPhotoConfigs(),
       getOrders(),
+      Promise.resolve(listTemplates()),
     ])
 
     const catalogMap = new Map<
@@ -50,6 +53,12 @@ export async function GET() {
       catalog: [...catalogMap.values()].sort((a, b) =>
         a.name.localeCompare(b.name, "fr")
       ),
+      templates: templates.map((t) => ({
+        id: t.id,
+        name: t.name,
+        zonesCount: t.zonesCount,
+        productKeywords: t.productKeywords,
+      })),
     })
   } catch (e) {
     return NextResponse.json(
@@ -65,7 +74,23 @@ export async function POST(req: Request) {
   }
 
   try {
-    const body = await req.json()
+    const body = (await req.json()) as {
+      create?: boolean
+      handle?: string
+      name?: string
+      photosRequired?: number
+      ratioLabel?: string
+      ratioWidth?: string | number
+      ratioHeight?: string | number
+      ratioFree?: boolean
+      templateId?: string | null
+    }
+
+    if (body.create) {
+      const entry = createProductPhotoConfig(String(body.name ?? ""))
+      return NextResponse.json({ success: true, config: entry })
+    }
+
     const entry = upsertProductPhotoConfig({
       handle: String(body.handle ?? ""),
       name: String(body.name ?? ""),
@@ -74,6 +99,8 @@ export async function POST(req: Request) {
       ratioWidth: body.ratioWidth,
       ratioHeight: body.ratioHeight,
       ratioFree: Boolean(body.ratioFree),
+      templateId:
+        body.templateId === undefined ? undefined : String(body.templateId ?? ""),
     })
     return NextResponse.json({ success: true, config: entry })
   } catch (e) {

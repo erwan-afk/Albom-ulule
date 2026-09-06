@@ -6,7 +6,7 @@ import { getUserByEmail } from "@/actions/user"
 
 import { env } from "@/env.mjs"
 import { prisma } from "@/config/db"
-import { resend } from "@/config/email"
+import { resend, resendFrom } from "@/config/email"
 import {
   checkIfEmailVerifiedSchema,
   contactFormSchema,
@@ -23,6 +23,53 @@ import { NewEnquiryEmail } from "@/components/emails/new-enquiry-email"
 import { OrderLinkEmail } from "@/components/emails/order-link-email"
 import { OrderReminderEmail } from "@/components/emails/order-reminder-email"
 import { UploadConfirmationEmail } from "@/components/emails/upload-confirmation-email"
+
+type SendEmailResult = { success: true } | { success: false; error: string }
+
+function formatResendError(message: string): string {
+  const lower = message.toLowerCase()
+  if (
+    lower.includes("testing emails") ||
+    lower.includes("only send testing") ||
+    lower.includes("verify a domain")
+  ) {
+    return "Resend est en mode test (expéditeur @resend.dev) : les emails ne partent que vers l'adresse du compte Resend. Pour écrire aux clients, vérifie le domaine albom.fr dans Resend et mets-le dans RESEND_EMAIL_FROM."
+  }
+  return message
+}
+
+async function sendTransactionalEmail(options: {
+  to: string | string[]
+  subject: string
+  react: JSX.Element
+}): Promise<SendEmailResult> {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: resendFrom(),
+      to: Array.isArray(options.to) ? options.to : [options.to],
+      subject: options.subject,
+      react: options.react,
+    })
+
+    if (error) {
+      console.error("[email] Resend error:", error)
+      return { success: false, error: formatResendError(error.message) }
+    }
+
+    if (!data?.id) {
+      return {
+        success: false,
+        error: "Resend n'a pas confirmé l'envoi de l'email.",
+      }
+    }
+
+    return { success: true }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error("[email] send exception:", message)
+    return { success: false, error: formatResendError(message) }
+  }
+}
 
 export async function resendEmailVerificationLink(
   rawInput: EmailVerificationFormInput
@@ -45,17 +92,16 @@ export async function resendEmailVerificationLink(
       },
     })
 
-    const emailSent = await resend.emails.send({
-      from: env.RESEND_EMAIL_FROM,
-      to: [validatedInput.data.email],
-      subject: "Verify your email address",
+    const emailSent = await sendTransactionalEmail({
+      to: validatedInput.data.email,
+      subject: "Confirme ton adresse email",
       react: EmailVerificationEmail({
         email: validatedInput.data.email,
         emailVerificationToken,
       }),
     })
 
-    return userUpdated && emailSent ? "success" : "error"
+    return userUpdated && emailSent.success ? "success" : "error"
   } catch (error) {
     console.error(error)
     throw new Error("Error resending email verification link")
@@ -108,10 +154,9 @@ export async function submitContactForm(
     const validatedInput = contactFormSchema.safeParse(rawInput)
     if (!validatedInput.success) return "error"
 
-    const emailSent = await resend.emails.send({
-      from: env.RESEND_EMAIL_FROM,
+    const emailSent = await sendTransactionalEmail({
       to: env.RESEND_EMAIL_TO,
-      subject: "Exciting news! New enquiry awaits",
+      subject: `Nouveau message de ${validatedInput.data.name}`,
       react: NewEnquiryEmail({
         name: validatedInput.data.name,
         email: validatedInput.data.email,
@@ -119,7 +164,7 @@ export async function submitContactForm(
       }),
     })
 
-    return emailSent ? "success" : "error"
+    return emailSent.success ? "success" : "error"
   } catch (error) {
     console.error(error)
     throw new Error("Error submitting contact form")
@@ -136,25 +181,17 @@ type SendOrderLinkEmailInput = {
 
 export async function sendOrderLinkEmail(
   input: SendOrderLinkEmailInput
-): Promise<{ success: boolean }> {
-  try {
-    const emailSent = await resend.emails.send({
-      from: env.RESEND_EMAIL_FROM,
-      to: [input.to],
-      subject: `Déposez vos photos pour ${input.productName}`,
-      react: OrderLinkEmail({
-        customerName: input.customerName,
-        uploadUrl: input.uploadUrl,
-        productName: input.productName,
-        orderId: input.orderId,
-      }),
-    })
-
-    return { success: !!emailSent }
-  } catch (error) {
-    console.error(error)
-    return { success: false }
-  }
+): Promise<SendEmailResult> {
+  return sendTransactionalEmail({
+    to: input.to,
+    subject: `Dépose tes photos pour ${input.productName}`,
+    react: OrderLinkEmail({
+      customerName: input.customerName,
+      uploadUrl: input.uploadUrl,
+      productName: input.productName,
+      orderId: input.orderId,
+    }),
+  })
 }
 
 type SendOrderReminderEmailInput = {
@@ -167,54 +204,36 @@ type SendOrderReminderEmailInput = {
 
 export async function sendOrderReminderEmail(
   input: SendOrderReminderEmailInput
-): Promise<{ success: boolean }> {
-  try {
-    const emailSent = await resend.emails.send({
-      from: env.RESEND_EMAIL_FROM,
-      to: [input.to],
-      subject: `Rappel : deposez vos photos pour ${input.productName}`,
-      react: OrderReminderEmail({
-        customerName: input.customerName,
-        uploadUrl: input.uploadUrl,
-        productName: input.productName,
-        orderId: input.orderId,
-      }),
-    })
-
-    return { success: !!emailSent }
-  } catch (error) {
-    console.error(error)
-    return { success: false }
-  }
+): Promise<SendEmailResult> {
+  return sendTransactionalEmail({
+    to: input.to,
+    subject: `Rappel : dépose tes photos pour ${input.productName}`,
+    react: OrderReminderEmail({
+      customerName: input.customerName,
+      uploadUrl: input.uploadUrl,
+      productName: input.productName,
+      orderId: input.orderId,
+    }),
+  })
 }
 
 type SendUploadConfirmationEmailInput = {
   to: string
   customerName: string
-  uploadUrl: string
   productName: string
   fileCount: number
 }
 
 export async function sendUploadConfirmationEmail(
   input: SendUploadConfirmationEmailInput
-): Promise<{ success: boolean }> {
-  try {
-    const emailSent = await resend.emails.send({
-      from: env.RESEND_EMAIL_FROM,
-      to: [input.to],
-      subject: `Confirmation : vos photos pour ${input.productName} ont bien été reçues`,
-      react: UploadConfirmationEmail({
-        customerName: input.customerName,
-        uploadUrl: input.uploadUrl,
-        productName: input.productName,
-        fileCount: input.fileCount,
-      }),
-    })
-
-    return { success: !!emailSent }
-  } catch (error) {
-    console.error(error)
-    return { success: false }
-  }
+): Promise<SendEmailResult> {
+  return sendTransactionalEmail({
+    to: input.to,
+    subject: `C'est reçu : tes photos pour ${input.productName}`,
+    react: UploadConfirmationEmail({
+      customerName: input.customerName,
+      productName: input.productName,
+      fileCount: input.fileCount,
+    }),
+  })
 }
