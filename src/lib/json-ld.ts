@@ -10,7 +10,7 @@ export function organizationJsonLd() {
     "@id": orgId,
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/logo.svg`,
+    logo: `${siteConfig.url}${siteConfig.ogImage}`,
     email: "contact@albom.fr",
     sameAs: [
       siteConfig.links.instagram,
