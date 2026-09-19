@@ -147,7 +147,7 @@ export function OrderStatusSelect({ order }: OrderStatusSelectProps) {
         >
           <SelectTrigger
             className={cn(
-              "h-8 w-[9.5rem] font-semibold text-xs shadow-none",
+              "h-8 w-[10.5rem] font-semibold text-xs shadow-none",
               adminWorkflowColors[workflow]
             )}
           >
@@ -172,7 +172,7 @@ export function OrderStatusSelect({ order }: OrderStatusSelectProps) {
             href={order.trackingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block max-w-[9.5rem] truncate text-[11px] text-primary underline"
+            className="block max-w-[10.5rem] truncate text-[11px] text-primary underline"
           >
             Lien suivi
           </a>

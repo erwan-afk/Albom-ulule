@@ -42,29 +42,35 @@ export async function GET() {
         orderName: o.productHandle || o.id,
         productTitle: o.productName || "—",
         status:
-          o.status === "PRINTED"
+          o.status === "PRINTED" ||
+          o.status === "PHOTOS_UPLOADED" ||
+          o.status === "PACKED" ||
+          o.status === "SHIPPED"
             ? "completed"
-            : o.status === "PHOTOS_UPLOADED"
-              ? "completed"
-              : o.status === "PENDING"
-                ? "pending"
-                : "processing",
+            : o.status === "PENDING"
+              ? "pending"
+              : "processing",
         progress:
-          o.status === "PRINTED"
+          o.status === "PRINTED" ||
+          o.status === "PHOTOS_UPLOADED" ||
+          o.status === "PACKED" ||
+          o.status === "SHIPPED"
             ? 100
-            : o.status === "PHOTOS_UPLOADED"
-              ? 100
-              : o.status === "LINK_SENT"
-                ? 20
-                : 0,
+            : o.status === "LINK_SENT"
+              ? 20
+              : 0,
         progressStep:
-          o.status === "PRINTED"
-            ? "PDF genere"
-            : o.status === "PHOTOS_UPLOADED"
-              ? "Photos recues"
-              : o.status === "LINK_SENT"
-                ? "Lien envoye"
-                : "En attente",
+          o.status === "SHIPPED"
+            ? "Expediee"
+            : o.status === "PACKED"
+              ? "Emballe"
+              : o.status === "PRINTED"
+                ? "PDF genere"
+                : o.status === "PHOTOS_UPLOADED"
+                  ? "Photos recues"
+                  : o.status === "LINK_SENT"
+                    ? "Lien envoye"
+                    : "En attente",
         pdfUrl: null,
         photoCount: o.files?.length ?? 0,
         createdAt: new Date(o.createdAt).getTime(),

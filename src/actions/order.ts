@@ -149,6 +149,7 @@ export async function confirmUpload(token: string) {
   if (
     order.status === "PHOTOS_UPLOADED" ||
     order.status === "PRINTED" ||
+    order.status === "PACKED" ||
     order.status === "SHIPPED" ||
     order.status === "CANCELLED"
   ) {

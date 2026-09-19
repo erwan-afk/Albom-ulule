@@ -60,7 +60,7 @@ async function persistToDb(entry: OrderLogEntry): Promise<void> {
         where: { token },
         select: { status: true },
       })
-      if (existing?.status === "SHIPPED") {
+      if (existing?.status === "SHIPPED" || existing?.status === "PACKED") {
         return
       }
 

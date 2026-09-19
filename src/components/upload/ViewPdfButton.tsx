@@ -16,6 +16,7 @@ export function ViewPdfButton({ status, sessionToken }: ViewPdfButtonProps) {
   const hasPdf =
     status === "PRINTED" ||
     status === "PHOTOS_UPLOADED" ||
+    status === "PACKED" ||
     status === "SHIPPED"
 
   if (!hasPdf) return null
