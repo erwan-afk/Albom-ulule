@@ -56,6 +56,14 @@ async function persistToDb(entry: OrderLogEntry): Promise<void> {
   if (entry.sessionId.startsWith("db-")) {
     const token = entry.sessionId.slice(3)
     try {
+      const existing = await prisma.order.findUnique({
+        where: { token },
+        select: { status: true },
+      })
+      if (existing?.status === "SHIPPED") {
+        return
+      }
+
       await prisma.order.update({
         where: { token },
         data: { status: newStatus, notes },

@@ -1,44 +1,21 @@
 import type { Order, OrderFile } from "@prisma/client"
 
-import { Badge } from "@/components/ui/badge"
 import {
   AdminMobileCard,
   AdminMobileField,
   AdminTableDesktop,
   AdminTableMobile,
 } from "@/components/admin/admin-table-layout"
-import { DeleteOrderButton } from "@/components/upload/DeleteOrderButton"
-import { EditOrderDialog } from "@/components/upload/EditOrderDialog"
+import { OrderActionsMenu } from "@/components/upload/OrderActionsMenu"
 import { OrderSessionInfo } from "@/components/upload/OrderSessionInfo"
-import { RegeneratePdfButton } from "@/components/upload/RegeneratePdfButton"
-import { ReminderEmailButton } from "@/components/upload/ReminderEmailButton"
-import { ResendOrderButton } from "@/components/upload/ResendOrderButton"
+import { OrderStatusSelect } from "@/components/upload/OrderStatusSelect"
 import { ViewPdfButton } from "@/components/upload/ViewPdfButton"
 
 type OrderWithFiles = Order & { files: OrderFile[] }
 
-const statusLabels: Record<string, string> = {
-  PENDING: "En attente",
-  LINK_SENT: "Lien envoyé",
-  PHOTOS_UPLOADED: "Photos reçues",
-  PRINTED: "Imprimé",
-  CANCELLED: "Annulé",
-}
-
-const statusColors: Record<
-  string,
-  "default" | "secondary" | "destructive" | "outline"
-> = {
-  PENDING: "secondary",
-  LINK_SENT: "default",
-  PHOTOS_UPLOADED: "default",
-  PRINTED: "default",
-  CANCELLED: "destructive",
-}
-
 function OrderActions({ order }: { order: OrderWithFiles }) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center justify-end gap-2">
       <a
         href={`/upload/${order.productHandle ?? "product"}?token=${order.token}`}
         className="text-xs text-primary underline hover:no-underline"
@@ -47,18 +24,8 @@ function OrderActions({ order }: { order: OrderWithFiles }) {
       >
         Lien dépôt
       </a>
-      <ResendOrderButton orderId={order.id} />
-      <ReminderEmailButton orderId={order.id} />
-      <RegeneratePdfButton
-        orderId={order.id}
-        fileCount={order.files.length}
-      />
       <ViewPdfButton status={order.status} sessionToken={order.token} />
-      <EditOrderDialog order={order} />
-      <DeleteOrderButton
-        orderId={order.id}
-        customerName={order.customerName}
-      />
+      <OrderActionsMenu order={order} />
     </div>
   )
 }
@@ -75,7 +42,7 @@ export function OrdersTable({ orders }: { orders: OrderWithFiles[] }) {
               <th className="pb-3 font-semibold">Statut</th>
               <th className="pb-3 font-semibold">Fichiers</th>
               <th className="pb-3 font-semibold">Date</th>
-              <th className="pb-3 font-semibold">Actions</th>
+              <th className="pb-3 text-right font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -92,9 +59,7 @@ export function OrdersTable({ orders }: { orders: OrderWithFiles[] }) {
                 </td>
                 <td className="py-3">{order.productName || "—"}</td>
                 <td className="py-3">
-                  <Badge variant={statusColors[order.status] || "secondary"}>
-                    {statusLabels[order.status] || order.status}
-                  </Badge>
+                  <OrderStatusSelect order={order} />
                 </td>
                 <td className="py-3">
                   {order.files.length > 0
@@ -104,7 +69,7 @@ export function OrdersTable({ orders }: { orders: OrderWithFiles[] }) {
                 <td className="py-3 text-xs text-muted-foreground">
                   {new Date(order.createdAt).toLocaleDateString("fr-FR")}
                 </td>
-                <td className="py-3">
+                <td className="py-3 text-right">
                   <OrderActions order={order} />
                 </td>
               </tr>
@@ -123,12 +88,7 @@ export function OrdersTable({ orders }: { orders: OrderWithFiles[] }) {
                   {order.customerEmail}
                 </p>
               </div>
-              <Badge
-                variant={statusColors[order.status] || "secondary"}
-                className="shrink-0"
-              >
-                {statusLabels[order.status] || order.status}
-              </Badge>
+              <OrderStatusSelect order={order} />
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -149,7 +109,9 @@ export function OrdersTable({ orders }: { orders: OrderWithFiles[] }) {
             </div>
 
             <AdminMobileField label="Actions">
-              <OrderActions order={order} />
+              <div className="flex justify-end">
+                <OrderActions order={order} />
+              </div>
             </AdminMobileField>
           </AdminMobileCard>
         ))}

@@ -49,7 +49,10 @@ export function TopChrome() {
           <div className="mx-auto flex min-h-14 w-full max-w-[1512px] items-center justify-center px-4 py-2.5 sm:px-8">
             <div className="inline-flex max-w-full items-start gap-1 sm:items-center">
               <p className="text-center text-sm font-normal leading-snug sm:text-base">
-                <UluleLink className={bannerLinkClass}>
+                <UluleLink
+                  className={bannerLinkClass}
+                  trackingLocation="bandeau-teasing"
+                >
                   Soutiens Albom
                 </UluleLink>
                 <span className={bannerBodyClass}>
@@ -57,7 +60,12 @@ export function TopChrome() {
                   dans le lancement de sa campagne Ulule, édition bord de mer,
                   et gagne pleeein de{" "}
                 </span>
-                <UluleLink className={bannerLinkClass}>contreparties</UluleLink>
+                <UluleLink
+                  className={bannerLinkClass}
+                  trackingLocation="bandeau-teasing"
+                >
+                  contreparties
+                </UluleLink>
                 <span className={bannerBodyClass}>.</span>
               </p>
               <button
@@ -104,7 +112,10 @@ export function TopChrome() {
                 </a>
               ))}
             </nav>
-            <UluleLink className={cn(headerButtonClass, "shrink-0")}>
+            <UluleLink
+              className={cn(headerButtonClass, "shrink-0")}
+              trackingLocation="header"
+            >
               Soutenir sur Ulule
               <UluleIcon size={24} className="shrink-0" />
             </UluleLink>

@@ -53,7 +53,11 @@ export function MobileMenu() {
           ))}
         </nav>
         <div className="mt-8">
-          <UluleCta size="lg" className="w-full justify-center">
+          <UluleCta
+            size="lg"
+            className="w-full justify-center"
+            trackingLocation="menu-mobile"
+          >
             Soutenir sur Ulule
           </UluleCta>
         </div>

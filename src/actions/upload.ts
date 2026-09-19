@@ -15,6 +15,7 @@ import {
 const LOCKED_STATUSES: OrderStatus[] = [
   "PHOTOS_UPLOADED",
   "PRINTED",
+  "SHIPPED",
   "CANCELLED",
 ]
 

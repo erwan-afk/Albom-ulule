@@ -5,37 +5,29 @@ import {
   emailStyles,
 } from "@/components/emails/email-layout"
 
+const PRODUCT_NAME = "Albom Bord de mer"
+
 interface UploadConfirmationEmailProps {
   customerName: string
-  productName: string
-  fileCount: number
 }
 
 export function UploadConfirmationEmail({
   customerName,
-  productName,
-  fileCount,
 }: Readonly<UploadConfirmationEmailProps>): JSX.Element {
   const greeting = customerName?.trim()
     ? `Bonjour ${customerName},`
     : "Bonjour,"
-  const photoLabel =
-    fileCount > 1 ? `${fileCount} photos` : `${fileCount} photo`
 
   return (
     <EmailLayout
-      preview={`Tes ${photoLabel} pour ${productName} sont bien arrivées`}
+      preview="Tes photos pour préparer ton Albom sont bien arrivées"
       heading="C'est reçu !"
-      badge={productName}
+      badge={PRODUCT_NAME}
     >
       <Text style={emailStyles.paragraph}>{greeting}</Text>
       <Text style={emailStyles.paragraph}>
-        On a bien reçu tes <strong>{photoLabel}</strong> pour{" "}
-        <strong>{productName}</strong>. Charlotte s&apos;occupe de
-        l&apos;impression : tu n&apos;as plus rien à faire de ton côté.
-      </Text>
-      <Text style={emailStyles.paragraph}>
-        Tu recevras un message dès que le kit sera en route.
+        J&apos;ai bien reçu tes photos pour préparer ton Albom. Je m&apos;occupe
+        de préparer ton kit créatif que tu recevras mi-novembre.
       </Text>
     </EmailLayout>
   )

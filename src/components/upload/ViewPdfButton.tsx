@@ -13,7 +13,10 @@ type ViewPdfButtonProps = {
  * L'URL est dérivée du token de session (pas des notes DB, qui peuvent être écrasées).
  */
 export function ViewPdfButton({ status, sessionToken }: ViewPdfButtonProps) {
-  const hasPdf = status === "PRINTED" || status === "PHOTOS_UPLOADED"
+  const hasPdf =
+    status === "PRINTED" ||
+    status === "PHOTOS_UPLOADED" ||
+    status === "SHIPPED"
 
   if (!hasPdf) return null
 

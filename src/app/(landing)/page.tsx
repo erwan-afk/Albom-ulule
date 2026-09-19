@@ -62,13 +62,18 @@ function UluleButton({
   children,
   className,
   icon,
+  trackingLocation,
 }: {
   children: React.ReactNode
   className?: string
   icon?: React.ReactNode
+  trackingLocation: string
 }) {
   return (
-    <UluleLink className={cn(buttonClass, className)}>
+    <UluleLink
+      className={cn(buttonClass, className)}
+      trackingLocation={trackingLocation}
+    >
       {children}
       {icon}
     </UluleLink>
@@ -112,7 +117,11 @@ function Hero() {
               <strong className="font-semibold">Albom te propose un kit créatif</strong> qui contient un carnet à compléter, tes plus belles photos,
               des stickers et des feutres. L&apos;objet parfait à conserver précieusement ou à offrir à tes proches.
             </p>
-            <UluleButton className="mt-10" icon={<WhatIsAlbom size={24} className="shrink-0" />}>
+            <UluleButton
+              className="mt-10"
+              trackingLocation="hero"
+              icon={<WhatIsAlbom size={24} className="shrink-0" />}
+            >
               C&apos;est quoi un Albom ?
             </UluleButton>
           </div>
@@ -163,7 +172,10 @@ function PackSection() {
         <PackDiagram />
 
         <div className="mt-12 text-center">
-          <UluleButton icon={<PackDetails size={24} className="shrink-0" />}>
+          <UluleButton
+            trackingLocation="pack"
+            icon={<PackDetails size={24} className="shrink-0" />}
+          >
             Voir le pack en détails
           </UluleButton>
         </div>
@@ -284,7 +296,10 @@ function Steps() {
           ))}
         </div>
         <div className="mt-12 text-center">
-          <UluleButton icon={<CraftSparkles size={24} className="shrink-0" />}>
+          <UluleButton
+            trackingLocation="etapes"
+            icon={<CraftSparkles size={24} className="shrink-0" />}
+          >
             Personnaliser mon premier Albom
           </UluleButton>
         </div>
@@ -324,7 +339,10 @@ function SocialProof() {
           ))}
         </div>
         <div className="mt-12 text-center">
-          <UluleButton icon={<OrderAlbom size={24} className="shrink-0" />}>
+          <UluleButton
+            trackingLocation="preuve-sociale"
+            icon={<OrderAlbom size={24} className="shrink-0" />}
+          >
             Je commande mon Albom
           </UluleButton>
         </div>
@@ -360,6 +378,7 @@ function Founder() {
           </p>
           <UluleButton
             className="mt-8 w-fit"
+            trackingLocation="histoire-charlotte"
             icon={<SupportCampaign size={24} className="shrink-0" />}
           >
             Soutenir la campagne

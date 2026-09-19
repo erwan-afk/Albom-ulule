@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { updateOrder, type UpdateOrderInput } from "@/actions/order"
+import type { Order, OrderFile } from "@prisma/client"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -16,21 +17,40 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ProductSelector } from "@/components/upload/ProductSelector"
-import type { Order, OrderFile } from "@prisma/client"
 
 type OrderWithFiles = Order & { files: OrderFile[] }
 
 type EditOrderDialogProps = {
   order: OrderWithFiles
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  hideTrigger?: boolean
 }
 
-export function EditOrderDialog({ order }: EditOrderDialogProps) {
-  const [open, setOpen] = useState(false)
+export function EditOrderDialog({
+  order,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
+  hideTrigger = false,
+}: EditOrderDialogProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [customerEmail, setCustomerEmail] = useState(order.customerEmail)
   const [customerName, setCustomerName] = useState(order.customerName || "")
   const [productName, setProductName] = useState(order.productName || "")
   const [productHandle, setProductHandle] = useState(order.productHandle || "")
+
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : uncontrolledOpen
+  const setOpen = controlledOnOpenChange ?? setUncontrolledOpen
+
+  useEffect(() => {
+    if (!open) return
+    setCustomerEmail(order.customerEmail)
+    setCustomerName(order.customerName || "")
+    setProductName(order.productName || "")
+    setProductHandle(order.productHandle || "")
+  }, [open, order])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -57,11 +77,13 @@ export function EditOrderDialog({ order }: EditOrderDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          Modifier
-        </Button>
-      </DialogTrigger>
+      {!hideTrigger ? (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            Modifier
+          </Button>
+        </DialogTrigger>
+      ) : null}
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Modifier la commande</DialogTitle>
@@ -70,7 +92,12 @@ export function EditOrderDialog({ order }: EditOrderDialogProps) {
             inchangé.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
+        <form
+          onSubmit={(e) => {
+            void handleSubmit(e)
+          }}
+          className="space-y-4 py-4"
+        >
           <div className="space-y-2">
             <Label htmlFor="edit-customerEmail">Email du client *</Label>
             <Input
@@ -103,7 +130,11 @@ export function EditOrderDialog({ order }: EditOrderDialogProps) {
             />
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Annuler
             </Button>
             <Button type="submit" disabled={saving}>

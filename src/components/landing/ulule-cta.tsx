@@ -2,6 +2,7 @@
 
 import * as React from "react"
 
+import { track } from "@/lib/analytics"
 import { cn } from "@/lib/utils"
 
 import { ArrowRight } from "./icons"
@@ -32,6 +33,8 @@ type UluleCtaProps = {
   href?: string
   external?: boolean
   ariaLabel?: string
+  /** Emplacement du CTA dans la page, pour savoir lequel convertit. */
+  trackingLocation?: string
 }
 
 export function UluleCta({
@@ -43,6 +46,7 @@ export function UluleCta({
   href,
   external = true,
   ariaLabel,
+  trackingLocation,
 }: UluleCtaProps) {
   const ululeUrl = useUluleUrl()
   const resolvedHref = href ?? ululeUrl
@@ -56,6 +60,13 @@ export function UluleCta({
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
       aria-label={ariaLabel}
+      onClick={() => {
+        // `href` surchargé = ancre interne ou autre destination : pas un CTA Ulule.
+        if (href !== undefined) return
+        track("ulule_cta_clicked", {
+          location: trackingLocation ?? "non-precise",
+        })
+      }}
       className={cn(
         "group inline-flex items-center gap-2.5 rounded-full font-display font-bold leading-none tracking-[-0.04em] transition-all duration-200 ease-out",
         "hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-blanc-casse",

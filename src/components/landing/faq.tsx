@@ -8,6 +8,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { track } from "@/lib/analytics"
 
 export interface FaqItem {
   q: string
@@ -15,11 +16,20 @@ export interface FaqItem {
 }
 
 export function Faq({ items }: { items: FaqItem[] }) {
+  /** Valeur vide = accordéon refermé, ce n'est pas une ouverture. */
+  function handleValueChange(value: string): void {
+    if (!value) return
+    const index = Number(value.replace("item-", ""))
+    const item = items[index]
+    if (item) track("faq_opened", { question: item.q })
+  }
+
   return (
     <Accordion
       type="single"
       collapsible
       defaultValue="item-0"
+      onValueChange={handleValueChange}
       className="flex flex-col"
     >
       {items.map((it, i) => (

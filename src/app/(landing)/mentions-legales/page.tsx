@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function MentionsLegalesPage(): JSX.Element {
   return (
     <LegalShell title="Mentions légales">
-      <p>Dernière mise à jour : 6 septembre 2026.</p>
+      <p>Dernière mise à jour : 19 septembre 2026.</p>
 
       <h2>Éditeur du site</h2>
       <p>
@@ -58,9 +58,19 @@ export default function MentionsLegalesPage(): JSX.Element {
         collecte pas tes informations bancaires.
       </p>
 
+      <h2>Mesure d&apos;audience</h2>
+      <p>
+        Le site mesure sa fréquentation avec PostHog, dont les serveurs sont
+        situés dans l&apos;Union européenne. Tant que tu n&apos;as pas accepté les
+        cookies, cette mesure se fait sans cookie et sans te suivre d&apos;un site
+        à l&apos;autre. Aucune donnée n&apos;est revendue et il n&apos;y a pas de
+        publicité ciblée.
+      </p>
+
       <h2>Données personnelles</h2>
       <p>
-        Le traitement de tes données est expliqué dans la{" "}
+        Le traitement de tes données, les durées de conservation et la gestion de
+        ton consentement sont expliqués dans la{" "}
         <Link href="/confidentialite">politique de confidentialité</Link>.
       </p>
 

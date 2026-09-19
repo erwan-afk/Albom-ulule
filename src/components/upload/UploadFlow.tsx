@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { confirmUpload } from "@/actions/order"
 import { deleteUploadedFile, uploadFile } from "@/actions/upload"
 import {
-  CheckCircledIcon,
   CrossCircledIcon,
   ExclamationTriangleIcon,
   TrashIcon,
@@ -19,6 +18,7 @@ import {
 } from "@/lib/images/createPreviewThumbnail"
 import { cn } from "@/lib/utils"
 
+import { LogoAlbom } from "@/components/landing/logo"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -381,17 +381,21 @@ export function UploadFlow({
     <div className="flex min-h-[100dvh] flex-col">
       {showUploadChrome ? (
         <div className="sticky top-0 z-20 shrink-0 bg-background">
-          <header className="flex items-center justify-between gap-4 border-b px-4 py-3 sm:px-6">
-            <div className="min-w-0">
-              <h1 className="truncate text-lg font-semibold">
+          <header className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 border-b px-4 py-3 sm:gap-4 sm:px-6">
+            <div className="justify-self-start">
+              <LogoAlbom className="text-brun" height={44} />
+            </div>
+
+            <div className="min-w-0 max-w-[min(100vw-12rem,28rem)] text-center">
+              <h1 className="truncate text-base font-semibold sm:text-lg">
                 Choisis tes meilleurs souvenirs photo
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="truncate text-sm text-muted-foreground">
                 Sélectionne {photosLabel} pour ton Albom
               </p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="justify-self-end">
               <Button
                 size="sm"
                 onClick={() => setConfirmDialogOpen(true)}
@@ -428,6 +432,12 @@ export function UploadFlow({
         </div>
       ) : null}
 
+      {(isEmptyState || confirmed) && (
+        <div className="flex shrink-0 justify-center px-4 pt-6 sm:pt-8">
+          <LogoAlbom className="text-brun" height={48} />
+        </div>
+      )}
+
       <div
         className={cn(
           "p-4 sm:p-6",
@@ -437,16 +447,15 @@ export function UploadFlow({
       >
           {confirmed ? (
             <div className="mx-auto flex w-full max-w-lg flex-col items-center gap-6 text-center">
-              <CheckCircledIcon className="size-12 text-brun" />
               <div className="space-y-3">
                 <h1 className="text-center text-[clamp(32px,4vw,56px)] font-bold leading-[0.9] tracking-[-0.06em] text-brun">
                   Merci !
                 </h1>
                 <p className="text-base leading-relaxed text-muted-foreground">
-                  Tes photos sont bien arrivées. Merci d&apos;avoir commandé ton
-                  Albom et d&apos;avoir pris le temps de déposer tes souvenirs —
-                  on s&apos;occupe de la suite. Tu vas recevoir un e-mail de
-                  confirmation.
+                  Tes photos sont bien arrivées. Encore merci pour le soutien et
+                  l&apos;intérêt que tu portes à Albom. Tes souvenirs sont entre
+                  de bonnes mains : je prépare maintenant ton kit créatif ! Tu
+                  vas recevoir un e-mail de confirmation.
                 </p>
               </div>
               <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
@@ -588,7 +597,9 @@ export function UploadFlow({
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Confirmer ta sélection ?</DialogTitle>
+            <DialogTitle className="text-2xl font-semibold leading-tight tracking-tight">
+              Confirmer ta sélection ?
+            </DialogTitle>
             <DialogDescription asChild>
               <div className="space-y-3 pt-1 text-base text-foreground">
                 <p>
@@ -598,20 +609,28 @@ export function UploadFlow({
                   </strong>{" "}
                   pour ton Albom. Cette action est définitive.
                 </p>
-                {uncroppedSelectedCount > 0 ? (
+                {photos.length > photosRequired && (
                   <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm leading-relaxed text-amber-950">
+                    <strong>Attention :</strong> tu as importé{" "}
+                    {photos.length} photos, mais tu n&apos;en envoies que{" "}
+                    {photosRequired}. As-tu bien vérifié ta sélection avant de
+                    confirmer ?
+                  </p>
+                )}
+                {uncroppedSelectedCount > 0 ? (
+                  <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm leading-relaxed text-red-950">
                     <strong>Attention :</strong> {uncroppedSelectedCount} photo
                     {uncroppedSelectedCount > 1 ? "s n'ont" : " n'a"} pas été
                     recadrée{uncroppedSelectedCount > 1 ? "s" : ""}. Des zones
-                    vides pourraient apparaître à l&apos;impression — pense à
+                    vides pourraient apparaître à l&apos;impression, pense à
                     les recadrer avant de confirmer.
                   </p>
-                ) : (
+                ) : photos.length <= photosRequired ? (
                   <p className="text-sm text-muted-foreground">
                     Toutes tes photos sont prêtes. Tu peux confirmer
                     l&apos;envoi.
                   </p>
-                )}
+                ) : null}
               </div>
             </DialogDescription>
           </DialogHeader>

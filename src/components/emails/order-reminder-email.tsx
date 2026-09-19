@@ -8,17 +8,17 @@ import {
   emailStyles,
 } from "@/components/emails/email-layout"
 
+const PRODUCT_NAME = "Albom Bord de mer"
+
 interface OrderReminderEmailProps {
   customerName: string
   uploadUrl: string
-  productName: string
   orderId: string
 }
 
 export function OrderReminderEmail({
   customerName,
   uploadUrl,
-  productName,
   orderId,
 }: Readonly<OrderReminderEmailProps>): JSX.Element {
   const greeting = customerName?.trim()
@@ -27,17 +27,16 @@ export function OrderReminderEmail({
 
   return (
     <EmailLayout
-      preview={`Petit rappel : tes photos pour ${productName}`}
+      preview={`Petit rappel : tes photos pour ${PRODUCT_NAME}`}
       heading="Tes photos n'ont pas encore été déposées"
-      badge={productName}
+      badge={PRODUCT_NAME}
     >
       <Text style={emailStyles.paragraph}>{greeting}</Text>
       <Text style={emailStyles.paragraph}>
-        On n&apos;a pas encore reçu tes photos pour <strong>{productName}</strong>.
-        Sans elles, Charlotte ne peut pas imprimer ta planche ni envoyer le kit.
-      </Text>
-      <Text style={emailStyles.paragraph}>
-        Deux minutes, tes meilleurs clichés, et c&apos;est parti.
+        J&apos;ai pas encore reçu tes photos pour l&apos;Albom Bord de mer.
+        Sans elles, je ne peux pas imprimer tes photos et t&apos;envoyer ton
+        kit créatif. Si tu as le moindre souci n&apos;hésite pas à
+        m&apos;écrire.
       </Text>
       <EmailButton href={uploadUrl}>Déposer mes photos</EmailButton>
       <EmailFallbackLink href={uploadUrl} />

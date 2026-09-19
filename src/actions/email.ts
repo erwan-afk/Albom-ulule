@@ -6,7 +6,7 @@ import { getUserByEmail } from "@/actions/user"
 
 import { env } from "@/env.mjs"
 import { prisma } from "@/config/db"
-import { resend, resendFrom } from "@/config/email"
+import { EMAIL_PRODUCT_NAME, resend, resendFrom } from "@/config/email"
 import {
   checkIfEmailVerifiedSchema,
   contactFormSchema,
@@ -22,6 +22,7 @@ import { EmailVerificationEmail } from "@/components/emails/email-verification-e
 import { NewEnquiryEmail } from "@/components/emails/new-enquiry-email"
 import { OrderLinkEmail } from "@/components/emails/order-link-email"
 import { OrderReminderEmail } from "@/components/emails/order-reminder-email"
+import { OrderShippedEmail } from "@/components/emails/order-shipped-email"
 import { UploadConfirmationEmail } from "@/components/emails/upload-confirmation-email"
 
 type SendEmailResult = { success: true } | { success: false; error: string }
@@ -175,7 +176,6 @@ type SendOrderLinkEmailInput = {
   to: string
   customerName: string
   uploadUrl: string
-  productName: string
   orderId: string
 }
 
@@ -184,11 +184,10 @@ export async function sendOrderLinkEmail(
 ): Promise<SendEmailResult> {
   return sendTransactionalEmail({
     to: input.to,
-    subject: `Dépose tes photos pour ${input.productName}`,
+    subject: `Dépose tes photos pour ${EMAIL_PRODUCT_NAME}`,
     react: OrderLinkEmail({
       customerName: input.customerName,
       uploadUrl: input.uploadUrl,
-      productName: input.productName,
       orderId: input.orderId,
     }),
   })
@@ -198,7 +197,6 @@ type SendOrderReminderEmailInput = {
   to: string
   customerName: string
   uploadUrl: string
-  productName: string
   orderId: string
 }
 
@@ -207,11 +205,10 @@ export async function sendOrderReminderEmail(
 ): Promise<SendEmailResult> {
   return sendTransactionalEmail({
     to: input.to,
-    subject: `Rappel : dépose tes photos pour ${input.productName}`,
+    subject: `Rappel : dépose tes photos pour ${EMAIL_PRODUCT_NAME}`,
     react: OrderReminderEmail({
       customerName: input.customerName,
       uploadUrl: input.uploadUrl,
-      productName: input.productName,
       orderId: input.orderId,
     }),
   })
@@ -220,8 +217,6 @@ export async function sendOrderReminderEmail(
 type SendUploadConfirmationEmailInput = {
   to: string
   customerName: string
-  productName: string
-  fileCount: number
 }
 
 export async function sendUploadConfirmationEmail(
@@ -229,11 +224,28 @@ export async function sendUploadConfirmationEmail(
 ): Promise<SendEmailResult> {
   return sendTransactionalEmail({
     to: input.to,
-    subject: `C'est reçu : tes photos pour ${input.productName}`,
+    subject: `C'est reçu : tes photos pour ${EMAIL_PRODUCT_NAME}`,
     react: UploadConfirmationEmail({
       customerName: input.customerName,
-      productName: input.productName,
-      fileCount: input.fileCount,
+    }),
+  })
+}
+
+type SendOrderShippedEmailInput = {
+  to: string
+  customerName: string
+  trackingUrl: string
+}
+
+export async function sendOrderShippedEmail(
+  input: SendOrderShippedEmailInput
+): Promise<SendEmailResult> {
+  return sendTransactionalEmail({
+    to: input.to,
+    subject: `Ton kit ${EMAIL_PRODUCT_NAME} est en route`,
+    react: OrderShippedEmail({
+      customerName: input.customerName,
+      trackingUrl: input.trackingUrl,
     }),
   })
 }

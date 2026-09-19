@@ -88,6 +88,7 @@ enum OrderStatus {
   LINK_SENT
   PHOTOS_UPLOADED
   PRINTED
+  SHIPPED
   CANCELLED
 }
 
@@ -99,6 +100,7 @@ model Order {
   productHandle                 String?     @map("product_handle")
   token                         String      @unique
   status                        OrderStatus @default(PENDING)
+  trackingUrl                   String?     @map("tracking_url")
   notes                         String?
   createdAt                     DateTime    @default(now()) @map("created_at")
   updatedAt                     DateTime    @updatedAt @map("updated_at")

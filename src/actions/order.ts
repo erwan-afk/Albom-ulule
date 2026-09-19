@@ -6,8 +6,14 @@ import { revalidatePath } from "next/cache"
 import {
   sendOrderLinkEmail,
   sendOrderReminderEmail,
+  sendOrderShippedEmail,
   sendUploadConfirmationEmail,
 } from "@/actions/email"
+
+import {
+  type AdminOrderWorkflowStatus,
+  workflowToDbStatus,
+} from "@/lib/order-status"
 
 import { env } from "@/env.mjs"
 import { prisma } from "@/config/db"
@@ -79,7 +85,6 @@ export async function sendOrderLink(orderId: string) {
     to: order.customerEmail,
     customerName: order.customerName || "Client",
     uploadUrl,
-    productName: order.productName || "votre commande",
     orderId: order.id,
   })
 
@@ -144,6 +149,7 @@ export async function confirmUpload(token: string) {
   if (
     order.status === "PHOTOS_UPLOADED" ||
     order.status === "PRINTED" ||
+    order.status === "SHIPPED" ||
     order.status === "CANCELLED"
   ) {
     return { success: true }
@@ -162,8 +168,6 @@ export async function confirmUpload(token: string) {
   sendUploadConfirmationEmail({
     to: order.customerEmail,
     customerName: order.customerName || "Client",
-    productName: order.productName || "votre commande",
-    fileCount: order.files.length,
   }).catch((err) => {
     console.error(`[confirmUpload] Email failed: ${(err as Error).message}`)
   })
@@ -287,7 +291,6 @@ export async function sendReminderEmail(orderId: string) {
     to: order.customerEmail,
     customerName: order.customerName || "Client",
     uploadUrl,
-    productName: order.productName || "votre commande",
     orderId: order.id,
   })
 
@@ -300,6 +303,80 @@ export async function sendReminderEmail(orderId: string) {
 
   revalidatePath("/dashboard")
 
+  return { success: true }
+}
+
+function normalizeTrackingUrl(raw: string): string | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  try {
+    const withProtocol =
+      trimmed.startsWith("http://") || trimmed.startsWith("https://")
+        ? trimmed
+        : `https://${trimmed}`
+    const url = new URL(withProtocol)
+    if (url.protocol !== "http:" && url.protocol !== "https:") return null
+    return url.toString()
+  } catch {
+    return null
+  }
+}
+
+export async function updateOrderWorkflowStatus(
+  orderId: string,
+  workflow: AdminOrderWorkflowStatus,
+  trackingUrl?: string
+) {
+  const order = await prisma.order.findUnique({ where: { id: orderId } })
+  if (!order) {
+    return { success: false, error: "Commande introuvable." }
+  }
+
+  if (workflow === "SHIPPED") {
+    const normalized = normalizeTrackingUrl(trackingUrl ?? "")
+    if (!normalized) {
+      return {
+        success: false,
+        error: "Indique un lien de suivi valide (URL complète).",
+      }
+    }
+
+    const emailResult = await sendOrderShippedEmail({
+      to: order.customerEmail,
+      customerName: order.customerName || "Client",
+      trackingUrl: normalized,
+    })
+
+    if (!emailResult.success) {
+      return {
+        success: false,
+        error: emailResult.error || "Échec de l'envoi de l'e-mail.",
+      }
+    }
+
+    await prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: "SHIPPED",
+        trackingUrl: normalized,
+      },
+    })
+
+    revalidatePath("/dashboard")
+    return { success: true }
+  }
+
+  const nextStatus = workflowToDbStatus(workflow, order.status)
+
+  await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      status: nextStatus,
+      trackingUrl: null,
+    },
+  })
+
+  revalidatePath("/dashboard")
   return { success: true }
 }
 

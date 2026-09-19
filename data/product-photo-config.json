@@ -2,12 +2,12 @@
   "products": [
     {
       "handle": "uyfyggh",
-      "name": "Album photo de famille",
+      "name": "Albom Bord de mer",
       "photosRequired": 21,
       "photoRatio": "portrait",
       "ratioLabel": "69.25:100",
       "templateId": "PDF",
-      "updatedAt": 1788691450232
+      "updatedAt": 1789803401693
     }
   ]
 }

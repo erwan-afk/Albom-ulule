@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { ConsentControls } from "@/components/analytics/consent-controls"
 import { LegalShell } from "@/components/landing/legal-shell"
 import { siteConfig } from "@/config/site"
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 export default function ConfidentialitePage(): JSX.Element {
   return (
     <LegalShell title="Politique de confidentialité">
-      <p>Dernière mise à jour : 6 septembre 2026.</p>
+      <p>Dernière mise à jour : 19 septembre 2026.</p>
       <p>
         Albom collecte très peu de données, et seulement ce qui sert à faire
         tourner le site, répondre à tes messages, et préparer ton kit. Le
@@ -30,9 +31,34 @@ export default function ConfidentialitePage(): JSX.Element {
         assurer la sécurité.
       </p>
       <p>
-        On utilise aussi Vercel Analytics pour comprendre le trafic, de façon
-        agrégée, sans cookies publicitaires et sans te suivre d&apos;un site à
-        l&apos;autre.
+        Pour mesurer l&apos;audience, on utilise un seul outil :{" "}
+        <strong>PostHog</strong>, hébergé dans l&apos;Union européenne. Il nous
+        dit quelles pages tu regardes, jusqu&apos;où tu descends dans la page et
+        sur quels boutons tu cliques. Il ne sert pas à te faire de la pub.
+      </p>
+      <p>
+        Tant que tu n&apos;as pas accepté les cookies, PostHog fonctionne sans
+        cookie : rien n&apos;est stocké dans ton navigateur, et ton identifiant
+        de visite est un code temporaire recalculé par leurs serveurs. On mesure
+        des tendances, pas des personnes.
+      </p>
+      <p>
+        Si tu acceptes, PostHog dépose un cookie pour reconnaître ton navigateur
+        d&apos;une visite à l&apos;autre, et peut enregistrer le déroulé de ta
+        navigation (les pages, les clics) pour qu&apos;on comprenne ce qui
+        coince. Ce qui se passe sur la page d&apos;envoi de tes photos n&apos;est
+        jamais enregistré, et ce que tu tapes dans un champ est masqué.
+      </p>
+      <p>
+        PostHog a sa propre{" "}
+        <a
+          href="https://posthog.com/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          politique de confidentialité
+        </a>
+        .
       </p>
 
       <h2>Quand tu nous écris</h2>
@@ -71,13 +97,20 @@ export default function ConfidentialitePage(): JSX.Element {
           nos obligations comptables.
         </li>
         <li>Photos : le temps de fabriquer ton kit, puis suppression.</li>
-        <li>Stats de visite : données agrégées, sans t&apos;identifier.</li>
+        <li>
+          Stats de visite : douze mois au plus, et sans jamais servir à
+          t&apos;identifier.
+        </li>
       </ul>
 
       <h2>Avec qui on les partage</h2>
       <p>Uniquement les prestataires nécessaires pour faire le boulot :</p>
       <ul>
-        <li>Vercel, pour héberger le site</li>
+        <li>notre hébergeur, pour faire tourner le site</li>
+        <li>
+          PostHog (serveurs dans l&apos;Union européenne), pour la mesure
+          d&apos;audience
+        </li>
         <li>Ulule, pour la campagne et les paiements</li>
         <li>l&apos;outil d&apos;envoi d&apos;e-mails, pour t&apos;écrire</li>
         <li>le stockage des fichiers, le temps d&apos;imprimer tes photos</li>
@@ -101,9 +134,16 @@ export default function ConfidentialitePage(): JSX.Element {
 
       <h2>Cookies</h2>
       <p>
-        Le site public n&apos;utilise pas de cookies publicitaires. Pas de bandeau à
-        cliquer pour visiter la page.
+        Pas de cookie publicitaire, jamais. Pas de revente, pas de reciblage.
       </p>
+      <p>
+        À ton premier passage, un petit bandeau te propose un choix. Si tu
+        refuses, on continue de mesurer l&apos;audience sans cookie et le site
+        marche exactement pareil. Si tu acceptes, PostHog dépose un cookie de
+        mesure, conservé douze mois.
+      </p>
+      <p>Tu peux changer d&apos;avis quand tu veux, ici même :</p>
+      <ConsentControls />
       <p>
         Si tu accèdes à l&apos;espace privé (lien d&apos;envoi de photos), un cookie de
         session peut être déposé pour t&apos;identifier le temps de ta visite.

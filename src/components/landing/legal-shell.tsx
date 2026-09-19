@@ -32,7 +32,10 @@ export function LegalShell({
           >
             <LogoAlbom height={36} />
           </Link>
-          <UluleLink className={cn(headerButtonClass, "shrink-0")}>
+          <UluleLink
+            className={cn(headerButtonClass, "shrink-0")}
+            trackingLocation="header-pages-legales"
+          >
             Soutenir sur Ulule
             <UluleIcon size={24} className="shrink-0" />
           </UluleLink>

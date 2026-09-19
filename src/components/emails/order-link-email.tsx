@@ -8,17 +8,17 @@ import {
   emailStyles,
 } from "@/components/emails/email-layout"
 
+const PRODUCT_NAME = "Albom Bord de mer"
+
 interface OrderLinkEmailProps {
   customerName: string
   uploadUrl: string
-  productName: string
   orderId: string
 }
 
 export function OrderLinkEmail({
   customerName,
   uploadUrl,
-  productName,
   orderId,
 }: Readonly<OrderLinkEmailProps>): JSX.Element {
   const greeting = customerName?.trim()
@@ -27,15 +27,16 @@ export function OrderLinkEmail({
 
   return (
     <EmailLayout
-      preview={`Dépose tes photos pour ${productName}`}
+      preview={`Dépose tes photos pour ${PRODUCT_NAME}`}
       heading="Tes souvenirs t'attendent"
-      badge={productName}
+      badge={PRODUCT_NAME}
     >
       <Text style={emailStyles.paragraph}>{greeting}</Text>
       <Text style={emailStyles.paragraph}>
-        Merci pour ta commande. Pour que Charlotte imprime tes photos en
-        autocollants, dépose-les ici. Ça prend deux minutes, et après tu
-        n&apos;as plus qu&apos;à attendre le kit.
+        Un grand merci pour ta commande ! Pour que je puisse préparer les
+        photos de ton kit créatif, tu dois les déposer dans cet espace
+        sécurisé. Après, tu n&apos;auras plus qu&apos;à attendre la
+        réception de ton Albom !
       </Text>
       <EmailButton href={uploadUrl}>Déposer mes photos</EmailButton>
       <EmailFallbackLink href={uploadUrl} />

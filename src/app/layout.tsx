@@ -2,7 +2,6 @@ import "@/styles/globals.css"
 
 import * as React from "react"
 import type { Metadata, Viewport } from "next"
-import { Analytics } from "@vercel/analytics/react"
 
 import { env } from "@/env.mjs"
 import { fontAlbertSans, fontDisplay } from "@/config/fonts"
@@ -10,6 +9,7 @@ import { siteConfig } from "@/config/site"
 
 import { cn } from "@/lib/utils"
 
+import { PostHogProvider } from "@/components/analytics/posthog-provider"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 
 export const viewport: Viewport = {
@@ -76,7 +76,7 @@ export default function RootLayout({ children }: RootLayoutProps): JSX.Element {
         )}
       >
         {children}
-        <Analytics />
+        <PostHogProvider />
         <TailwindIndicator />
       </body>
     </html>

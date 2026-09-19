@@ -15,11 +15,13 @@ import {
 } from "@/components/ui/alert-dialog"
 
 type ConfirmDeleteDialogProps = {
-  trigger: ReactNode
+  trigger?: ReactNode
   title: string
   description: ReactNode
   confirmLabel?: string
   onConfirm: () => void | Promise<void>
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 export function ConfirmDeleteDialog({
@@ -28,9 +30,15 @@ export function ConfirmDeleteDialog({
   description,
   confirmLabel = "Supprimer",
   onConfirm,
+  open: controlledOpen,
+  onOpenChange: controlledOnOpenChange,
 }: ConfirmDeleteDialogProps) {
-  const [open, setOpen] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+
+  const isControlled = controlledOpen !== undefined
+  const open = isControlled ? controlledOpen : uncontrolledOpen
+  const setOpen = controlledOnOpenChange ?? setUncontrolledOpen
 
   async function handleConfirm() {
     setLoading(true)
@@ -44,7 +52,9 @@ export function ConfirmDeleteDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+      {trigger ? (
+        <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
+      ) : null}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
